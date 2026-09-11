@@ -27,6 +27,7 @@ export const AccompanimentLeadForm = () => {
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const formElement = event.currentTarget;
     setLoading(true);
     setError('');
     try {
