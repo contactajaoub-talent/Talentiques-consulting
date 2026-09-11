@@ -5,15 +5,73 @@
 :root {
   --background: #ffffff;
   --foreground: #0f172a;
-  /* Slate 900 */
   --primary: #1e40af;
-  /* Blue 800 */
+  --talentiques-blue: #0683c9;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
   font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/*
+ * Système visuel commun à tous les formulaires Talentiques.
+ * La classe .input est déjà utilisée par Optimisation, Diagnostic,
+ * Accompagnement et Contact : une seule définition garde tout cohérent.
+ */
+.input {
+  width: 100%;
+  min-height: 56px;
+  border: 1px solid #cfe3f5;
+  border-radius: 14px;
+  background: #f3f7fd;
+  padding: 0 18px;
+  color: #0f172a;
+  font-size: 16px;
+  line-height: 1.5;
+  outline: none;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.input::placeholder {
+  color: #8aa0b8;
+  opacity: 1;
+}
+
+.input:hover {
+  border-color: #a9cce8;
+  background: #f7faff;
+}
+
+.input:focus {
+  border-color: var(--talentiques-blue);
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(6, 131, 201, 0.11);
+}
+
+.input:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+textarea.input {
+  min-height: 122px;
+  padding: 14px 18px;
+  resize: vertical;
+}
+
+select.input {
+  cursor: pointer;
+  padding-right: 42px;
+}
+
+input[type='checkbox'] {
+  accent-color: var(--talentiques-blue);
 }
 
 @layer utilities {
