@@ -22,7 +22,7 @@ export const content = {
       highlight: 'Donnez plus de force à votre candidature',
     },
     description:
-      'CV ATS, lettre de motivation, profil LinkedIn, ressources pratiques et accompagnement personnalisé pour mieux candidater en France, Belgique, Suisse, Luxembourg et au Canada francophone.',
+      'Accompagnement stratégique pour renforcer votre positionnement et accélérer vos opportunités sur les principaux marchés francophones.',
     cta: 'Analyser mon CV gratuitement',
   },
   mission: {
