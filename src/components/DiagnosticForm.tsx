@@ -1,288 +1,160 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Upload, Check, ChevronDown, CheckCircle2, FileText, Briefcase, GraduationCap, User, Laptop } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import React, { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { CheckCircle2, FileText, ShieldCheck, Upload, X } from 'lucide-react';
+import { COUNTRY_OPTIONS, STATUS_OPTIONS } from '@/lib/salesforce';
 
 interface DiagnosticFormProps {
-    isOpen: boolean;
-    onClose: () => void;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+function addTracking(data: FormData) {
+  data.set('pageOrigine', window.location.pathname || '/diagnostic-cv-ats');
+  const params = new URLSearchParams(window.location.search);
+  data.set('utmSource', params.get('utm_source') || '');
+  data.set('utmMedium', params.get('utm_medium') || '');
+  data.set('utmCampaign', params.get('utm_campaign') || '');
 }
 
 export const DiagnosticForm = ({ isOpen, onClose }: DiagnosticFormProps) => {
-    const [step, setStep] = useState(1); // For multi-step feel or just single (keeping single for now based on request)
-    const [fileName, setFileName] = useState<string | null>(null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isSuccess, setIsSuccess] = useState(false);
-    const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [fileName, setFileName] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
 
-    // Form State
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        phone: '',
-        goal: '',
-        status: '',
-        message: ''
-    });
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [isOpen]);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
+  useEffect(() => {
+    if (!isOpen) {
+      setSuccess(false);
+      setError('');
+      setFileName('');
+    }
+  }, [isOpen]);
 
-    const handleStatusSelect = (status: string) => {
-        setFormData(prev => ({ ...prev, status }));
-    };
+  const submit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formElement = event.currentTarget;
+    setLoading(true);
+    setError('');
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            setFileName(file.name);
-        }
-    };
+    try {
+      const data = new FormData(formElement);
+      data.set('typeDemande', 'Diagnostic CV');
+      data.set('offreRessource', 'Diagnostic CV');
+      data.set('statutPaiement', 'Non applicable');
+      addTracking(data);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsSubmitting(true);
+      const response = await fetch('/api/salesforce-lead', { method: 'POST', body: data });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Impossible d’envoyer votre demande.');
 
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
+      formElement.reset();
+      setFileName('');
+      setSuccess(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        setIsSubmitting(false);
-        setIsSuccess(true);
-    };
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+          <motion.button
+            aria-label="Fermer"
+            className="fixed inset-0 bg-slate-950/65 backdrop-blur-sm"
+            onClick={onClose}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          />
 
-    const statusOptions = [
-        { id: 'student', label: 'Étudiant', icon: GraduationCap },
-        { id: 'job', label: 'En Poste', icon: Briefcase },
-        { id: 'alternance', label: 'Alternance', icon: FileText },
-        { id: 'freelance', label: 'Freelance', icon: Laptop },
-    ];
+          <motion.div
+            initial={{ opacity: 0, y: 24, scale: .98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 16, scale: .98 }}
+            className="relative z-10 w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden my-8"
+          >
+            <div className="h-2 bg-gradient-to-r from-brand-600 to-blue-500" />
+            <button onClick={onClose} className="absolute top-5 right-5 p-2 rounded-full bg-slate-100 text-slate-500 hover:text-slate-900" aria-label="Fermer">
+              <X size={20} />
+            </button>
 
-    return (
-        <AnimatePresence>
-            {isOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
-
-                    {/* Backdrop */}
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm"
-                        onClick={onClose}
-                    />
-
-                    {/* Modal Container */}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        transition={{ duration: 0.3, ease: "easeOut" }}
-                        className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden z-10 max-h-[90vh] flex flex-col"
-                    >
-                        {/* Decorative Top Bar */}
-                        <div className="h-2 w-full bg-gradient-to-r from-brand-500 via-blue-500 to-brand-500" />
-
-                        {/* Close Button */}
-                        <button
-                            onClick={onClose}
-                            className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors z-20"
-                        >
-                            <X size={20} />
-                        </button>
-
-                        <div className="p-8 overflow-y-auto custom-scrollbar">
-                            {!isSuccess ? (
-                                <>
-                                    <div className="text-center mb-8">
-                                        <h2 className="text-3xl font-bold text-slate-900 mb-2 font-heading">
-                                            Diagnostic <span className="text-brand-600">Offert</span>
-                                        </h2>
-                                        <p className="text-slate-500">
-                                            Remplissez ce formulaire pour recevoir une analyse personnalisée de votre profil.
-                                        </p>
-                                    </div>
-
-                                    <form onSubmit={handleSubmit} className="space-y-6">
-
-                                        {/* Row 1: Name & Email */}
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div className="space-y-1.5">
-                                                <label className="text-sm font-semibold text-slate-700 ml-1">Nom Complet</label>
-                                                <input
-                                                    required
-                                                    type="text"
-                                                    name="name"
-                                                    placeholder="John Doe"
-                                                    value={formData.name}
-                                                    onChange={handleInputChange}
-                                                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all placeholder:text-slate-400"
-                                                />
-                                            </div>
-                                            <div className="space-y-1.5">
-                                                <label className="text-sm font-semibold text-slate-700 ml-1">Email</label>
-                                                <input
-                                                    required
-                                                    type="email"
-                                                    name="email"
-                                                    placeholder="john@example.com"
-                                                    value={formData.email}
-                                                    onChange={handleInputChange}
-                                                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all placeholder:text-slate-400"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        {/* Row 2: Phone & Goal */}
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div className="space-y-1.5">
-                                                <label className="text-sm font-semibold text-slate-700 ml-1">Téléphone <span className="text-slate-400 font-normal">(Optionnel)</span></label>
-                                                <input
-                                                    type="tel"
-                                                    name="phone"
-                                                    placeholder="+33 6 12 34 56 78"
-                                                    value={formData.phone}
-                                                    onChange={handleInputChange}
-                                                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all placeholder:text-slate-400"
-                                                />
-                                            </div>
-                                            <div className="space-y-1.5">
-                                                <label className="text-sm font-semibold text-slate-700 ml-1">Objectif Pro</label>
-                                                <input
-                                                    required
-                                                    type="text"
-                                                    name="goal"
-                                                    placeholder="Poste / Secteur / Pays"
-                                                    value={formData.goal}
-                                                    onChange={handleInputChange}
-                                                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all placeholder:text-slate-400"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        {/* Status Selection */}
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-semibold text-slate-700 ml-1">Votre Statut Actuel</label>
-                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                                {statusOptions.map((option) => {
-                                                    const Icon = option.icon;
-                                                    const isSelected = formData.status === option.id;
-                                                    return (
-                                                        <div
-                                                            key={option.id}
-                                                            onClick={() => handleStatusSelect(option.id)}
-                                                            className={cn(
-                                                                "cursor-pointer flex flex-col items-center justify-center gap-2 p-3 rounded-xl border-2 transition-all duration-200",
-                                                                isSelected
-                                                                    ? "border-brand-500 bg-brand-50 text-brand-700"
-                                                                    : "border-slate-100 bg-white text-slate-500 hover:border-brand-200 hover:bg-slate-50"
-                                                            )}
-                                                        >
-                                                            <Icon size={20} className={isSelected ? "text-brand-600" : "text-slate-400"} />
-                                                            <span className="text-xs font-semibold">{option.label}</span>
-                                                        </div>
-                                                    )
-                                                })}
-                                            </div>
-                                        </div>
-
-                                        {/* File Upload */}
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-semibold text-slate-700 ml-1">Votre CV (PDF/Word)</label>
-                                            <div
-                                                onClick={() => fileInputRef.current?.click()}
-                                                className={cn(
-                                                    "cursor-pointer group relative w-full h-24 rounded-xl border-2 border-dashed flex items-center justify-center transition-all bg-slate-50 hover:bg-brand-50/50",
-                                                    fileName ? "border-brand-500 bg-brand-50/30" : "border-slate-300 hover:border-brand-400"
-                                                )}
-                                            >
-                                                <input
-                                                    type="file"
-                                                    ref={fileInputRef}
-                                                    onChange={handleFileChange}
-                                                    accept=".pdf,.doc,.docx"
-                                                    className="hidden"
-                                                />
-                                                <div className="flex items-center gap-3 text-slate-500 group-hover:text-brand-600 transition-colors">
-                                                    {fileName ? (
-                                                        <>
-                                                            <div className="p-2 bg-brand-100 text-brand-600 rounded-lg">
-                                                                <FileText size={20} />
-                                                            </div>
-                                                            <span className="font-medium text-slate-700 truncate max-w-[200px]">{fileName}</span>
-                                                            <span className="text-xs bg-brand-200 text-brand-800 px-2 py-0.5 rounded-md ml-2">Modifié</span>
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <div className="p-2 bg-slate-200 group-hover:bg-brand-100 text-slate-500 group-hover:text-brand-600 rounded-lg transition-colors">
-                                                                <Upload size={20} />
-                                                            </div>
-                                                            <span className="font-medium">Cliquez pour importer votre CV</span>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Message */}
-                                        <div className="space-y-1.5">
-                                            <label className="text-sm font-semibold text-slate-700 ml-1">Message Complémentaire</label>
-                                            <textarea
-                                                name="message"
-                                                rows={3}
-                                                placeholder="Détails supplémentaires sur votre situation..."
-                                                value={formData.message}
-                                                onChange={handleInputChange}
-                                                className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all placeholder:text-slate-400 resize-none"
-                                            />
-                                        </div>
-
-                                        {/* Submit Button */}
-                                        <button
-                                            type="submit"
-                                            disabled={isSubmitting}
-                                            className="w-full py-4 rounded-xl bg-gradient-to-r from-brand-600 to-blue-600 text-white font-bold text-lg shadow-lg shadow-brand-500/30 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                                        >
-                                            {isSubmitting ? (
-                                                <span className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                            ) : (
-                                                <>
-                                                    Envoyer ma demande
-                                                    <Check size={20} />
-                                                </>
-                                            )}
-                                        </button>
-
-                                    </form>
-                                </>
-                            ) : (
-                                <motion.div
-                                    initial={{ opacity: 0, scale: 0.9 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    className="flex flex-col items-center justify-center py-12 text-center"
-                                >
-                                    <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6 shadow-lg shadow-green-500/20">
-                                        <CheckCircle2 size={40} />
-                                    </div>
-                                    <h3 className="text-2xl font-bold text-slate-900 mb-2">Demande Envoyée !</h3>
-                                    <p className="text-slate-500 max-w-sm mb-8">
-                                        Nous avons bien reçu vos informations. Notre équipe va analyser votre profil et reviendra vers vous sous 24h.
-                                    </p>
-                                    <button
-                                        onClick={onClose}
-                                        className="px-8 py-3 rounded-xl bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 transition-colors"
-                                    >
-                                        Fermer la fenêtre
-                                    </button>
-                                </motion.div>
-                            )}
-                        </div>
-                    </motion.div>
+            <div className="p-6 md:p-9 max-h-[88vh] overflow-y-auto">
+              {success ? (
+                <div className="py-12 text-center">
+                  <div className="w-16 h-16 mx-auto rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-5"><CheckCircle2 size={32}/></div>
+                  <h2 className="text-3xl font-bold text-slate-900">Diagnostic demandé</h2>
+                  <p className="text-slate-600 mt-3 max-w-xl mx-auto">Votre demande et votre CV ont bien été enregistrés. Notre équipe vous recontactera après analyse.</p>
+                  <button onClick={onClose} className="mt-7 px-6 py-3 rounded-xl bg-slate-900 text-white font-bold hover:bg-slate-800">Fermer</button>
                 </div>
-            )}
-        </AnimatePresence>
-    );
+              ) : (
+                <>
+                  <div className="mb-7 pr-10">
+                    <p className="text-sm font-bold text-brand-700 uppercase tracking-wider">Diagnostic CV ATS offert</p>
+                    <h2 className="text-3xl font-bold text-slate-900 mt-2">Recevez un premier regard professionnel sur votre CV</h2>
+                    <p className="text-slate-600 mt-2">Quelques informations suffisent pour contextualiser votre dossier et vous répondre de manière utile.</p>
+                  </div>
+
+                  <form onSubmit={submit} className="space-y-5">
+                    <input name="website" tabIndex={-1} autoComplete="off" className="hidden" />
+
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 md:p-6">
+                      <h3 className="font-bold text-slate-900 mb-4">Vos coordonnées</h3>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <Field label="Prénom *"><input required name="firstName" className="input" /></Field>
+                        <Field label="Nom *"><input required name="lastName" className="input" /></Field>
+                        <Field label="E-mail *"><input required type="email" name="email" className="input" /></Field>
+                        <Field label="Téléphone"><input type="tel" name="phone" className="input" /></Field>
+                        <Field label="Pays de résidence *"><select required name="country" className="input"><option value="">Sélectionner</option>{COUNTRY_OPTIONS.map(([code,label]) => <option key={code} value={code}>{label}</option>)}</select></Field>
+                        <Field label="Statut actuel *"><select required name="statutActuel" className="input"><option value="">Sélectionner</option>{STATUS_OPTIONS.map(v => <option key={v}>{v}</option>)}</select></Field>
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-slate-200 bg-white p-5 md:p-6">
+                      <h3 className="font-bold text-slate-900 mb-4">Votre projet</h3>
+                      <div className="space-y-4">
+                        <Field label="Objectif professionnel *"><textarea required name="objectifProfessionnel" rows={3} className="input resize-none" placeholder="Poste visé, secteur, type d’opportunité…" /></Field>
+                        <Field label="CV * — PDF, DOC ou DOCX, 4 Mo maximum">
+                          <div onClick={() => fileRef.current?.click()} className="cursor-pointer rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-5 hover:border-brand-400 hover:bg-brand-50/40 transition-colors">
+                            <input ref={fileRef} required type="file" name="cv" accept=".pdf,.doc,.docx" className="hidden" onChange={(e) => setFileName(e.target.files?.[0]?.name || '')}/>
+                            <div className="flex items-center gap-3 text-sm text-slate-600">
+                              <div className="p-2 rounded-lg bg-brand-50 text-brand-700">{fileName ? <FileText size={20}/> : <Upload size={20}/>}</div>
+                              <div><div className="font-semibold text-slate-800">{fileName || 'Ajouter mon CV'}</div><div className="text-xs text-slate-500 mt-0.5">Document stocké de manière privée.</div></div>
+                            </div>
+                          </div>
+                        </Field>
+                        <Field label="Informations complémentaires"><textarea name="informationsComplementaires" rows={3} className="input resize-none" placeholder="Ajoutez un contexte utile si nécessaire." /></Field>
+                      </div>
+                    </div>
+
+                    <label className="flex items-start gap-3 text-sm text-slate-600"><input required name="privacy" value="1" type="checkbox" className="mt-1"/><span>J’accepte que Talentiques traite mes informations et mon CV afin de répondre à ma demande. *</span></label>
+                    <label className="flex items-start gap-3 text-sm text-slate-600"><input name="marketing" value="1" type="checkbox" className="mt-1"/><span>J’accepte de recevoir occasionnellement des conseils et actualités Talentiques.</span></label>
+
+                    {error && <div className="rounded-xl bg-red-50 border border-red-200 p-4 text-sm text-red-700">{error}</div>}
+
+                    <button disabled={loading} type="submit" className="w-full rounded-xl bg-brand-600 text-white px-6 py-4 font-bold hover:bg-brand-700 shadow-lg shadow-brand-500/15 disabled:opacity-60">
+                      {loading ? 'Envoi en cours…' : 'Demander mon diagnostic CV'}
+                    </button>
+                    <p className="text-xs text-slate-500 text-center flex items-center justify-center gap-2"><ShieldCheck size={14}/>Vos informations sont transmises de façon sécurisée.</p>
+                  </form>
+                </>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
 };
+
+const Field = ({ label, children }: { label: string; children: React.ReactNode }) => <label className="block space-y-1.5"><span className="text-sm font-semibold text-slate-700">{label}</span>{children}</label>;

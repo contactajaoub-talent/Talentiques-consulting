@@ -2,6 +2,7 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Accompaniment } from '@/components/Accompaniment';
 import { Process } from '@/components/Process';
+import { AccompanimentLeadForm } from '@/components/AccompanimentLeadForm';
 
 export const metadata = {
   title: 'Accompagnement carrière francophone',
@@ -19,6 +20,7 @@ export default function AccompanimentPage() {
       </section>
       <Accompaniment />
       <Process />
+      <AccompanimentLeadForm />
       <Footer />
     </main>
   );
