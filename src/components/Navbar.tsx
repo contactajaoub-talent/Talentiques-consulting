@@ -21,19 +21,17 @@ export const Navbar = () => {
   useEffect(() => {
     document.body.style.overflow = mobileMenuOpen ? 'hidden' : '';
 
-    const onKeyDown = (event: KeyboardEvent) => {
+    const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setMobileMenuOpen(false);
     };
 
-    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
 
     return () => {
       document.body.style.overflow = '';
-      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, [mobileMenuOpen]);
-
-  const closeMobileMenu = () => setMobileMenuOpen(false);
 
   const navLinks = [
     { name: 'Diagnostic CV ATS', href: '/diagnostic-cv-ats' },
@@ -44,6 +42,8 @@ export const Navbar = () => {
     { name: 'Contact', href: '/#contact' },
   ];
 
+  const closeMobileMenu = () => setMobileMenuOpen(false);
+
   return (
     <>
       <nav
@@ -51,20 +51,20 @@ export const Navbar = () => {
           'fixed inset-x-0 top-0 z-50 border-b transition-all duration-300',
           scrolled
             ? 'border-slate-200/80 bg-white/95 shadow-sm backdrop-blur-xl'
-            : 'border-slate-200/40 bg-white/90 backdrop-blur-md'
+            : 'border-slate-200/40 bg-white/92 backdrop-blur-md'
         )}
       >
-        <div className="mx-auto flex h-[82px] w-full max-w-[1500px] items-center px-5 sm:px-6 lg:px-8">
+        <div className="mx-auto flex h-[82px] w-full max-w-[1460px] items-center justify-between px-6 lg:px-8">
           <Link
             href="/"
             onClick={closeMobileMenu}
-            className="relative z-[60] shrink-0 bg-gradient-to-r from-brand-700 to-blue-600 bg-clip-text font-heading text-2xl font-bold tracking-tight text-transparent sm:text-[27px]"
+            className="relative z-[60] shrink-0 bg-gradient-to-r from-brand-700 to-blue-600 bg-clip-text font-heading text-[26px] font-bold tracking-tight text-transparent"
           >
             {content.businessName}
           </Link>
 
-          <div className="ml-auto hidden min-w-0 items-center xl:flex">
-            <div className="flex items-center gap-7 2xl:gap-9">
+          <div className="ml-10 hidden min-w-0 flex-1 items-center justify-end min-[1120px]:flex">
+            <div className="flex items-center gap-6 min-[1320px]:gap-8">
               {navLinks.map((link) => (
                 <Link
                   key={link.name}
@@ -78,7 +78,7 @@ export const Navbar = () => {
 
             <Link
               href="/#services"
-              className="ml-8 inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-brand-600 px-6 py-3 text-[15px] font-bold text-white shadow-sm transition-all hover:bg-brand-700 hover:shadow-lg 2xl:ml-10 2xl:px-7"
+              className="ml-7 inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-brand-600 px-6 py-3 text-[15px] font-bold text-white shadow-sm transition-all hover:bg-brand-700 hover:shadow-lg min-[1320px]:ml-9 min-[1320px]:px-7"
             >
               Choisir mon offre
               <ArrowRight size={17} />
@@ -87,7 +87,7 @@ export const Navbar = () => {
 
           <button
             type="button"
-            className="relative z-[60] ml-auto flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-800 shadow-sm transition hover:bg-slate-50 xl:hidden"
+            className="relative z-[60] ml-auto flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-800 shadow-sm transition hover:bg-slate-50 min-[1120px]:hidden"
             onClick={() => setMobileMenuOpen((open) => !open)}
             aria-label={mobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
             aria-expanded={mobileMenuOpen}
@@ -100,7 +100,7 @@ export const Navbar = () => {
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
-            className="fixed inset-0 z-40 bg-white xl:hidden"
+            className="fixed inset-0 z-40 bg-white min-[1120px]:hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
