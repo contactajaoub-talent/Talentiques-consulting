@@ -370,7 +370,7 @@ export const content = {
       {
         slug: 'commerciale-prospection-closing',
 
-        title: 'Commerciale – Prospection & Closing',
+        title: 'Chargée d’Acquisition & Développement Client | Lead Generation',
 
         department: 'Sales',
 
@@ -396,7 +396,7 @@ export const content = {
         remuneration: [
           '1er mois : rémunération basée uniquement sur les commissions, correspondant à une période de validation',
           'Après validation : salaire fixe de 300 USD par mois + commissions',
-          'Potentiel de rémunération totale : environ 200 à 1 500 USD par mois selon les performances commerciales',
+          'Potentiel de rémunération totale : environ 600 à 1 500 USD par mois selon les performances commerciales',
         ],
 
         requirements: [
