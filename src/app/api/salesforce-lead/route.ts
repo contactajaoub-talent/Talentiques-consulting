@@ -6,17 +6,10 @@ import { SALESFORCE } from '@/lib/salesforce';
 export const runtime = 'nodejs';
 
 const MAX_FILE_SIZE = 4 * 1024 * 1024;
-
-const allowedExtensions = new Set([
-  'pdf',
-  'doc',
-  'docx',
-]);
+const allowedExtensions = new Set(['pdf', 'doc', 'docx']);
 
 function clean(value: FormDataEntryValue | null) {
-  return typeof value === 'string'
-    ? value.trim()
-    : '';
+  return typeof value === 'string' ? value.trim() : '';
 }
 
 function add(
@@ -48,25 +41,15 @@ function signedCvUrl(
 
   const url = new URL('/api/cv', origin);
 
-  url.searchParams.set(
-    'pathname',
-    pathname
-  );
-
-  url.searchParams.set(
-    'sig',
-    sig
-  );
+  url.searchParams.set('pathname', pathname);
+  url.searchParams.set('sig', sig);
 
   return url.toString();
 }
 
-export async function POST(
-  request: Request
-) {
+export async function POST(request: Request) {
   try {
-    const form =
-      await request.formData();
+    const form = await request.formData();
 
     /*
      * =========================
@@ -74,9 +57,7 @@ export async function POST(
      * =========================
      */
 
-    if (
-      clean(form.get('website'))
-    ) {
+    if (clean(form.get('website'))) {
       return NextResponse.json({
         ok: true,
       });
@@ -125,11 +106,7 @@ export async function POST(
      * =========================
      */
 
-    if (
-      !firstName ||
-      !lastName ||
-      !email
-    ) {
+    if (!firstName || !lastName || !email) {
       return NextResponse.json(
         {
           error:
@@ -141,9 +118,7 @@ export async function POST(
       );
     }
 
-    if (
-      !isTruthy(privacy)
-    ) {
+    if (!isTruthy(privacy)) {
       return NextResponse.json(
         {
           error:
@@ -165,13 +140,8 @@ export async function POST(
 
     const cv = form.get('cv');
 
-    if (
-      cv instanceof File &&
-      cv.size > 0
-    ) {
-      if (
-        cv.size > MAX_FILE_SIZE
-      ) {
+    if (cv instanceof File && cv.size > 0) {
+      if (cv.size > MAX_FILE_SIZE) {
         return NextResponse.json(
           {
             error:
@@ -189,11 +159,7 @@ export async function POST(
           .pop()
           ?.toLowerCase() ?? '';
 
-      if (
-        !allowedExtensions.has(
-          extension
-        )
-      ) {
+      if (!allowedExtensions.has(extension)) {
         return NextResponse.json(
           {
             error:
@@ -206,8 +172,7 @@ export async function POST(
       }
 
       const blobSecret =
-        process.env
-          .BLOB_READ_WRITE_TOKEN;
+        process.env.BLOB_READ_WRITE_TOKEN;
 
       if (!blobSecret) {
         return NextResponse.json(
@@ -239,24 +204,20 @@ export async function POST(
         }
       );
 
-      cvSecureUrl =
-        signedCvUrl(
-          new URL(
-            request.url
-          ).origin,
-          blob.pathname,
-          blobSecret
-        );
+      cvSecureUrl = signedCvUrl(
+        new URL(request.url).origin,
+        blob.pathname,
+        blobSecret
+      );
     }
 
     /*
      * =========================
-     * DONNÉES SALESFORCE
+     * SALESFORCE
      * =========================
      */
 
-    const p =
-      new URLSearchParams();
+    const p = new URLSearchParams();
 
     p.set(
       'oid',
@@ -284,8 +245,7 @@ export async function POST(
     );
 
     /*
-     * Candidat carrière
-     * ou prospect classique
+     * Différenciation candidat / prospect
      */
 
     p.set(
@@ -302,65 +262,85 @@ export async function POST(
         : 'Site TalentiQues'
     );
 
-    /*
-     * =========================
-     * CONTACT
-     * =========================
-     */
-
     add(
       p,
       'phone',
       phone
     );
 
-    /*
-     * IMPORTANT :
-     *
-     * On n'envoie plus :
-     *
-     * country_code = Maroc
-     *
-     * car Salesforce attend
-     * un code pays valide.
-     *
-     * Le pays sera enregistré
-     * dans Informations
-     * complémentaires.
-     */
+    const f = SALESFORCE.fields;
 
     /*
-     * =========================
-     * CHAMPS PERSONNALISÉS
-     * =========================
+     * =====================================
+     * FORMULAIRES COMMERCIAUX EXISTANTS
+     * =====================================
+     *
+     * On garde exactement leur fonctionnement.
+     *
+     * Pour les candidatures Carrières,
+     * on évite les picklists Salesforce
+     * restreintes qui provoquent les erreurs.
      */
 
-    const f =
-      SALESFORCE.fields;
+    if (!isCareerApplication) {
+      add(
+        p,
+        f.typeDemande,
+        typeDemande
+      );
 
-    add(
-      p,
-      f.typeDemande,
-      typeDemande
-    );
-
-    add(
-      p,
-      f.offreRessource,
-      clean(
-        form.get(
-          'offreRessource'
+      add(
+        p,
+        f.offreRessource,
+        clean(
+          form.get('offreRessource')
         )
-      )
-    );
+      );
+
+      add(
+        p,
+        f.statutActuel,
+        clean(
+          form.get('statutActuel')
+        )
+      );
+
+      add(
+        p,
+        f.difficultePrincipale,
+        clean(
+          form.get('difficultePrincipale')
+        )
+      );
+
+      add(
+        p,
+        f.anneesExperience,
+        clean(
+          form.get('anneesExperience')
+        )
+      );
+
+      add(
+        p,
+        f.canalContact,
+        clean(
+          form.get('canalContact')
+        )
+      );
+    }
+
+    /*
+     * =====================================
+     * CHAMPS SÛRS / TEXTE
+     * =====================================
+     */
 
     add(
       p,
       f.nomRessource,
       clean(
-        form.get(
-          'nomRessource'
-        )
+        form.get('nomRessource')
       )
     );
 
@@ -368,9 +348,7 @@ export async function POST(
       p,
       f.montantPrevu,
       clean(
-        form.get(
-          'montantPrevu'
-        )
+        form.get('montantPrevu')
       )
     );
 
@@ -378,19 +356,7 @@ export async function POST(
       p,
       f.statutPaiement,
       clean(
-        form.get(
-          'statutPaiement'
-        )
-      )
-    );
-
-    add(
-      p,
-      f.statutActuel,
-      clean(
-        form.get(
-          'statutActuel'
-        )
+        form.get('statutPaiement')
       )
     );
 
@@ -398,19 +364,7 @@ export async function POST(
       p,
       f.objectifProfessionnel,
       clean(
-        form.get(
-          'objectifProfessionnel'
-        )
-      )
-    );
-
-    add(
-      p,
-      f.difficultePrincipale,
-      clean(
-        form.get(
-          'difficultePrincipale'
-        )
+        form.get('objectifProfessionnel')
       )
     );
 
@@ -418,15 +372,9 @@ export async function POST(
       p,
       f.profilLinkedIn,
       clean(
-        form.get(
-          'profilLinkedIn'
-        )
+        form.get('profilLinkedIn')
       )
     );
-
-    /*
-     * CV sécurisé
-     */
 
     add(
       p,
@@ -434,11 +382,58 @@ export async function POST(
       cvSecureUrl
     );
 
+    add(
+      p,
+      f.secteurActivite,
+      clean(
+        form.get('secteurActivite')
+      )
+    );
+
+    add(
+      p,
+      f.marcheGeographique,
+      clean(
+        form.get('marcheGeographique')
+      )
+    );
+
+    add(
+      p,
+      f.posteVise,
+      clean(
+        form.get('posteVise')
+      )
+    );
+
+    add(
+      p,
+      f.dureeAccompagnement,
+      clean(
+        form.get('dureeAccompagnement')
+      )
+    );
+
+    add(
+      p,
+      f.budgetEnvisage,
+      clean(
+        form.get('budgetEnvisage')
+      )
+    );
+
+    add(
+      p,
+      f.freinPrincipal,
+      clean(
+        form.get('freinPrincipal')
+      )
+    );
+
     /*
-     * =========================
-     * INFORMATIONS
-     * COMPLÉMENTAIRES
-     * =========================
+     * =====================================
+     * INFORMATIONS CANDIDATURE
+     * =====================================
      */
 
     const existingAdditionalInfo =
@@ -448,129 +443,63 @@ export async function POST(
         )
       );
 
-    const additionalInfo = [
-      isCareerApplication &&
-      country
-        ? `Pays de résidence : ${country}`
-        : '',
-      existingAdditionalInfo,
-    ]
-      .filter(Boolean)
-      .join('\n\n');
+    const careerInformation = isCareerApplication
+      ? [
+          'Type : Candidature recrutement',
+
+          clean(form.get('nomRessource'))
+            ? `Poste : ${clean(
+                form.get('nomRessource')
+              )}`
+            : '',
+
+          country
+            ? `Pays de résidence : ${country}`
+            : '',
+
+          clean(form.get('statutActuel'))
+            ? `Disponibilité : ${clean(
+                form.get('statutActuel')
+              )}`
+            : '',
+
+          clean(form.get('difficultePrincipale'))
+            ? clean(
+                form.get(
+                  'difficultePrincipale'
+                )
+              )
+            : '',
+
+          clean(form.get('anneesExperience'))
+            ? `Expérience commerciale : ${clean(
+                form.get(
+                  'anneesExperience'
+                )
+              )}`
+            : '',
+
+          clean(form.get('canalContact'))
+            ? `Canal de contact : ${clean(
+                form.get('canalContact')
+              )}`
+            : '',
+
+          existingAdditionalInfo,
+        ]
+          .filter(Boolean)
+          .join('\n\n')
+      : existingAdditionalInfo;
 
     add(
       p,
       f.informationsComplementaires,
-      additionalInfo
+      careerInformation
     );
 
     /*
      * =========================
-     * EXPÉRIENCE
-     * =========================
-     */
-
-    add(
-      p,
-      f.anneesExperience,
-      clean(
-        form.get(
-          'anneesExperience'
-        )
-      )
-    );
-
-    add(
-      p,
-      f.secteurActivite,
-      clean(
-        form.get(
-          'secteurActivite'
-        )
-      )
-    );
-
-    /*
-     * =========================
-     * OBJECTIF / MARCHÉ
-     * =========================
-     */
-
-    add(
-      p,
-      f.marcheGeographique,
-      clean(
-        form.get(
-          'marcheGeographique'
-        )
-      )
-    );
-
-    add(
-      p,
-      f.posteVise,
-      clean(
-        form.get(
-          'posteVise'
-        )
-      )
-    );
-
-    /*
-     * =========================
-     * ACCOMPAGNEMENT
-     * =========================
-     */
-
-    add(
-      p,
-      f.dureeAccompagnement,
-      clean(
-        form.get(
-          'dureeAccompagnement'
-        )
-      )
-    );
-
-    add(
-      p,
-      f.budgetEnvisage,
-      clean(
-        form.get(
-          'budgetEnvisage'
-        )
-      )
-    );
-
-    add(
-      p,
-      f.freinPrincipal,
-      clean(
-        form.get(
-          'freinPrincipal'
-        )
-      )
-    );
-
-    /*
-     * =========================
-     * CANAL DE CONTACT
-     * =========================
-     */
-
-    add(
-      p,
-      f.canalContact,
-      clean(
-        form.get(
-          'canalContact'
-        )
-      )
-    );
-
-    /*
-     * =========================
-     * CONSENTEMENT
+     * CONSENTEMENTS
      * =========================
      */
 
@@ -582,9 +511,7 @@ export async function POST(
     if (
       isTruthy(
         clean(
-          form.get(
-            'marketing'
-          )
+          form.get('marketing')
         )
       )
     ) {
@@ -604,9 +531,7 @@ export async function POST(
       p,
       f.pageOrigine,
       clean(
-        form.get(
-          'pageOrigine'
-        )
+        form.get('pageOrigine')
       )
     );
 
@@ -614,9 +539,7 @@ export async function POST(
       p,
       f.utmSource,
       clean(
-        form.get(
-          'utmSource'
-        )
+        form.get('utmSource')
       )
     );
 
@@ -624,9 +547,7 @@ export async function POST(
       p,
       f.utmMedium,
       clean(
-        form.get(
-          'utmMedium'
-        )
+        form.get('utmMedium')
       )
     );
 
@@ -634,42 +555,33 @@ export async function POST(
       p,
       f.utmCampaign,
       clean(
-        form.get(
-          'utmCampaign'
-        )
+        form.get('utmCampaign')
       )
     );
 
     /*
      * =========================
-     * ENVOI SALESFORCE
+     * ENVOI VERS SALESFORCE
      * =========================
      */
 
-    const response =
-      await fetch(
-        SALESFORCE.endpoint,
-        {
-          method: 'POST',
+    const response = await fetch(
+      SALESFORCE.endpoint,
+      {
+        method: 'POST',
 
-          headers: {
-            'Content-Type':
-              'application/x-www-form-urlencoded',
-          },
+        headers: {
+          'Content-Type':
+            'application/x-www-form-urlencoded',
+        },
 
-          body: p.toString(),
+        body: p.toString(),
 
-          redirect: 'manual',
+        redirect: 'manual',
 
-          cache: 'no-store',
-        }
-      );
-
-    /*
-     * Salesforce Web-to-Lead
-     * retourne normalement
-     * une redirection.
-     */
+        cache: 'no-store',
+      }
+    );
 
     if (
       response.status < 200 ||
@@ -690,12 +602,6 @@ export async function POST(
         }
       );
     }
-
-    /*
-     * =========================
-     * SUCCÈS
-     * =========================
-     */
 
     return NextResponse.json({
       ok: true,
