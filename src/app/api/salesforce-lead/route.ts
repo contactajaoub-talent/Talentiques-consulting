@@ -6,54 +6,134 @@ import { SALESFORCE } from '@/lib/salesforce';
 export const runtime = 'nodejs';
 
 const MAX_FILE_SIZE = 4 * 1024 * 1024;
-const allowedExtensions = new Set(['pdf', 'doc', 'docx']);
+
+const allowedExtensions = new Set([
+  'pdf',
+  'doc',
+  'docx',
+]);
 
 function clean(value: FormDataEntryValue | null) {
-  return typeof value === 'string' ? value.trim() : '';
+  return typeof value === 'string'
+    ? value.trim()
+    : '';
 }
 
-function add(params: URLSearchParams, key: string, value: string) {
-  if (value) params.set(key, value);
+function add(
+  params: URLSearchParams,
+  key: string,
+  value: string
+) {
+  if (value) {
+    params.set(key, value);
+  }
 }
 
 function isTruthy(value: string) {
-  return value === '1' || value === 'true' || value === 'on';
+  return (
+    value === '1' ||
+    value === 'true' ||
+    value === 'on'
+  );
 }
 
-function signedCvUrl(origin: string, pathname: string, secret: string) {
+function signedCvUrl(
+  origin: string,
+  pathname: string,
+  secret: string
+) {
   const sig = createHmac('sha256', secret)
     .update(pathname)
     .digest('hex');
 
   const url = new URL('/api/cv', origin);
 
-  url.searchParams.set('pathname', pathname);
-  url.searchParams.set('sig', sig);
+  url.searchParams.set(
+    'pathname',
+    pathname
+  );
+
+  url.searchParams.set(
+    'sig',
+    sig
+  );
 
   return url.toString();
 }
 
-export async function POST(request: Request) {
+export async function POST(
+  request: Request
+) {
   try {
-    const form = await request.formData();
+    const form =
+      await request.formData();
 
-    // Honeypot anti-spam
-    if (clean(form.get('website'))) {
-      return NextResponse.json({ ok: true });
+    /*
+     * =========================
+     * ANTI-SPAM
+     * =========================
+     */
+
+    if (
+      clean(form.get('website'))
+    ) {
+      return NextResponse.json({
+        ok: true,
+      });
     }
 
-    const firstName = clean(form.get('firstName'));
-    const lastName = clean(form.get('lastName'));
-    const email = clean(form.get('email'));
-    const privacy = clean(form.get('privacy'));
+    /*
+     * =========================
+     * DONNÉES PRINCIPALES
+     * =========================
+     */
 
-    const typeDemande = clean(form.get('typeDemande'));
-    const isCareerApplication = typeDemande === 'Recrutement';
+    const firstName = clean(
+      form.get('firstName')
+    );
 
-    if (!firstName || !lastName || !email) {
+    const lastName = clean(
+      form.get('lastName')
+    );
+
+    const email = clean(
+      form.get('email')
+    );
+
+    const phone = clean(
+      form.get('phone')
+    );
+
+    const country = clean(
+      form.get('country')
+    );
+
+    const privacy = clean(
+      form.get('privacy')
+    );
+
+    const typeDemande = clean(
+      form.get('typeDemande')
+    );
+
+    const isCareerApplication =
+      typeDemande === 'Recrutement';
+
+    /*
+     * =========================
+     * VALIDATION
+     * =========================
+     */
+
+    if (
+      !firstName ||
+      !lastName ||
+      !email
+    ) {
       return NextResponse.json(
         {
-          error: 'Prénom, nom et e-mail sont obligatoires.',
+          error:
+            'Prénom, nom et e-mail sont obligatoires.',
         },
         {
           status: 400,
@@ -61,7 +141,9 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!isTruthy(privacy)) {
+    if (
+      !isTruthy(privacy)
+    ) {
       return NextResponse.json(
         {
           error:
@@ -83,11 +165,17 @@ export async function POST(request: Request) {
 
     const cv = form.get('cv');
 
-    if (cv instanceof File && cv.size > 0) {
-      if (cv.size > MAX_FILE_SIZE) {
+    if (
+      cv instanceof File &&
+      cv.size > 0
+    ) {
+      if (
+        cv.size > MAX_FILE_SIZE
+      ) {
         return NextResponse.json(
           {
-            error: 'Le CV doit faire moins de 4 Mo.',
+            error:
+              'Le CV doit faire moins de 4 Mo.',
           },
           {
             status: 400,
@@ -96,12 +184,20 @@ export async function POST(request: Request) {
       }
 
       const extension =
-        cv.name.split('.').pop()?.toLowerCase() ?? '';
+        cv.name
+          .split('.')
+          .pop()
+          ?.toLowerCase() ?? '';
 
-      if (!allowedExtensions.has(extension)) {
+      if (
+        !allowedExtensions.has(
+          extension
+        )
+      ) {
         return NextResponse.json(
           {
-            error: 'Formats acceptés : PDF, DOC ou DOCX.',
+            error:
+              'Formats acceptés : PDF, DOC ou DOCX.',
           },
           {
             status: 400,
@@ -109,7 +205,9 @@ export async function POST(request: Request) {
         );
       }
 
-      const blobSecret = process.env.BLOB_READ_WRITE_TOKEN;
+      const blobSecret =
+        process.env
+          .BLOB_READ_WRITE_TOKEN;
 
       if (!blobSecret) {
         return NextResponse.json(
@@ -124,7 +222,10 @@ export async function POST(request: Request) {
       }
 
       const safeName = cv.name
-        .replace(/[^a-zA-Z0-9._-]+/g, '-')
+        .replace(
+          /[^a-zA-Z0-9._-]+/g,
+          '-'
+        )
         .slice(-60);
 
       const blob = await put(
@@ -133,15 +234,19 @@ export async function POST(request: Request) {
         {
           access: 'private',
           addRandomSuffix: true,
-          contentType: cv.type || undefined,
+          contentType:
+            cv.type || undefined,
         }
       );
 
-      cvSecureUrl = signedCvUrl(
-        new URL(request.url).origin,
-        blob.pathname,
-        blobSecret
-      );
+      cvSecureUrl =
+        signedCvUrl(
+          new URL(
+            request.url
+          ).origin,
+          blob.pathname,
+          blobSecret
+        );
     }
 
     /*
@@ -150,20 +255,37 @@ export async function POST(request: Request) {
      * =========================
      */
 
-    const p = new URLSearchParams();
+    const p =
+      new URLSearchParams();
 
-    p.set('oid', SALESFORCE.orgId);
-    p.set('retURL', 'https://talentiques.com/');
+    p.set(
+      'oid',
+      SALESFORCE.orgId
+    );
 
-    p.set('first_name', firstName);
-    p.set('last_name', lastName);
-    p.set('email', email);
+    p.set(
+      'retURL',
+      'https://talentiques.com/'
+    );
+
+    p.set(
+      'first_name',
+      firstName
+    );
+
+    p.set(
+      'last_name',
+      lastName
+    );
+
+    p.set(
+      'email',
+      email
+    );
 
     /*
-     * Différenciation automatique :
-     *
-     * - Prospect classique
-     * - Candidat Carrières
+     * Candidat carrière
+     * ou prospect classique
      */
 
     p.set(
@@ -182,21 +304,30 @@ export async function POST(request: Request) {
 
     /*
      * =========================
-     * INFORMATIONS PRINCIPALES
+     * CONTACT
      * =========================
      */
 
     add(
       p,
       'phone',
-      clean(form.get('phone'))
+      phone
     );
 
-    add(
-      p,
-      'country_code',
-      clean(form.get('country'))
-    );
+    /*
+     * IMPORTANT :
+     *
+     * On n'envoie plus :
+     *
+     * country_code = Maroc
+     *
+     * car Salesforce attend
+     * un code pays valide.
+     *
+     * Le pays sera enregistré
+     * dans Informations
+     * complémentaires.
+     */
 
     /*
      * =========================
@@ -204,7 +335,8 @@ export async function POST(request: Request) {
      * =========================
      */
 
-    const f = SALESFORCE.fields;
+    const f =
+      SALESFORCE.fields;
 
     add(
       p,
@@ -215,50 +347,86 @@ export async function POST(request: Request) {
     add(
       p,
       f.offreRessource,
-      clean(form.get('offreRessource'))
+      clean(
+        form.get(
+          'offreRessource'
+        )
+      )
     );
 
     add(
       p,
       f.nomRessource,
-      clean(form.get('nomRessource'))
+      clean(
+        form.get(
+          'nomRessource'
+        )
+      )
     );
 
     add(
       p,
       f.montantPrevu,
-      clean(form.get('montantPrevu'))
+      clean(
+        form.get(
+          'montantPrevu'
+        )
+      )
     );
 
     add(
       p,
       f.statutPaiement,
-      clean(form.get('statutPaiement'))
+      clean(
+        form.get(
+          'statutPaiement'
+        )
+      )
     );
 
     add(
       p,
       f.statutActuel,
-      clean(form.get('statutActuel'))
+      clean(
+        form.get(
+          'statutActuel'
+        )
+      )
     );
 
     add(
       p,
       f.objectifProfessionnel,
-      clean(form.get('objectifProfessionnel'))
+      clean(
+        form.get(
+          'objectifProfessionnel'
+        )
+      )
     );
 
     add(
       p,
       f.difficultePrincipale,
-      clean(form.get('difficultePrincipale'))
+      clean(
+        form.get(
+          'difficultePrincipale'
+        )
+      )
     );
 
     add(
       p,
       f.profilLinkedIn,
-      clean(form.get('profilLinkedIn'))
+      clean(
+        form.get(
+          'profilLinkedIn'
+        )
+      )
     );
+
+    /*
+     * CV sécurisé
+     */
 
     add(
       p,
@@ -266,63 +434,143 @@ export async function POST(request: Request) {
       cvSecureUrl
     );
 
+    /*
+     * =========================
+     * INFORMATIONS
+     * COMPLÉMENTAIRES
+     * =========================
+     */
+
+    const existingAdditionalInfo =
+      clean(
+        form.get(
+          'informationsComplementaires'
+        )
+      );
+
+    const additionalInfo = [
+      isCareerApplication &&
+      country
+        ? `Pays de résidence : ${country}`
+        : '',
+      existingAdditionalInfo,
+    ]
+      .filter(Boolean)
+      .join('\n\n');
+
     add(
       p,
       f.informationsComplementaires,
-      clean(form.get('informationsComplementaires'))
+      additionalInfo
     );
+
+    /*
+     * =========================
+     * EXPÉRIENCE
+     * =========================
+     */
 
     add(
       p,
       f.anneesExperience,
-      clean(form.get('anneesExperience'))
+      clean(
+        form.get(
+          'anneesExperience'
+        )
+      )
     );
 
     add(
       p,
       f.secteurActivite,
-      clean(form.get('secteurActivite'))
+      clean(
+        form.get(
+          'secteurActivite'
+        )
+      )
     );
+
+    /*
+     * =========================
+     * OBJECTIF / MARCHÉ
+     * =========================
+     */
 
     add(
       p,
       f.marcheGeographique,
-      clean(form.get('marcheGeographique'))
+      clean(
+        form.get(
+          'marcheGeographique'
+        )
+      )
     );
 
     add(
       p,
       f.posteVise,
-      clean(form.get('posteVise'))
+      clean(
+        form.get(
+          'posteVise'
+        )
+      )
     );
+
+    /*
+     * =========================
+     * ACCOMPAGNEMENT
+     * =========================
+     */
 
     add(
       p,
       f.dureeAccompagnement,
-      clean(form.get('dureeAccompagnement'))
+      clean(
+        form.get(
+          'dureeAccompagnement'
+        )
+      )
     );
 
     add(
       p,
       f.budgetEnvisage,
-      clean(form.get('budgetEnvisage'))
+      clean(
+        form.get(
+          'budgetEnvisage'
+        )
+      )
     );
 
     add(
       p,
       f.freinPrincipal,
-      clean(form.get('freinPrincipal'))
-    );
-
-    add(
-      p,
-      f.canalContact,
-      clean(form.get('canalContact'))
+      clean(
+        form.get(
+          'freinPrincipal'
+        )
+      )
     );
 
     /*
      * =========================
-     * CONSENTEMENTS
+     * CANAL DE CONTACT
+     * =========================
+     */
+
+    add(
+      p,
+      f.canalContact,
+      clean(
+        form.get(
+          'canalContact'
+        )
+      )
+    );
+
+    /*
+     * =========================
+     * CONSENTEMENT
      * =========================
      */
 
@@ -333,7 +581,11 @@ export async function POST(request: Request) {
 
     if (
       isTruthy(
-        clean(form.get('marketing'))
+        clean(
+          form.get(
+            'marketing'
+          )
+        )
       )
     ) {
       p.set(
@@ -351,49 +603,74 @@ export async function POST(request: Request) {
     add(
       p,
       f.pageOrigine,
-      clean(form.get('pageOrigine'))
+      clean(
+        form.get(
+          'pageOrigine'
+        )
+      )
     );
 
     add(
       p,
       f.utmSource,
-      clean(form.get('utmSource'))
+      clean(
+        form.get(
+          'utmSource'
+        )
+      )
     );
 
     add(
       p,
       f.utmMedium,
-      clean(form.get('utmMedium'))
+      clean(
+        form.get(
+          'utmMedium'
+        )
+      )
     );
 
     add(
       p,
       f.utmCampaign,
-      clean(form.get('utmCampaign'))
+      clean(
+        form.get(
+          'utmCampaign'
+        )
+      )
     );
 
     /*
      * =========================
-     * ENVOI VERS SALESFORCE
+     * ENVOI SALESFORCE
      * =========================
      */
 
-    const response = await fetch(
-      SALESFORCE.endpoint,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type':
-            'application/x-www-form-urlencoded',
-        },
-        body: p.toString(),
-        redirect: 'manual',
-        cache: 'no-store',
-      }
-    );
+    const response =
+      await fetch(
+        SALESFORCE.endpoint,
+        {
+          method: 'POST',
 
-    // Salesforce Web-to-Lead répond généralement
-    // avec une redirection vers retURL.
+          headers: {
+            'Content-Type':
+              'application/x-www-form-urlencoded',
+          },
+
+          body: p.toString(),
+
+          redirect: 'manual',
+
+          cache: 'no-store',
+        }
+      );
+
+    /*
+     * Salesforce Web-to-Lead
+     * retourne normalement
+     * une redirection.
+     */
+
     if (
       response.status < 200 ||
       response.status >= 400
@@ -414,12 +691,22 @@ export async function POST(request: Request) {
       );
     }
 
+    /*
+     * =========================
+     * SUCCÈS
+     * =========================
+     */
+
     return NextResponse.json({
       ok: true,
-      type: isCareerApplication
-        ? 'career'
-        : 'lead',
-      cvStored: Boolean(cvSecureUrl),
+
+      type:
+        isCareerApplication
+          ? 'career'
+          : 'lead',
+
+      cvStored:
+        Boolean(cvSecureUrl),
     });
   } catch (error) {
     console.error(
