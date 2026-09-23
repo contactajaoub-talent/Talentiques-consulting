@@ -23,13 +23,12 @@ export default async function StoreAccessPage({
   const { token = '' } = await searchParams;
   const order = token ? await findStoreOrderByAccessToken(token) : null;
 
-  const valid =
-    order &&
-    order.status === 'paid' &&
-    isStoreProductId(order.product_id) &&
-    isStoreMarket(order.market);
-
-  if (!valid) {
+  if (
+    !order ||
+    order.status !== 'paid' ||
+    !isStoreProductId(order.product_id) ||
+    !isStoreMarket(order.market)
+  ) {
     return (
       <main className="grid min-h-screen place-items-center bg-[#020b1f] px-5 text-white">
         <div className="w-full max-w-lg rounded-[32px] border border-white/10 bg-white/[0.06] p-8 text-center backdrop-blur-xl">
