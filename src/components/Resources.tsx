@@ -7,30 +7,129 @@ import { ArrowRight, LockKeyhole, Sparkles } from 'lucide-react';
 import { content } from '@/lib/content';
 
 export const Resources = () => (
-  <section id="resources" className="py-24 bg-white">
+  <section id="resources" className="bg-white py-24">
     <div className="container mx-auto px-4 md:px-6">
-      <div className="max-w-3xl mx-auto text-center mb-16">
-        <span className="text-brand-600 font-bold text-sm uppercase tracking-widest">Ressources</span>
-        <h2 className="text-4xl md:text-5xl font-bold mt-4 mb-5 text-slate-900 font-heading">Apprendre gratuitement. Aller plus loin quand vous êtes prêt.</h2>
-        <p className="text-lg text-slate-600">La bibliothèque est en cours de construction. La structure est prête pour accueillir progressivement des modèles, guides, checklists et kits.</p>
+      <div className="mx-auto mb-16 max-w-3xl text-center">
+        <span className="text-sm font-bold uppercase tracking-widest text-brand-600">
+          Ressources
+        </span>
+
+        <h2 className="mt-4 mb-5 font-heading text-4xl font-bold text-slate-900 md:text-5xl">
+          Apprendre gratuitement. Aller plus loin quand vous êtes prêt.
+        </h2>
+
+        <p className="text-lg text-slate-600">
+          Découvrez nos ressources gratuites et nos outils premium pour
+          structurer votre recherche, améliorer votre candidature et passer à
+          l’action.
+        </p>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="rounded-3xl border border-slate-200 p-8 bg-slate-50/70">
-          <div className="flex items-center gap-3 mb-7"><div className="w-11 h-11 rounded-xl bg-brand-100 text-brand-700 flex items-center justify-center"><Sparkles size={20}/></div><div><h3 className="text-2xl font-bold text-slate-900">Ressources gratuites</h3><p className="text-sm text-slate-500">Accès libre ou téléchargement gratuit</p></div></div>
-          <div className="grid sm:grid-cols-2 gap-4">
-            {content.resources.free.map((item) => { const Icon = item.icon; return <div key={item.title} className="bg-white border border-slate-200 rounded-2xl p-5"><Icon className="text-brand-600 mb-4" size={23}/><h4 className="font-bold text-slate-900 mb-2">{item.title}</h4><p className="text-sm text-slate-600 mb-4">{item.description}</p><span className="text-xs font-semibold text-brand-700">{item.status}</span></div>; })}
+      <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-2">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="rounded-3xl border border-slate-200 bg-slate-50/70 p-8"
+        >
+          <div className="mb-7 flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-100 text-brand-700">
+              <Sparkles size={20} />
+            </div>
+
+            <div>
+              <h3 className="text-2xl font-bold text-slate-900">
+                Ressources gratuites
+              </h3>
+              <p className="text-sm text-slate-500">
+                Accès libre ou téléchargement gratuit
+              </p>
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            {content.resources.free.map((item) => {
+              const Icon = item.icon;
+
+              return (
+                <div
+                  key={item.title}
+                  className="rounded-2xl border border-slate-200 bg-white p-5"
+                >
+                  <Icon className="mb-4 text-brand-600" size={23} />
+                  <h4 className="mb-2 font-bold text-slate-900">{item.title}</h4>
+                  <p className="mb-4 text-sm text-slate-600">
+                    {item.description}
+                  </p>
+                  <span className="text-xs font-semibold text-brand-700">
+                    {item.status}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: .1 }} className="rounded-3xl border border-brand-200 p-8 bg-gradient-to-br from-white to-brand-50/50">
-          <div className="flex items-center gap-3 mb-7"><div className="w-11 h-11 rounded-xl bg-brand-600 text-white flex items-center justify-center"><LockKeyhole size={20}/></div><div><h3 className="text-2xl font-bold text-slate-900">Ressources payantes</h3><p className="text-sm text-slate-500">Kits et guides premium — détails à venir</p></div></div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.1 }}
+          className="rounded-3xl border border-brand-200 bg-gradient-to-br from-white to-brand-50/50 p-8"
+        >
+          <div className="mb-7 flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-600 text-white">
+              <LockKeyhole size={20} />
+            </div>
+
+            <div>
+              <h3 className="text-2xl font-bold text-slate-900">
+                Outils premium
+              </h3>
+              <p className="text-sm text-slate-500">
+                Paiement unique · accès immédiat
+              </p>
+            </div>
+          </div>
+
           <div className="space-y-4">
-            {content.resources.paid.map((item) => <div key={item.title} className="bg-white border border-slate-200 rounded-2xl p-5 flex items-start justify-between gap-4"><div><h4 className="font-bold text-slate-900 mb-1">{item.title}</h4><p className="text-sm text-slate-600">{item.description}</p></div><span className="shrink-0 text-xs font-semibold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">{item.status}</span></div>)}
+            {content.resources.paid.map((item) => (
+              <div
+                key={item.title}
+                className="flex items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 transition-all hover:border-brand-300 hover:shadow-md"
+              >
+                <div>
+                  <h4 className="mb-1 font-bold text-slate-900">
+                    {item.title}
+                  </h4>
+                  <p className="text-sm text-slate-600">{item.description}</p>
+                  <div className="mt-3 text-sm font-black text-brand-700">
+                    {item.status}
+                  </div>
+                </div>
+
+                <Link
+                  href={item.href}
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-brand-600 px-4 py-2 text-xs font-bold text-white transition-all hover:bg-brand-700 hover:shadow-md"
+                >
+                  Découvrir
+                  <ArrowRight size={14} />
+                </Link>
+              </div>
+            ))}
           </div>
         </motion.div>
       </div>
-      <div className="text-center mt-10"><Link href="/ressources" className="inline-flex items-center gap-2 text-brand-700 font-bold hover:gap-3 transition-all">Voir l’espace ressources <ArrowRight size={18}/></Link></div>
+
+      <div className="mt-10 text-center">
+        <Link
+          href="/outils"
+          className="inline-flex items-center gap-2 font-bold text-brand-700 transition-all hover:gap-3"
+        >
+          Voir tous les outils TalentiQues
+          <ArrowRight size={18} />
+        </Link>
+      </div>
     </div>
   </section>
 );

@@ -14,7 +14,7 @@ export default function ResourcesPage() {
       <section className="pt-36 pb-6 text-center px-4">
         <span className="text-brand-700 font-bold uppercase tracking-widest text-sm">Bibliothèque TalentiQues</span>
         <h1 className="text-5xl md:text-6xl font-bold text-slate-900 mt-4 font-heading">Ressources carrière</h1>
-        <p className="text-lg text-slate-600 max-w-2xl mx-auto mt-5">Des contenus pratiques pour avancer en autonomie. Les premières ressources seront ajoutées progressivement.</p>
+        <p className="text-lg text-slate-600 max-w-2xl mx-auto mt-5">Des ressources gratuites et des outils premium pour structurer votre recherche, renforcer votre candidature et avancer en autonomie.</p>
       </section>
       <Resources />
       <Footer />

@@ -34,3 +34,24 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## TalentiQues Store FR
+
+La Store autonome est disponible sous `/outils`.
+
+Architecture ajoutée :
+- landing premium `/outils` ;
+- checkout PayPal `/outils/checkout` ;
+- accès post-paiement `/outils/acces` ;
+- API PayPal sécurisée côté serveur ;
+- journal des commandes Supabase ;
+- livraison Resend ;
+- tracking UTM / Meta / Clarity / GA4 optionnel.
+
+Lire avant déploiement :
+- `docs/STORE-INTEGRATION-ANALYSIS.md`
+- `docs/STORE-DEPLOYMENT.md`
+- `supabase/store_orders.sql`
+
+### Référence visuelle Store
+La maquette validée utilisée comme référence d'intégration est conservée dans `docs/STORE-VISUAL-REFERENCE.png`.

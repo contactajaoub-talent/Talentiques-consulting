@@ -35,6 +35,7 @@ export const Navbar = () => {
 
   const navLinks = [
     { name: 'Diagnostic CV ATS', href: '/diagnostic-cv-ats' },
+    { name: 'Outils', href: '/outils' },
     { name: 'Ressources', href: '/ressources' },
     { name: 'Services', href: '/#services' },
     { name: 'Accompagnement', href: '/accompagnement' },
@@ -63,7 +64,7 @@ export const Navbar = () => {
             {content.businessName}
           </Link>
 
-          <div className="ml-10 hidden min-w-0 flex-1 items-center justify-end min-[1120px]:flex">
+          <div className="ml-10 hidden min-w-0 flex-1 items-center justify-end min-[1240px]:flex">
             <div className="flex items-center gap-6 min-[1320px]:gap-8">
               {navLinks.map((link) => (
                 <Link
@@ -87,7 +88,7 @@ export const Navbar = () => {
 
           <button
             type="button"
-            className="relative z-[60] ml-auto flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-800 shadow-sm transition hover:bg-slate-50 min-[1120px]:hidden"
+            className="relative z-[60] ml-auto flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-800 shadow-sm transition hover:bg-slate-50 min-[1240px]:hidden"
             onClick={() => setMobileMenuOpen((open) => !open)}
             aria-label={mobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
             aria-expanded={mobileMenuOpen}
@@ -100,7 +101,7 @@ export const Navbar = () => {
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
-            className="fixed inset-0 z-40 bg-white min-[1120px]:hidden"
+            className="fixed inset-0 z-40 bg-white min-[1240px]:hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
