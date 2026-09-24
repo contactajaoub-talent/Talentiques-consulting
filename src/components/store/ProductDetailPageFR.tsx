@@ -130,8 +130,6 @@ export default function ProductDetailPageFR({ productId }: { productId: StorePro
               <StoreCTA
                 href={`/outils/checkout?product=${productId}`}
                 productId={productId}
-                productName={product.name}
-                value={Number(product.amount)}
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-sky-400 to-blue-600 px-7 py-4 text-sm font-black text-white shadow-[0_16px_45px_rgba(14,165,233,.35)] transition hover:-translate-y-0.5"
               >
                 Accéder maintenant — {product.displayPrice}
@@ -200,8 +198,6 @@ export default function ProductDetailPageFR({ productId }: { productId: StorePro
               <StoreCTA
                 href={getStoreDetailHrefFR('bundle')}
                 productId="bundle"
-                productName="Career Search Bundle"
-                value={Number(STORE_FR_PRODUCTS.bundle.amount)}
                 className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-sky-400 to-blue-600 px-7 py-4 text-sm font-black text-white shadow-[0_15px_45px_rgba(14,165,233,.35)]"
               >
                 Voir le Bundle — 14,90 €
@@ -288,8 +284,6 @@ export default function ProductDetailPageFR({ productId }: { productId: StorePro
           <StoreCTA
             href={`/outils/checkout?product=${productId}`}
             productId={productId}
-            productName={product.name}
-            value={Number(product.amount)}
             className="mx-auto mt-7 inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-sky-400 to-blue-600 px-8 py-4 text-sm font-black text-white shadow-[0_16px_45px_rgba(14,165,233,.35)]"
           >
             Continuer vers le paiement — {product.displayPrice}
@@ -313,8 +307,6 @@ export default function ProductDetailPageFR({ productId }: { productId: StorePro
           <StoreCTA
             href={`/outils/checkout?product=${productId}`}
             productId={productId}
-            productName={product.name}
-            value={Number(product.amount)}
             className="inline-flex items-center gap-2 rounded-full bg-sky-500 px-4 py-3 text-xs font-black text-white"
             arrow={false}
           >

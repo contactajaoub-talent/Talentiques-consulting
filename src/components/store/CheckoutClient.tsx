@@ -3,23 +3,47 @@
 import Script from 'next/script';
 import { useEffect, useRef, useState } from 'react';
 import {
+  BriefcaseBusiness,
   CheckCircle2,
   CreditCard,
+  Globe2,
   LoaderCircle,
   LockKeyhole,
+  Mail,
+  Phone,
   ShieldCheck,
+  UserRound,
   type LucideIcon,
 } from 'lucide-react';
 import type { StoreProduct, StoreTracking } from '@/lib/store/catalog';
 import { STORE_TRACKING_KEYS } from '@/lib/store/catalog';
-
-
+import {
+  trackStoreCheckoutStarted,
+  trackStorePurchaseOnce,
+} from '@/lib/store/analytics';
+import {
+  STORE_CUSTOMER_STATUSES,
+  validateStoreCustomerInput,
+  type StoreCustomerField,
+  type StoreCustomerInput,
+} from '@/lib/store/customer';
 
 const assuranceItems: ReadonlyArray<readonly [string, LucideIcon]> = [
   ['Paiement unique', CreditCard],
   ['Accès immédiat', CheckCircle2],
   ['Paiement sécurisé', ShieldCheck],
 ];
+
+const emptyCustomer: StoreCustomerInput = {
+  fullName: '',
+  email: '',
+  phone: '',
+  country: '',
+  currentStatus: '',
+};
+
+const inputClassName =
+  'mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10';
 
 function getTrackingFromLocation(): StoreTracking {
   if (typeof window === 'undefined') return {};
@@ -43,6 +67,13 @@ export default function CheckoutClient({
 }) {
   const rendered = useRef(false);
   const consentRef = useRef(false);
+  const customerRef = useRef<StoreCustomerInput>(emptyCustomer);
+  const checkoutStartedRef = useRef(false);
+  const [customer, setCustomer] =
+    useState<StoreCustomerInput>(emptyCustomer);
+  const [touched, setTouched] = useState<
+    Partial<Record<StoreCustomerField, boolean>>
+  >({});
   const [digitalConsent, setDigitalConsent] = useState(false);
   const [status, setStatus] = useState<'idle' | 'processing' | 'error'>('idle');
   const [error, setError] = useState('');
@@ -50,6 +81,45 @@ export default function CheckoutClient({
   useEffect(() => {
     consentRef.current = digitalConsent;
   }, [digitalConsent]);
+
+  useEffect(() => {
+    customerRef.current = customer;
+  }, [customer]);
+
+  const customerValidation = validateStoreCustomerInput(customer);
+  const customerIsValid = customerValidation.success;
+  const canPay = customerIsValid && digitalConsent;
+
+  function updateCustomer(field: StoreCustomerField, value: string) {
+    setCustomer((current) => {
+      const next = { ...current, [field]: value };
+      customerRef.current = next;
+      return next;
+    });
+    setError('');
+    if (status === 'error') setStatus('idle');
+  }
+
+  function finishCustomerField(field: StoreCustomerField) {
+    setTouched((current) => ({ ...current, [field]: true }));
+    setCustomer((current) => {
+      const next = {
+        ...current,
+        [field]:
+        field === 'email'
+          ? current[field].trim().toLowerCase()
+          : current[field].trim(),
+      };
+      customerRef.current = next;
+      return next;
+    });
+  }
+
+  function fieldError(field: StoreCustomerField) {
+    return touched[field] && !customerValidation.success
+      ? customerValidation.errors[field]
+      : undefined;
+  }
 
   async function renderPayPal() {
     if (!window.paypal || rendered.current) return;
@@ -65,6 +135,25 @@ export default function CheckoutClient({
             height: 48,
           },
           createOrder: async () => {
+            const customerResult = validateStoreCustomerInput(
+              customerRef.current
+            );
+
+            if (!customerResult.success) {
+              setTouched({
+                fullName: true,
+                email: true,
+                phone: true,
+                country: true,
+                currentStatus: true,
+              });
+              setStatus('error');
+              setError(
+                'Complétez correctement toutes vos informations avant de payer.'
+              );
+              throw new Error('Informations client invalides');
+            }
+
             if (!consentRef.current) {
               setStatus('error');
               setError(
@@ -76,25 +165,10 @@ export default function CheckoutClient({
             setStatus('processing');
             setError('');
 
-            window.fbq?.('track', 'InitiateCheckout', {
-              value: Number(product.amount),
-              currency: product.currency,
-              content_name: product.name,
-              content_ids: [product.id],
-              content_type: 'product',
-            });
-            window.gtag?.('event', 'begin_checkout', {
-              currency: product.currency,
-              value: Number(product.amount),
-              items: [
-                {
-                  item_id: product.id,
-                  item_name: product.name,
-                  price: Number(product.amount),
-                  quantity: 1,
-                },
-              ],
-            });
+            if (!checkoutStartedRef.current) {
+              checkoutStartedRef.current = true;
+              trackStoreCheckoutStarted(product);
+            }
 
             const response = await fetch('/api/store/paypal/create-order', {
               method: 'POST',
@@ -104,6 +178,7 @@ export default function CheckoutClient({
                 market: product.market,
                 tracking: getTrackingFromLocation(),
                 digitalContentConsent: true,
+                customer: customerResult.data,
               }),
             });
 
@@ -131,25 +206,11 @@ export default function CheckoutClient({
               );
             }
 
-            window.fbq?.('track', 'Purchase', {
-              value: Number(payload.amount || product.amount),
+            trackStorePurchaseOnce({
+              product,
+              transactionId: data.orderID,
+              amount: Number(payload.amount || product.amount),
               currency: payload.currency || product.currency,
-              content_name: product.name,
-              content_ids: [product.id],
-              content_type: 'product',
-            });
-            window.gtag?.('event', 'purchase', {
-              transaction_id: data.orderID,
-              currency: payload.currency || product.currency,
-              value: Number(payload.amount || product.amount),
-              items: [
-                {
-                  item_id: product.id,
-                  item_name: product.name,
-                  price: Number(payload.amount || product.amount),
-                  quantity: 1,
-                },
-              ],
             });
 
             window.location.assign(
@@ -250,6 +311,159 @@ export default function CheckoutClient({
             </div>
           )}
 
+          <div className="mt-7 rounded-2xl border border-sky-100 bg-sky-50/60 p-4 sm:p-5">
+            <div className="flex items-start gap-3">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-sky-600 text-white">
+                <UserRound className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="font-black text-slate-950">
+                  Vos informations
+                </h3>
+                <p className="mt-1 text-xs leading-5 text-slate-500">
+                  Ces informations nous permettent de préparer votre accès et
+                  de vous envoyer vos ressources après le paiement.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 space-y-4">
+              <label className="block text-xs font-bold text-slate-700">
+                <span className="flex items-center gap-2">
+                  <UserRound className="h-4 w-4 text-sky-600" /> Nom complet
+                </span>
+                <input
+                  type="text"
+                  name="fullName"
+                  autoComplete="name"
+                  required
+                  maxLength={150}
+                  value={customer.fullName}
+                  onChange={(event) =>
+                    updateCustomer('fullName', event.target.value)
+                  }
+                  onBlur={() => finishCustomerField('fullName')}
+                  placeholder="Ex. Marie Dupont"
+                  aria-invalid={Boolean(fieldError('fullName'))}
+                  className={inputClassName}
+                />
+                {fieldError('fullName') && (
+                  <span className="mt-1.5 block text-xs font-semibold text-red-600">
+                    {fieldError('fullName')}
+                  </span>
+                )}
+              </label>
+
+              <label className="block text-xs font-bold text-slate-700">
+                <span className="flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-sky-600" /> E-mail
+                </span>
+                <input
+                  type="email"
+                  name="email"
+                  autoComplete="email"
+                  required
+                  maxLength={254}
+                  value={customer.email}
+                  onChange={(event) =>
+                    updateCustomer('email', event.target.value)
+                  }
+                  onBlur={() => finishCustomerField('email')}
+                  placeholder="vous@email.com"
+                  aria-invalid={Boolean(fieldError('email'))}
+                  className={inputClassName}
+                />
+                {fieldError('email') && (
+                  <span className="mt-1.5 block text-xs font-semibold text-red-600">
+                    {fieldError('email')}
+                  </span>
+                )}
+              </label>
+
+              <label className="block text-xs font-bold text-slate-700">
+                <span className="flex items-center gap-2">
+                  <Phone className="h-4 w-4 text-sky-600" /> Téléphone / WhatsApp
+                </span>
+                <input
+                  type="tel"
+                  name="phone"
+                  autoComplete="tel"
+                  required
+                  maxLength={50}
+                  value={customer.phone}
+                  onChange={(event) =>
+                    updateCustomer('phone', event.target.value)
+                  }
+                  onBlur={() => finishCustomerField('phone')}
+                  placeholder="+33 6 00 00 00 00"
+                  aria-invalid={Boolean(fieldError('phone'))}
+                  className={inputClassName}
+                />
+                {fieldError('phone') && (
+                  <span className="mt-1.5 block text-xs font-semibold text-red-600">
+                    {fieldError('phone')}
+                  </span>
+                )}
+              </label>
+
+              <label className="block text-xs font-bold text-slate-700">
+                <span className="flex items-center gap-2">
+                  <Globe2 className="h-4 w-4 text-sky-600" /> Pays
+                </span>
+                <input
+                  type="text"
+                  name="country"
+                  autoComplete="country-name"
+                  required
+                  maxLength={100}
+                  value={customer.country}
+                  onChange={(event) =>
+                    updateCustomer('country', event.target.value)
+                  }
+                  onBlur={() => finishCustomerField('country')}
+                  placeholder="Ex. France"
+                  aria-invalid={Boolean(fieldError('country'))}
+                  className={inputClassName}
+                />
+                {fieldError('country') && (
+                  <span className="mt-1.5 block text-xs font-semibold text-red-600">
+                    {fieldError('country')}
+                  </span>
+                )}
+              </label>
+
+              <label className="block text-xs font-bold text-slate-700">
+                <span className="flex items-center gap-2">
+                  <BriefcaseBusiness className="h-4 w-4 text-sky-600" />
+                  Situation actuelle
+                </span>
+                <select
+                  name="currentStatus"
+                  required
+                  value={customer.currentStatus}
+                  onChange={(event) =>
+                    updateCustomer('currentStatus', event.target.value)
+                  }
+                  onBlur={() => finishCustomerField('currentStatus')}
+                  aria-invalid={Boolean(fieldError('currentStatus'))}
+                  className={inputClassName}
+                >
+                  <option value="">Sélectionnez votre situation</option>
+                  {STORE_CUSTOMER_STATUSES.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+                {fieldError('currentStatus') && (
+                  <span className="mt-1.5 block text-xs font-semibold text-red-600">
+                    {fieldError('currentStatus')}
+                  </span>
+                )}
+              </label>
+            </div>
+          </div>
+
           <div className="mt-7 rounded-2xl border border-slate-200 bg-slate-50 p-4">
             <label className="flex cursor-pointer items-start gap-3 text-xs leading-5 text-slate-600">
               <input
@@ -283,12 +497,14 @@ export default function CheckoutClient({
             {clientId ? (
               <>
                 <div
-                  className={digitalConsent ? 'block' : 'hidden'}
+                  className={canPay ? 'block' : 'hidden'}
                   id="talentiques-paypal-buttons"
                 />
-                {!digitalConsent && (
+                {!canPay && (
                   <div className="grid min-h-[120px] place-items-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-5 text-center text-sm font-semibold leading-6 text-slate-500">
-                    Cochez la confirmation ci-dessus pour afficher le paiement PayPal.
+                    {customerIsValid
+                      ? 'Cochez la confirmation ci-dessus pour afficher le paiement PayPal.'
+                      : 'Complétez vos informations pour accéder au paiement PayPal.'}
                   </div>
                 )}
                 <Script

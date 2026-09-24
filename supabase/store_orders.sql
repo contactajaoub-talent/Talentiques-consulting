@@ -24,6 +24,9 @@ create table if not exists public.store_orders (
 
   customer_email text,
   customer_name text,
+  customer_phone text,
+  customer_country text,
+  customer_status text,
 
   resend_email_id text,
   delivery_error text,
@@ -65,3 +68,13 @@ alter table public.store_orders
 
 alter table public.store_orders
   add column if not exists consent_version text;
+
+-- Compatibilité pour les informations client collectées au checkout.
+alter table public.store_orders
+  add column if not exists customer_phone text;
+
+alter table public.store_orders
+  add column if not exists customer_country text;
+
+alter table public.store_orders
+  add column if not exists customer_status text;

@@ -75,8 +75,8 @@ export async function fulfillStorePayment(input: {
       status: 'paid',
       paypal_order_id: input.paypalOrderId,
       paypal_capture_id: input.capture.id || raw.paypal_capture_id || null,
-      customer_email: input.payer?.email_address || raw.customer_email || null,
-      customer_name: fullName || raw.customer_name || null,
+      customer_email: raw.customer_email || input.payer?.email_address || null,
+      customer_name: raw.customer_name || fullName || null,
       paid_at: raw.paid_at || new Date().toISOString(),
     });
   }

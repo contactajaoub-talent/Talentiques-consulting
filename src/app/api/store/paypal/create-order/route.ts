@@ -7,6 +7,7 @@ import {
   type StoreTracking,
 } from '@/lib/store/catalog';
 import { paypalFetch } from '@/lib/store/paypal';
+import { validateStoreCustomerInput } from '@/lib/store/customer';
 import {
   insertStoreOrder,
   updateStoreOrder,
@@ -19,6 +20,7 @@ type CreateBody = {
   market?: unknown;
   tracking?: unknown;
   digitalContentConsent?: unknown;
+  customer?: unknown;
 };
 
 function sanitizeTracking(value: unknown): StoreTracking {
@@ -55,6 +57,17 @@ export async function POST(request: Request) {
       );
     }
 
+    const customerResult = validateStoreCustomerInput(body.customer);
+    if (!customerResult.success) {
+      return NextResponse.json(
+        {
+          error: 'Informations client invalides',
+          fields: customerResult.errors,
+        },
+        { status: 400 }
+      );
+    }
+
     const product = getStoreProduct(productId, market);
     const tracking = sanitizeTracking(body.tracking);
     internalOrderId = crypto.randomUUID();
@@ -73,6 +86,11 @@ export async function POST(request: Request) {
       currency: product.currency,
       status: 'pending',
       delivery_status: 'pending',
+      customer_name: customerResult.data.fullName,
+      customer_email: customerResult.data.email,
+      customer_phone: customerResult.data.phone,
+      customer_country: customerResult.data.country,
+      customer_status: customerResult.data.currentStatus,
       digital_content_consent_at: new Date().toISOString(),
       consent_version: 'store-fr-v1-2026-09',
       ...tracking,

@@ -2,21 +2,21 @@
 
 import type { MouseEvent, ReactNode } from 'react';
 import { ArrowRight } from 'lucide-react';
-import { STORE_TRACKING_KEYS } from '@/lib/store/catalog';
+import {
+  STORE_TRACKING_KEYS,
+  type StoreProductId,
+} from '@/lib/store/catalog';
+import { trackStoreProductClick } from '@/lib/store/analytics';
 
 export default function StoreCTA({
   href,
   productId,
-  productName,
-  value,
   children,
   className = '',
   arrow = true,
 }: {
   href: string;
-  productId: 'tracker' | 'ats' | 'bundle';
-  productName: string;
-  value: number;
+  productId: StoreProductId;
   children: ReactNode;
   className?: string;
   arrow?: boolean;
@@ -34,23 +34,7 @@ export default function StoreCTA({
 
     event.preventDefault();
 
-    window.fbq?.('trackCustom', 'StoreProductClick', {
-      content_name: productName,
-      content_ids: [productId],
-      value,
-      currency: 'EUR',
-    });
-    window.gtag?.('event', 'select_item', {
-      item_list_name: 'Talentiques Store FR',
-      items: [
-        {
-          item_id: productId,
-          item_name: productName,
-          price: value,
-          quantity: 1,
-        },
-      ],
-    });
+    trackStoreProductClick(productId);
 
     const target = new URL(href, window.location.origin);
     const current = new URLSearchParams(window.location.search);
