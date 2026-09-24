@@ -3,6 +3,9 @@ import { Outfit, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Preloader } from '@/components/Preloader';
+import { headers } from 'next/headers';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
+import StoreAttribution from '@/components/StoreAttribution';
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -15,7 +18,7 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://talentiques.com'),
+  metadataBase: new URL('https://www.talentiques.com'),
 
   title: {
     default: 'TalentiQues | CV ATS, LinkedIn & carrière francophone',
@@ -47,13 +50,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className="scroll-smooth">
+    <html lang={(await headers()).get('x-talentiques-language') === 'en' ? 'en' : 'fr'} className="scroll-smooth">
       <body
         suppressHydrationWarning
         className={cn(
@@ -65,6 +68,8 @@ export default function RootLayout({
         <Preloader />
 
         {children}
+        <LanguageSwitcher />
+        <StoreAttribution />
       </body>
     </html>
   );

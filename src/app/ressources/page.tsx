@@ -1,11 +1,9 @@
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Resources } from '@/components/Resources';
+import { localizedMetadata } from '@/lib/i18n';
 
-export const metadata = {
-  title: 'Ressources carrière gratuites et payantes',
-  description: 'Modèles, checklists, guides et futurs kits TalentiQues pour améliorer votre CV, LinkedIn et votre recherche d’emploi.',
-};
+export const metadata = localizedMetadata('/ressources', 'Ressources carrière gratuites et payantes', 'Modèles, checklists, guides et futurs kits TalentiQues pour améliorer votre CV, LinkedIn et votre recherche d’emploi.');
 
 export default function ResourcesPage() {
   return (

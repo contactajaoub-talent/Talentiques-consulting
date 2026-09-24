@@ -1,0 +1,6 @@
+import Link from 'next/link';
+import EnglishPage from '@/components/EnglishPage';
+import { primaryButton } from '@/components/store/EnglishStore';
+import { localizedMetadata } from '@/lib/i18n';
+export const metadata = localizedMetadata('/en/careers', 'Careers at TalentiQues', 'Explore opportunities to help TalentiQues support professionals and develop practical career solutions.');
+export default function Page() { return <EnglishPage title="Help us build what comes next." intro="Join a team developing practical solutions for people navigating their careers."><article className="rounded-3xl border border-slate-200 p-8"><p className="text-sm font-bold text-[#0683C9]">Sales · Remote · Part-time, with room to grow</p><h2 className="mt-4 text-2xl font-black">Client Acquisition &amp; Development | Lead Generation</h2><p className="mt-5 leading-8 text-slate-600">Develop outreach, support inbound prospects and follow conversations through to a decision. This role primarily serves French-speaking clients, so excellent written and spoken French is essential.</p><Link href="/en/careers/client-acquisition" className={`${primaryButton} mt-6`}>View role and apply</Link></article></EnglishPage>; }

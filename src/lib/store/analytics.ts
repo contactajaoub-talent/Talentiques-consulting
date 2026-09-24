@@ -1,5 +1,8 @@
 import {
   STORE_FR_PRODUCTS,
+  STORE_EN_PRODUCTS,
+  getStoreProduct,
+  type StoreMarket,
   type StoreProduct,
   type StoreProductId,
 } from '@/lib/store/catalog';
@@ -15,6 +18,9 @@ const productPaths: Partial<Record<string, StoreProductId>> = {
   '/outils/opportunity-tracker': 'tracker',
   '/outils/cv-ats': 'ats',
   '/outils/bundle': 'bundle',
+  '/en/tools/opportunity-tracker': 'tracker',
+  '/en/tools/ats-resume': 'ats',
+  '/en/tools/bundle': 'bundle',
 };
 
 function productValue(product: StoreProduct) {
@@ -63,13 +69,14 @@ export function trackStorePage(pathname: string) {
 
   window.fbq?.('track', 'PageView');
 
-  if (normalizedPath === '/outils') {
-    const products = Object.values(STORE_FR_PRODUCTS);
+  const market = normalizedPath.startsWith('/en/') ? 'en' : 'fr';
+  if (normalizedPath === '/outils' || normalizedPath === '/en/tools') {
+    const products = Object.values(market === 'fr' ? STORE_FR_PRODUCTS : STORE_EN_PRODUCTS);
 
     window.gtag?.('event', 'view_item_list', {
-      item_list_id: STORE_ITEM_LIST_ID,
-      item_list_name: STORE_ITEM_LIST_NAME,
-      currency: 'EUR',
+      item_list_id: market === 'fr' ? STORE_ITEM_LIST_ID : 'talentiques_store_en',
+      item_list_name: market === 'fr' ? STORE_ITEM_LIST_NAME : 'Talentiques Store EN',
+      currency: products[0].currency,
       items: products.map(gaItem),
     });
     return;
@@ -78,7 +85,7 @@ export function trackStorePage(pathname: string) {
   const productId = productPaths[normalizedPath];
   if (!productId) return;
 
-  const product = STORE_FR_PRODUCTS[productId];
+  const product = getStoreProduct(productId, market);
 
   window.fbq?.('track', 'ViewContent', metaProduct(product));
   window.gtag?.('event', 'view_item', {
@@ -89,8 +96,8 @@ export function trackStorePage(pathname: string) {
   window.clarity?.('event', 'store_product_view');
 }
 
-export function trackStoreProductClick(productId: StoreProductId) {
-  const product = STORE_FR_PRODUCTS[productId];
+export function trackStoreProductClick(productId: StoreProductId, market: StoreMarket = 'fr') {
+  const product = getStoreProduct(productId, market);
 
   window.fbq?.(
     'trackCustom',
@@ -98,8 +105,8 @@ export function trackStoreProductClick(productId: StoreProductId) {
     metaProduct(product)
   );
   window.gtag?.('event', 'select_item', {
-    item_list_id: STORE_ITEM_LIST_ID,
-    item_list_name: STORE_ITEM_LIST_NAME,
+    item_list_id: market === 'fr' ? STORE_ITEM_LIST_ID : 'talentiques_store_en',
+    item_list_name: market === 'fr' ? STORE_ITEM_LIST_NAME : 'Talentiques Store EN',
     items: [gaItem(product)],
   });
   window.clarity?.('event', 'store_product_click');

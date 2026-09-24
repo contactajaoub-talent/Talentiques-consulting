@@ -7,6 +7,7 @@ import {
   type StoreProductId,
 } from '@/lib/store/catalog';
 import { trackStoreProductClick } from '@/lib/store/analytics';
+import { readStoreAttribution } from '@/lib/store/attribution';
 
 export default function StoreCTA({
   href,
@@ -22,6 +23,12 @@ export default function StoreCTA({
   arrow?: boolean;
 }) {
   function handleClick(event: MouseEvent<HTMLAnchorElement>) {
+    const target = new URL(href, window.location.origin);
+    const tracking = readStoreAttribution();
+    for (const key of STORE_TRACKING_KEYS) {
+      if (tracking[key]) target.searchParams.set(key, tracking[key]);
+    }
+    event.currentTarget.href = target.toString();
     if (
       event.metaKey ||
       event.ctrlKey ||
@@ -34,21 +41,13 @@ export default function StoreCTA({
 
     event.preventDefault();
 
-    trackStoreProductClick(productId);
-
-    const target = new URL(href, window.location.origin);
-    const current = new URLSearchParams(window.location.search);
-
-    for (const key of STORE_TRACKING_KEYS) {
-      const valueFromQuery = current.get(key);
-      if (valueFromQuery) target.searchParams.set(key, valueFromQuery);
-    }
+    trackStoreProductClick(productId, href.startsWith('/en/') ? 'en' : 'fr');
 
     window.location.assign(`${target.pathname}${target.search}${target.hash}`);
   }
 
   return (
-    <a href={href} onClick={handleClick} className={className}>
+    <a href={href} onClick={handleClick} onAuxClick={handleClick} className={className}>
       <span>{children}</span>
       {arrow && <ArrowRight className="h-4 w-4 shrink-0" />}
     </a>

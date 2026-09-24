@@ -3,11 +3,9 @@ import { Footer } from '@/components/Footer';
 import { Accompaniment } from '@/components/Accompaniment';
 import { Process } from '@/components/Process';
 import { AccompanimentLeadForm } from '@/components/AccompanimentLeadForm';
+import { localizedMetadata } from '@/lib/i18n';
 
-export const metadata = {
-  title: 'Accompagnement carrière francophone',
-  description: 'Accompagnement personnalisé pour structurer votre recherche d’emploi, d’alternance ou votre projet de carrière sur les marchés francophones.',
-};
+export const metadata = localizedMetadata('/accompagnement', 'Accompagnement carrière francophone', 'Accompagnement personnalisé pour structurer votre recherche d’emploi, d’alternance ou votre projet de carrière sur les marchés francophones.');
 
 export default function AccompanimentPage() {
   return (

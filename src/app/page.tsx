@@ -1,4 +1,6 @@
 import { Navbar } from '@/components/Navbar';
+import { localizedMetadata } from '@/lib/i18n';
+export const metadata = localizedMetadata('/', 'TalentiQues | CV ATS, LinkedIn et carrière', 'Des outils et un accompagnement pour structurer votre recherche et renforcer votre candidature.');
 import { Hero } from '@/components/Hero';
 import { About } from '@/components/About';
 import { WhyUs } from '@/components/WhyUs';

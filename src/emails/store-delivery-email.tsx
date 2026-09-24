@@ -81,7 +81,7 @@ export function StoreDeliveryEmail({
                 : `Thank you for your purchase. Your access to ${productName} is now available.`}
             </Text>
             <Button href={accessUrl} style={primaryButton}>
-              {isFr ? 'Accéder à mon espace' : 'Access my space'}
+              {isFr ? 'Accéder à mon espace' : 'Access your product'}
             </Button>
           </Section>
 

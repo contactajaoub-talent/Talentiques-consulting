@@ -50,18 +50,21 @@ function absoluteHttpUrl(value: string, name: string) {
   return url.toString().replace(/\/$/, '');
 }
 
-function requiredDeliveryUrl(name: string) {
+export function requiredDeliveryUrl(name: string) {
   const value = process.env[name]?.trim();
 
   if (!value) {
     throw new Error(`Lien de livraison non configuré : ${name}`);
   }
 
-  return absoluteHttpUrl(value, name);
+  const url = absoluteHttpUrl(value, name);
+  if (new URL(url).protocol !== 'https:') throw new Error(`HTTPS requis pour ${name}`);
+  return url;
 }
 
 function getAppUrl() {
   const configured =
+    (process.env.VERCEL_ENV === 'preview' ? process.env.VERCEL_URL : undefined) ||
     process.env.NEXT_PUBLIC_APP_URL ||
     process.env.VERCEL_PROJECT_PRODUCTION_URL ||
     'https://www.talentiques.com';
@@ -127,19 +130,23 @@ export function getDeliveryItems(
   /*
    * Marché EN
    *
-   * On conserve temporairement le système actuel.
-   * Il sera migré vers Blob Private lorsque la version EN du Store sera lancée.
+   * Les sources EN existantes restent configurées côté serveur.
+   * Seule la route sécurisée est publiée, jamais l'URL source.
    */
+  if (!accessToken) throw new Error('Delivery token missing');
+  // Validate configuration before sending links; only secure URLs leave the server.
+  if (productId !== 'ats') requiredDeliveryUrl('STORE_TRACKER_PACKAGE_EN_URL');
+  if (productId !== 'tracker') requiredDeliveryUrl('STORE_ATS_PACKAGE_EN_URL');
   const trackerItem = (): DeliveryItem => ({
     label: 'Opportunity Tracker Pro',
     description: 'Tracker + automations + premium guides.',
-    url: requiredDeliveryUrl('STORE_TRACKER_PACKAGE_EN_URL'),
+    url: getSecureDownloadUrl(accessToken, 'tracker'),
   });
 
   const atsItem = (): DeliveryItem => ({
     label: 'ATS Resume System',
     description: 'ATS templates + resume guide + LinkedIn bonus.',
-    url: requiredDeliveryUrl('STORE_ATS_PACKAGE_EN_URL'),
+    url: getSecureDownloadUrl(accessToken, 'ats'),
   });
 
   if (productId === 'tracker') {
@@ -185,8 +192,8 @@ async function sendDeliveryEmail(
     .split(/\s+/)[0];
 
   const accessUrl = `${getAppUrl()}/${
-    isFr ? 'outils' : 'en/tools'
-  }/acces?token=${encodeURIComponent(order.access_token)}`;
+    isFr ? 'outils/acces' : 'en/tools/access'
+  }?token=${encodeURIComponent(order.access_token)}`;
 
   const subject = isFr
     ? `Votre accès TalentiQues - ${product.name}`

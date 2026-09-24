@@ -1,16 +1,13 @@
 import type { MetadataRoute } from 'next';
+import { SITE_URL, languageRoutes } from '@/lib/i18n';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = 'https://talentiques.com';
-  return [
-    { url: base, changeFrequency: 'weekly', priority: 1 },
-    { url: `${base}/diagnostic-cv-ats`, changeFrequency: 'monthly', priority: .9 },
-    { url: `${base}/outils`, changeFrequency: 'weekly', priority: .95 },
-    { url: `${base}/ressources`, changeFrequency: 'weekly', priority: .8 },
-    { url: `${base}/accompagnement`, changeFrequency: 'monthly', priority: .8 },
-    { url: `${base}/blog`, changeFrequency: 'weekly', priority: .8 },
-    { url: `${base}/mentions-legales`, changeFrequency: 'yearly', priority: .2 },
-    { url: `${base}/politique-de-confidentialite`, changeFrequency: 'yearly', priority: .2 },
-    { url: `${base}/conditions-generales`, changeFrequency: 'yearly', priority: .2 },
-  ];
+  return languageRoutes
+    .filter(([fr]) => fr !== '/outils/checkout' && fr !== '/outils/acces')
+    .flatMap(([fr, en]) => [fr, en].map(path => ({
+      url: SITE_URL + path,
+      changeFrequency: 'monthly' as const,
+      priority: path === '/' || path === '/en' ? 1 : path.includes('/tools') || path.includes('/outils') ? 0.9 : 0.6,
+      alternates: { languages: { fr: SITE_URL + fr, en: SITE_URL + en, 'x-default': SITE_URL + fr } },
+    })));
 }

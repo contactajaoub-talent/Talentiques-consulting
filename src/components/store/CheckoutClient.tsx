@@ -1,6 +1,7 @@
 'use client';
 
 import Script from 'next/script';
+import { readStoreAttribution } from '@/lib/store/attribution';
 import { useEffect, useRef, useState } from 'react';
 import {
   BriefcaseBusiness,
@@ -16,7 +17,6 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import type { StoreProduct, StoreTracking } from '@/lib/store/catalog';
-import { STORE_TRACKING_KEYS } from '@/lib/store/catalog';
 import {
   trackStoreCheckoutStarted,
   trackStorePurchaseOnce,
@@ -46,16 +46,7 @@ const inputClassName =
   'mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10';
 
 function getTrackingFromLocation(): StoreTracking {
-  if (typeof window === 'undefined') return {};
-  const params = new URLSearchParams(window.location.search);
-  const tracking: StoreTracking = {};
-
-  for (const key of STORE_TRACKING_KEYS) {
-    const value = params.get(key);
-    if (value) tracking[key] = value.slice(0, 500);
-  }
-
-  return tracking;
+  return readStoreAttribution();
 }
 
 export default function CheckoutClient({
@@ -65,6 +56,13 @@ export default function CheckoutClient({
   product: StoreProduct;
   clientId: string;
 }) {
+  const en = product.market === 'en';
+  const t = (fr: string, english: string) => en ? english : fr;
+  const englishStatuses = ['Student', 'Recent graduate', 'Job seeker', 'Employed', 'Career changer', 'Freelancer / Self-employed', 'Other'];
+  const englishErrors: Record<StoreCustomerField, string> = {
+    fullName: 'Enter your full name.', email: 'Enter a valid email address.',
+    phone: 'Enter a valid phone number.', country: 'Enter your country.', currentStatus: 'Select your current situation.',
+  };
   const rendered = useRef(false);
   const consentRef = useRef(false);
   const customerRef = useRef<StoreCustomerInput>(emptyCustomer);
@@ -117,7 +115,7 @@ export default function CheckoutClient({
 
   function fieldError(field: StoreCustomerField) {
     return touched[field] && !customerValidation.success
-      ? customerValidation.errors[field]
+      ? (customerValidation.errors[field] ? (en ? englishErrors[field] : customerValidation.errors[field]) : undefined)
       : undefined;
   }
 
@@ -149,7 +147,7 @@ export default function CheckoutClient({
               });
               setStatus('error');
               setError(
-                'Complétez correctement toutes vos informations avant de payer.'
+                t('Complétez correctement toutes vos informations avant de payer.', 'Complete all your details before paying.')
               );
               throw new Error('Informations client invalides');
             }
@@ -157,7 +155,7 @@ export default function CheckoutClient({
             if (!consentRef.current) {
               setStatus('error');
               setError(
-                'Pour recevoir le contenu immédiatement après paiement, confirmez d’abord votre demande d’accès immédiat.'
+                t('Pour recevoir le contenu immédiatement après paiement, confirmez d’abord votre demande d’accès immédiat.', 'Confirm your request for immediate access before paying.')
               );
               throw new Error('Consentement au contenu numérique requis');
             }
@@ -184,7 +182,7 @@ export default function CheckoutClient({
 
             const payload = await response.json();
             if (!response.ok || !payload?.id) {
-              throw new Error(payload?.error || 'Paiement indisponible');
+              throw new Error(en ? 'Payment is currently unavailable.' : payload?.error || 'Paiement indisponible');
             }
 
             return payload.id;
@@ -202,7 +200,7 @@ export default function CheckoutClient({
             const payload = await response.json();
             if (!response.ok || !payload?.ok || !payload?.accessToken) {
               throw new Error(
-                payload?.error || 'La confirmation du paiement a échoué'
+                en ? 'Payment confirmation failed.' : payload?.error || 'La confirmation du paiement a échoué'
               );
             }
 
@@ -214,7 +212,7 @@ export default function CheckoutClient({
             });
 
             window.location.assign(
-              `/outils/acces?token=${encodeURIComponent(payload.accessToken)}`
+              `${en ? '/en/tools/access' : '/outils/acces'}?token=${encodeURIComponent(payload.accessToken)}`
             );
           },
           onCancel: () => {
@@ -224,7 +222,7 @@ export default function CheckoutClient({
             console.error('PayPal checkout error', reason);
             setStatus('error');
             setError(
-              'Le paiement n’a pas pu être finalisé. Vous pouvez réessayer sans être débité deux fois.'
+              t('Le paiement n’a pas pu être finalisé. Vous pouvez réessayer sans être débité deux fois.', 'Your payment could not be completed. Please check your payment status before trying again.')
             );
           },
         })
@@ -234,42 +232,41 @@ export default function CheckoutClient({
     } catch (reason) {
       console.error('PayPal render error', reason);
       setStatus('error');
-      setError('Le module de paiement PayPal est momentanément indisponible.');
+      setError(t('Le module de paiement PayPal est momentanément indisponible.', 'PayPal is temporarily unavailable. Please try again later.'));
     }
   }
 
   return (
-    <div className="min-h-screen bg-[#020b1f] px-5 py-10 text-white sm:px-8 sm:py-16">
+    <div data-clarity-mask="true" className="min-h-screen bg-[#020b1f] px-5 py-10 text-white sm:px-8 sm:py-16">
       <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1fr_420px] lg:items-start">
         <div className="pt-3">
           <a
-            href="/outils"
+            href={en ? '/en/tools' : '/outils'}
             className="text-2xl font-black tracking-tight text-white"
           >
             TalentiQues
           </a>
 
           <div className="mt-10 inline-flex items-center gap-2 rounded-full border border-sky-300/20 bg-sky-400/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-sky-200">
-            <LockKeyhole className="h-4 w-4" /> Paiement sécurisé
+            <LockKeyhole className="h-4 w-4" /> {t('Paiement sécurisé', 'Secure checkout')}
           </div>
 
           <h1 className="mt-5 max-w-xl text-4xl font-black tracking-[-0.04em] sm:text-5xl">
-            Finalisez votre accès à{' '}
+            {t('Finalisez votre accès à', 'Get access to')}{' '}
             <span className="text-sky-400">{product.name}</span>
           </h1>
           <p className="mt-5 max-w-xl text-base leading-7 text-slate-300">
-            Paiement unique. Aucun abonnement. Après confirmation, votre accès
-            est disponible immédiatement et envoyé par e-mail.
+            {t('Paiement unique. Aucun abonnement. Après confirmation, votre accès est disponible immédiatement et envoyé par e-mail.', 'One payment. No subscription. Your resources are available as soon as payment is confirmed, with an access link sent to your email.')}
           </p>
 
           <div className="mt-8 grid max-w-xl gap-3 sm:grid-cols-3">
-            {assuranceItems.map(([label, Icon]) => (
+            {assuranceItems.map(([label, Icon], index) => (
               <div
                 key={label}
                 className="rounded-2xl border border-white/10 bg-white/[0.05] p-4 text-sm font-semibold text-slate-200"
               >
                 <Icon className="mb-3 h-5 w-5 text-sky-300" />
-                {label}
+                {en ? ['One-time payment', 'Instant access', 'Secure payment'][index] : label}
               </div>
             ))}
           </div>
@@ -277,7 +274,7 @@ export default function CheckoutClient({
 
         <div className="rounded-[32px] border border-white/10 bg-white p-6 text-slate-900 shadow-[0_35px_100px_rgba(14,165,233,.18)] sm:p-8">
           <div className="text-sm font-bold uppercase tracking-[0.12em] text-sky-600">
-            Votre commande
+            {t('Votre commande', 'Order summary')}
           </div>
           <h2 className="mt-3 text-2xl font-black">{product.name}</h2>
           <p className="mt-2 text-sm leading-6 text-slate-500">
@@ -289,14 +286,14 @@ export default function CheckoutClient({
           <div className="flex items-end justify-between gap-4">
             <div>
               <div className="text-xs font-semibold text-slate-400">
-                Total à payer
+                {t('Total à payer', 'Order total (USD)')}
               </div>
               <div className="mt-1 text-4xl font-black tracking-tight text-slate-950">
                 {product.displayPrice}
               </div>
             </div>
             <div className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-black text-emerald-700">
-              Aucun abonnement
+              {t('Aucun abonnement', 'No subscription')}
             </div>
           </div>
 
@@ -318,11 +315,10 @@ export default function CheckoutClient({
               </div>
               <div>
                 <h3 className="font-black text-slate-950">
-                  Vos informations
+                  {t('Vos informations', 'Your information')}
                 </h3>
                 <p className="mt-1 text-xs leading-5 text-slate-500">
-                  Ces informations nous permettent de préparer votre accès et
-                  de vous envoyer vos ressources après le paiement.
+                  {t('Ces informations nous permettent de préparer votre accès et de vous envoyer vos ressources après le paiement.', 'We use these details to prepare your access and email your resources after payment.')}
                 </p>
               </div>
             </div>
@@ -330,7 +326,7 @@ export default function CheckoutClient({
             <div className="mt-5 space-y-4">
               <label className="block text-xs font-bold text-slate-700">
                 <span className="flex items-center gap-2">
-                  <UserRound className="h-4 w-4 text-sky-600" /> Nom complet
+                  <UserRound className="h-4 w-4 text-sky-600" /> {t('Nom complet', 'Full name')}
                 </span>
                 <input
                   type="text"
@@ -343,7 +339,7 @@ export default function CheckoutClient({
                     updateCustomer('fullName', event.target.value)
                   }
                   onBlur={() => finishCustomerField('fullName')}
-                  placeholder="Ex. Marie Dupont"
+                  placeholder={t('Ex. Marie Dupont', 'e.g. Alex Morgan')}
                   aria-invalid={Boolean(fieldError('fullName'))}
                   className={inputClassName}
                 />
@@ -356,7 +352,7 @@ export default function CheckoutClient({
 
               <label className="block text-xs font-bold text-slate-700">
                 <span className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-sky-600" /> E-mail
+                  <Mail className="h-4 w-4 text-sky-600" /> {t('E-mail', 'Email')}
                 </span>
                 <input
                   type="email"
@@ -369,7 +365,7 @@ export default function CheckoutClient({
                     updateCustomer('email', event.target.value)
                   }
                   onBlur={() => finishCustomerField('email')}
-                  placeholder="vous@email.com"
+                  placeholder={t('vous@email.com', 'you@example.com')}
                   aria-invalid={Boolean(fieldError('email'))}
                   className={inputClassName}
                 />
@@ -382,7 +378,7 @@ export default function CheckoutClient({
 
               <label className="block text-xs font-bold text-slate-700">
                 <span className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-sky-600" /> Téléphone / WhatsApp
+                  <Phone className="h-4 w-4 text-sky-600" /> {t('Téléphone / WhatsApp', 'Phone / WhatsApp')}
                 </span>
                 <input
                   type="tel"
@@ -395,7 +391,7 @@ export default function CheckoutClient({
                     updateCustomer('phone', event.target.value)
                   }
                   onBlur={() => finishCustomerField('phone')}
-                  placeholder="+33 6 00 00 00 00"
+                  placeholder={t('+33 6 00 00 00 00', '+1 202 555 0123')}
                   aria-invalid={Boolean(fieldError('phone'))}
                   className={inputClassName}
                 />
@@ -408,7 +404,7 @@ export default function CheckoutClient({
 
               <label className="block text-xs font-bold text-slate-700">
                 <span className="flex items-center gap-2">
-                  <Globe2 className="h-4 w-4 text-sky-600" /> Pays
+                  <Globe2 className="h-4 w-4 text-sky-600" /> {t('Pays', 'Country')}
                 </span>
                 <input
                   type="text"
@@ -421,7 +417,7 @@ export default function CheckoutClient({
                     updateCustomer('country', event.target.value)
                   }
                   onBlur={() => finishCustomerField('country')}
-                  placeholder="Ex. France"
+                  placeholder={t('Ex. France', 'e.g. United States')}
                   aria-invalid={Boolean(fieldError('country'))}
                   className={inputClassName}
                 />
@@ -435,7 +431,7 @@ export default function CheckoutClient({
               <label className="block text-xs font-bold text-slate-700">
                 <span className="flex items-center gap-2">
                   <BriefcaseBusiness className="h-4 w-4 text-sky-600" />
-                  Situation actuelle
+                  {t('Situation actuelle', 'Current situation')}
                 </span>
                 <select
                   name="currentStatus"
@@ -448,10 +444,10 @@ export default function CheckoutClient({
                   aria-invalid={Boolean(fieldError('currentStatus'))}
                   className={inputClassName}
                 >
-                  <option value="">Sélectionnez votre situation</option>
-                  {STORE_CUSTOMER_STATUSES.map((option) => (
+                  <option value="">{t('Sélectionnez votre situation', 'Select your current situation')}</option>
+                  {STORE_CUSTOMER_STATUSES.map((option, index) => (
                     <option key={option} value={option}>
-                      {option}
+                      {en ? englishStatuses[index] : option}
                     </option>
                   ))}
                 </select>
@@ -477,16 +473,14 @@ export default function CheckoutClient({
                 className="mt-0.5 h-4 w-4 shrink-0"
               />
               <span>
-                Je demande l’accès immédiat au contenu numérique avant la fin du
-                délai de rétractation et reconnais qu’une fois l’accès fourni, je
-                perdrai mon droit de rétractation applicable à ce contenu.{' '}
+                {t('Je demande l’accès immédiat au contenu numérique avant la fin du délai de rétractation et reconnais qu’une fois l’accès fourni, je perdrai mon droit de rétractation applicable à ce contenu.', 'I request immediate access to the digital content before the withdrawal period ends and acknowledge that, once access is provided, I lose the applicable right of withdrawal for this content.')}{' '}
                 <a
-                  href="/conditions-generales"
+                  href={en ? '/en/terms' : '/conditions-generales'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-bold text-sky-700 underline underline-offset-2"
                 >
-                  Conditions générales
+                  {t('Conditions générales', 'Terms and conditions')}
                 </a>
                 .
               </span>
@@ -503,33 +497,32 @@ export default function CheckoutClient({
                 {!canPay && (
                   <div className="grid min-h-[120px] place-items-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-5 text-center text-sm font-semibold leading-6 text-slate-500">
                     {customerIsValid
-                      ? 'Cochez la confirmation ci-dessus pour afficher le paiement PayPal.'
-                      : 'Complétez vos informations pour accéder au paiement PayPal.'}
+                      ? t('Cochez la confirmation ci-dessus pour afficher le paiement PayPal.', 'Confirm immediate access above to continue with PayPal.')
+                      : t('Complétez vos informations pour accéder au paiement PayPal.', 'Complete your information to continue with PayPal.')}
                   </div>
                 )}
                 <Script
                   src={`https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(
                     clientId
-                  )}&currency=${product.currency}&intent=capture&components=buttons`}
+                  )}&currency=${product.currency}&intent=capture&components=buttons&locale=${en ? 'en_US' : 'fr_FR'}`}
                   strategy="afterInteractive"
                   onLoad={renderPayPal}
                   onError={() => {
                     setStatus('error');
-                    setError('Impossible de charger PayPal. Réessayez dans un instant.');
+                    setError(t('Impossible de charger PayPal. Réessayez dans un instant.', 'Unable to load PayPal. Please try again shortly.'));
                   }}
                 />
               </>
             ) : (
               <div className="rounded-2xl bg-amber-50 p-4 text-sm font-semibold text-amber-800">
-                Le paiement n’est pas encore configuré sur cet environnement.
+                {t('Le paiement n’est pas encore configuré sur cet environnement.', 'Checkout is currently unavailable. Please contact support.')}
               </div>
             )}
           </div>
 
           {status === 'processing' && (
             <div className="mt-4 flex items-center justify-center gap-2 text-sm font-semibold text-slate-500">
-              <LoaderCircle className="h-4 w-4 animate-spin" /> Confirmation en
-              cours…
+              <LoaderCircle className="h-4 w-4 animate-spin" /> {t('Confirmation en cours…', 'Confirming your payment…')}
             </div>
           )}
 
@@ -540,8 +533,7 @@ export default function CheckoutClient({
           )}
 
           <p className="mt-6 text-center text-[11px] leading-5 text-slate-400">
-            Le montant du produit est fixé côté serveur. Aucune donnée bancaire
-            n’est enregistrée par TalentiQues.
+            {t('Le montant du produit est fixé côté serveur. Aucune donnée bancaire n’est enregistrée par TalentiQues.', 'PayPal processes your payment securely. TalentiQues does not store your card details.')}
           </p>
         </div>
       </div>
