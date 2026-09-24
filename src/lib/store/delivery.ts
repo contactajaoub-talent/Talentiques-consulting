@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { render } from '@react-email/render';
 import { StoreDeliveryEmail } from '@/emails/store-delivery-email';
 import {
   getStoreProduct,
@@ -160,7 +161,7 @@ async function sendDeliveryEmail(
 
   const from =
     process.env.RESEND_FROM_EMAIL ||
-    'TalentiQues <noreply@talentiques.com>';
+    'TalentiQues <resources@talentiques.com>';
 
   const email = safeString(order.customer_email).trim();
 
@@ -169,7 +170,7 @@ async function sendDeliveryEmail(
   }
 
   if (!email) {
-    throw new Error('Email client PayPal introuvable');
+    throw new Error('Adresse e-mail client introuvable');
   }
 
   const product = getStoreProduct(
@@ -191,18 +192,25 @@ async function sendDeliveryEmail(
     ? `Votre accès TalentiQues - ${product.name}`
     : `Your TalentiQues access - ${product.name}`;
 
+  const emailComponent = StoreDeliveryEmail({
+    firstName: firstName || undefined,
+    productName: product.name,
+    accessUrl,
+    items,
+    locale: order.market,
+  });
+  const [html, text] = await Promise.all([
+    render(emailComponent),
+    render(emailComponent, { plainText: true }),
+  ]);
+
   const resend = new Resend(apiKey);
   const { data, error } = await resend.emails.send({
     from,
     to: [email],
     subject,
-    react: StoreDeliveryEmail({
-      firstName: firstName || undefined,
-      productName: product.name,
-      accessUrl,
-      items,
-      locale: order.market,
-    }),
+    html,
+    text,
   });
 
   if (error) {
