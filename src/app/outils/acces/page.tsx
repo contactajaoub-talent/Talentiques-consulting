@@ -62,7 +62,11 @@ export default async function StoreAccessPage({
   let deliveryReady = true;
 
   try {
-    items = getDeliveryItems(order.product_id, order.market);
+    items = getDeliveryItems(
+      order.product_id,
+      order.market,
+      token
+    );
   } catch {
     deliveryReady = false;
   }
@@ -115,8 +119,6 @@ export default async function StoreAccessPage({
 
                   <a
                     href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
                     className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-sky-600 px-5 py-3 text-sm font-black text-white transition hover:bg-sky-700"
                   >
                     <Download className="h-4 w-4" />
