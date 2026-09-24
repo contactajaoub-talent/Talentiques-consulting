@@ -172,8 +172,6 @@ function OfferCard({
       <StoreCTA
         href={href}
         productId={id}
-        productName={title}
-        value={Number(products[id].amount)}
         className={`mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3.5 text-sm font-black transition ${
           featured
             ? 'bg-gradient-to-r from-sky-400 to-blue-600 text-white shadow-[0_12px_35px_rgba(14,165,233,.34)] hover:-translate-y-0.5'
@@ -354,8 +352,6 @@ export default function StorePageFR() {
               <StoreCTA
                 href={getStoreDetailHrefFR('tracker')}
                 productId="tracker"
-                productName="Opportunity Tracker Pro"
-                value={Number(products.tracker.amount)}
                 className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full border border-sky-200 bg-white px-5 py-3.5 text-sm font-black text-sky-700 transition hover:bg-sky-50"
               >
                 Voir le produit en détail
@@ -398,8 +394,6 @@ export default function StorePageFR() {
               <StoreCTA
                 href={getStoreDetailHrefFR('ats')}
                 productId="ats"
-                productName="CV ATS System"
-                value={Number(products.ats.amount)}
                 className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full border border-violet-200 bg-white px-5 py-3.5 text-sm font-black text-violet-700 transition hover:bg-violet-50"
               >
                 Voir le produit en détail
@@ -445,8 +439,6 @@ export default function StorePageFR() {
                 <StoreCTA
                   href={getStoreDetailHrefFR('bundle')}
                   productId="bundle"
-                  productName="Career Search Bundle"
-                  value={Number(products.bundle.amount)}
                   className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-sky-400 to-blue-600 px-6 py-4 text-sm font-black text-white shadow-[0_15px_45px_rgba(14,165,233,.35)]"
                 >
                   Voir le Bundle en détail
@@ -495,8 +487,6 @@ export default function StorePageFR() {
           <StoreCTA
             href={getStoreDetailHrefFR('bundle')}
             productId="bundle"
-            productName="Career Search Bundle"
-            value={Number(products.bundle.amount)}
             className="mx-auto mt-7 inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-sky-400 to-blue-600 px-7 py-4 text-sm font-black text-white shadow-[0_14px_45px_rgba(14,165,233,.35)] transition hover:-translate-y-0.5"
           >
             Découvrir le Bundle — {products.bundle.displayPrice}
@@ -516,8 +506,6 @@ export default function StorePageFR() {
           <StoreCTA
             href={getStoreDetailHrefFR('bundle')}
             productId="bundle"
-            productName="Career Search Bundle"
-            value={Number(products.bundle.amount)}
             className="inline-flex items-center gap-2 rounded-full bg-sky-500 px-4 py-3 text-xs font-black text-white"
             arrow={false}
           >

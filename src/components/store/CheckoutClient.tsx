@@ -12,8 +12,10 @@ import {
 } from 'lucide-react';
 import type { StoreProduct, StoreTracking } from '@/lib/store/catalog';
 import { STORE_TRACKING_KEYS } from '@/lib/store/catalog';
-
-
+import {
+  trackStoreCheckoutStarted,
+  trackStorePurchaseOnce,
+} from '@/lib/store/analytics';
 
 const assuranceItems: ReadonlyArray<readonly [string, LucideIcon]> = [
   ['Paiement unique', CreditCard],
@@ -43,6 +45,7 @@ export default function CheckoutClient({
 }) {
   const rendered = useRef(false);
   const consentRef = useRef(false);
+  const checkoutStartedRef = useRef(false);
   const [digitalConsent, setDigitalConsent] = useState(false);
   const [status, setStatus] = useState<'idle' | 'processing' | 'error'>('idle');
   const [error, setError] = useState('');
@@ -76,25 +79,10 @@ export default function CheckoutClient({
             setStatus('processing');
             setError('');
 
-            window.fbq?.('track', 'InitiateCheckout', {
-              value: Number(product.amount),
-              currency: product.currency,
-              content_name: product.name,
-              content_ids: [product.id],
-              content_type: 'product',
-            });
-            window.gtag?.('event', 'begin_checkout', {
-              currency: product.currency,
-              value: Number(product.amount),
-              items: [
-                {
-                  item_id: product.id,
-                  item_name: product.name,
-                  price: Number(product.amount),
-                  quantity: 1,
-                },
-              ],
-            });
+            if (!checkoutStartedRef.current) {
+              checkoutStartedRef.current = true;
+              trackStoreCheckoutStarted(product);
+            }
 
             const response = await fetch('/api/store/paypal/create-order', {
               method: 'POST',
@@ -131,25 +119,11 @@ export default function CheckoutClient({
               );
             }
 
-            window.fbq?.('track', 'Purchase', {
-              value: Number(payload.amount || product.amount),
+            trackStorePurchaseOnce({
+              product,
+              transactionId: data.orderID,
+              amount: Number(payload.amount || product.amount),
               currency: payload.currency || product.currency,
-              content_name: product.name,
-              content_ids: [product.id],
-              content_type: 'product',
-            });
-            window.gtag?.('event', 'purchase', {
-              transaction_id: data.orderID,
-              currency: payload.currency || product.currency,
-              value: Number(payload.amount || product.amount),
-              items: [
-                {
-                  item_id: product.id,
-                  item_name: product.name,
-                  price: Number(payload.amount || product.amount),
-                  quantity: 1,
-                },
-              ],
             });
 
             window.location.assign(

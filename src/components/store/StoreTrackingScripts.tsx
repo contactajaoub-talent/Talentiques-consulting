@@ -1,4 +1,5 @@
 import Script from 'next/script';
+import { STORE_ANALYTICS_READY_EVENT } from '@/lib/store/analytics';
 
 export default function StoreTrackingScripts() {
   const metaPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID;
@@ -18,8 +19,6 @@ export default function StoreTrackingScripts() {
             s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}
             (window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
             fbq('init', '${metaPixelId}');
-            fbq('track', 'PageView');
-            fbq('track', 'ViewContent', {content_name: 'Talentiques Store FR'});
           `}
         </Script>
       )}
@@ -53,6 +52,13 @@ export default function StoreTrackingScripts() {
           </Script>
         </>
       )}
+
+      <Script id="talentiques-store-analytics-ready" strategy="afterInteractive">
+        {`
+          window.__talentiquesStoreAnalyticsReady = true;
+          window.dispatchEvent(new Event('${STORE_ANALYTICS_READY_EVENT}'));
+        `}
+      </Script>
     </>
   );
 }
