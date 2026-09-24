@@ -1,3 +1,5 @@
+import { Resend } from 'resend';
+import { StoreDeliveryEmail } from '@/emails/store-delivery-email';
 import {
   getStoreProduct,
   type StoreMarket,
@@ -31,13 +33,20 @@ function safeString(value: unknown) {
   return typeof value === 'string' ? value : '';
 }
 
-function escapeHtml(value: string) {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
+function absoluteHttpUrl(value: string, name: string) {
+  let url: URL;
+
+  try {
+    url = new URL(value);
+  } catch {
+    throw new Error(`URL invalide pour ${name}`);
+  }
+
+  if (url.protocol !== 'https:' && url.protocol !== 'http:') {
+    throw new Error(`URL invalide pour ${name}`);
+  }
+
+  return url.toString().replace(/\/$/, '');
 }
 
 function requiredDeliveryUrl(name: string) {
@@ -47,7 +56,7 @@ function requiredDeliveryUrl(name: string) {
     throw new Error(`Lien de livraison non configuré : ${name}`);
   }
 
-  return value;
+  return absoluteHttpUrl(value, name);
 }
 
 function getAppUrl() {
@@ -60,7 +69,7 @@ function getAppUrl() {
     ? configured
     : `https://${configured}`;
 
-  return withProtocol.replace(/\/$/, '');
+  return absoluteHttpUrl(withProtocol, 'URL publique du Store');
 }
 
 function getSecureDownloadUrl(
@@ -174,142 +183,35 @@ async function sendDeliveryEmail(
     .trim()
     .split(/\s+/)[0];
 
-  const greeting = firstName
-    ? isFr
-      ? `Bonjour ${escapeHtml(firstName)},`
-      : `Hi ${escapeHtml(firstName)},`
-    : isFr
-      ? 'Bonjour,'
-      : 'Hi,';
-
   const accessUrl = `${getAppUrl()}/${
     isFr ? 'outils' : 'en/tools'
   }/acces?token=${encodeURIComponent(order.access_token)}`;
-
-  const itemHtml = items
-    .map(
-      (item) => `
-        <div style="margin:14px 0;padding:18px;border:1px solid #dbeafe;border-radius:16px;background:#f8fbff;">
-          <div style="font-size:16px;font-weight:800;color:#0f172a;">
-            ${escapeHtml(item.label)}
-          </div>
-
-          <div style="margin-top:5px;font-size:13px;line-height:1.6;color:#64748b;">
-            ${escapeHtml(item.description)}
-          </div>
-
-          <a
-            href="${escapeHtml(item.url)}"
-            style="display:inline-block;margin-top:12px;padding:11px 16px;border-radius:999px;background:#0683c9;color:#ffffff;text-decoration:none;font-size:13px;font-weight:800;"
-          >
-            ${isFr ? 'Télécharger' : 'Download'}
-          </a>
-        </div>
-      `
-    )
-    .join('');
 
   const subject = isFr
     ? `Votre accès TalentiQues - ${product.name}`
     : `Your TalentiQues access - ${product.name}`;
 
-  const html = `
-    <div style="margin:0;padding:28px;background:#f1f5f9;font-family:Arial,sans-serif;color:#0f172a;">
-      <div style="max-width:620px;margin:0 auto;background:#ffffff;border-radius:24px;padding:30px;border:1px solid #e2e8f0;">
+  const resend = new Resend(apiKey);
+  const { data, error } = await resend.emails.send({
+    from,
+    to: [email],
+    subject,
+    react: StoreDeliveryEmail({
+      firstName: firstName || undefined,
+      productName: product.name,
+      accessUrl,
+      items,
+      locale: order.market,
+    }),
+  });
 
-        <div style="font-size:22px;font-weight:900;color:#0683c9;">
-          TalentiQues
-        </div>
-
-        <h1 style="font-size:26px;line-height:1.2;margin:24px 0 12px;">
-          ${
-            isFr
-              ? 'Votre achat est prêt.'
-              : 'Your purchase is ready.'
-          }
-        </h1>
-
-        <p style="font-size:15px;line-height:1.75;color:#475569;">
-          ${greeting}
-        </p>
-
-        <p style="font-size:15px;line-height:1.75;color:#475569;">
-          ${
-            isFr
-              ? `Merci pour votre achat de <strong>${escapeHtml(
-                  product.name
-                )}</strong>. Vous pouvez utiliser et réutiliser ces ressources à chaque nouvelle opportunité professionnelle.`
-              : `Thank you for purchasing <strong>${escapeHtml(
-                  product.name
-                )}</strong>. You can reuse these resources for every new career opportunity.`
-          }
-        </p>
-
-        <div style="margin:16px 0;padding:14px 16px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0;font-size:12px;line-height:1.6;color:#64748b;">
-          ${
-            isFr
-              ? "Confirmation : lors de votre commande, vous avez demandé la fourniture immédiate du contenu numérique avant la fin du délai de rétractation et reconnu la perte du droit de rétractation applicable une fois l’accès fourni."
-              : 'Confirmation: when placing your order, you requested immediate supply of the digital content and acknowledged the applicable loss of the withdrawal right once access is supplied.'
-          }
-        </div>
-
-        ${itemHtml}
-
-        <div style="margin-top:22px;padding-top:20px;border-top:1px solid #e2e8f0;">
-          <a
-            href="${escapeHtml(accessUrl)}"
-            style="color:#0683c9;font-weight:800;text-decoration:none;"
-          >
-            ${
-              isFr
-                ? "Ouvrir ma page d’accès"
-                : 'Open my access page'
-            }
-          </a>
-        </div>
-
-        <p style="margin-top:24px;font-size:12px;line-height:1.6;color:#94a3b8;">
-          ${
-            isFr
-              ? 'Paiement unique. Aucun abonnement.'
-              : 'One-time payment. No subscription.'
-          }
-        </p>
-
-      </div>
-    </div>
-  `;
-
-  const response = await fetch(
-    'https://api.resend.com/emails',
-    {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from,
-        to: [email],
-        subject,
-        html,
-      }),
-      cache: 'no-store',
-    }
-  );
-
-  const payload = await response
-    .json()
-    .catch(() => null);
-
-  if (!response.ok) {
+  if (error) {
     throw new Error(
-      payload?.message ||
-        `Resend a refusé l'envoi (${response.status})`
+      error.message || "Resend a refusé l'envoi"
     );
   }
 
-  return payload;
+  return data;
 }
 
 export async function deliverPaidStoreOrder(
