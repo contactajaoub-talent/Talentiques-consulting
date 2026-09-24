@@ -218,6 +218,13 @@ export const content = {
         status: STORE_FR_PRODUCTS.bundle.displayPrice,
         href: '/outils#bundle',
       },
+      {
+        title: 'Kit Alternance 90 jours',
+        description:
+          'Méthode et outils pour structurer une recherche d’alternance.',
+        status: 'À venir',
+        href: 'https://alternance.talentiques.com/',
+      },
     ],
   },
 
