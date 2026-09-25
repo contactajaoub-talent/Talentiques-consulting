@@ -131,14 +131,14 @@ export function getDeliveryItems(
    * Il sera migré vers Blob Private lorsque la version EN du Store sera lancée.
    */
   const trackerItem = (): DeliveryItem => ({
-    label: 'Opportunity Tracker Pro',
+    label: 'Application Tracker Pro',
     description: 'Tracker + automations + premium guides.',
     url: requiredDeliveryUrl('STORE_TRACKER_PACKAGE_EN_URL'),
   });
 
   const atsItem = (): DeliveryItem => ({
-    label: 'ATS Resume System',
-    description: 'ATS templates + resume guide + LinkedIn bonus.',
+    label: 'ATS Resume & LinkedIn Pro',
+    description: 'ATS resume templates + resume guide + LinkedIn optimization guide.',
     url: requiredDeliveryUrl('STORE_ATS_PACKAGE_EN_URL'),
   });
 
@@ -186,7 +186,7 @@ async function sendDeliveryEmail(
 
   const accessUrl = `${getAppUrl()}/${
     isFr ? 'outils' : 'en/tools'
-  }/acces?token=${encodeURIComponent(order.access_token)}`;
+  }/${isFr ? 'acces' : 'access'}?token=${encodeURIComponent(order.access_token)}`;
 
   const subject = isFr
     ? `Votre accès TalentiQues - ${product.name}`

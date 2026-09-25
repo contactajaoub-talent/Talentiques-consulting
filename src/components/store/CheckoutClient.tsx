@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import type { StoreProduct, StoreTracking } from '@/lib/store/catalog';
 import { getStoreProduct, STORE_TRACKING_KEYS } from '@/lib/store/catalog';
+import StoreLanguageSwitcher from '@/components/store/StoreLanguageSwitcher';
 import {
   trackStoreCheckoutStarted,
   trackStorePurchaseOnce,
@@ -29,12 +30,6 @@ import {
   type StoreCustomerInput,
 } from '@/lib/store/customer';
 
-const assuranceItems: ReadonlyArray<readonly [string, LucideIcon]> = [
-  ['Paiement unique', CreditCard],
-  ['Accès immédiat', CheckCircle2],
-  ['Paiement sécurisé', ShieldCheck],
-];
-
 const emptyCustomer: StoreCustomerInput = {
   fullName: '',
   email: '',
@@ -45,6 +40,10 @@ const emptyCustomer: StoreCustomerInput = {
 
 const inputClassName =
   'mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10';
+
+const EN_STATUS_LABELS: Record<string, string> = {
+  'Étudiant': 'Student', 'Jeune diplômé': 'Recent graduate', 'En recherche d’emploi': 'Seeking opportunities', 'En poste': 'Currently employed', 'En reconversion professionnelle': 'Changing careers', 'Freelance / Indépendant': 'Freelancer / Self-employed', 'Autre': 'Other',
+};
 
 function getTrackingFromLocation(): StoreTracking {
   if (typeof window === 'undefined') return {};
@@ -67,6 +66,10 @@ export default function CheckoutClient({
   clientId: string;
 }) {
   const rendered = useRef(false);
+  const isFr = product.market === 'fr';
+  const assuranceItems: ReadonlyArray<readonly [string, LucideIcon]> = isFr
+    ? [['Paiement unique', CreditCard], ['Accès immédiat', CheckCircle2], ['Paiement sécurisé', ShieldCheck]]
+    : [['One-time payment', CreditCard], ['Instant access', CheckCircle2], ['Secure payment', ShieldCheck]];
   const [selectedProduct, setSelectedProduct] = useState(product);
   const selectedProductRef = useRef(product);
   const consentRef = useRef(false);
@@ -80,9 +83,9 @@ export default function CheckoutClient({
   const [digitalConsent, setDigitalConsent] = useState(false);
   const [status, setStatus] = useState<'idle' | 'processing' | 'error'>('idle');
   const [error, setError] = useState('');
-  const canUpgrade = product.market === 'fr' && product.id !== 'bundle';
+  const canUpgrade = product.id !== 'bundle';
   const isUpgraded = selectedProduct.id === 'bundle' && product.id !== 'bundle';
-  const upgradeDelta = product.id === 'tracker' ? '+7,00 €' : '+5,00 €';
+  const upgradeDelta = product.id === 'tracker' ? (isFr ? '+7,00 €' : '+$7.00') : (isFr ? '+5,00 €' : '+$5.00');
   const selectedProductName =
     selectedProduct.market === 'fr'
       ? selectedProduct.id === 'tracker'
@@ -134,9 +137,11 @@ export default function CheckoutClient({
   }
 
   function fieldError(field: StoreCustomerField) {
-    return touched[field] && !customerValidation.success
+    const message = touched[field] && !customerValidation.success
       ? customerValidation.errors[field]
       : undefined;
+    if (!message || isFr) return message;
+    return ({ fullName: 'Enter your full name.', email: 'Enter a valid email address.', phone: 'Enter a valid phone number.', country: 'Enter your country.', currentStatus: 'Select your current status.' } as Record<StoreCustomerField, string>)[field];
   }
 
   async function renderPayPal() {
@@ -167,17 +172,17 @@ export default function CheckoutClient({
               });
               setStatus('error');
               setError(
-                'Complétez correctement toutes vos informations avant de payer.'
+                isFr ? 'Complétez correctement toutes vos informations avant de payer.' : 'Complete all required information before paying.'
               );
-              throw new Error('Informations client invalides');
+              throw new Error(isFr ? 'Informations client invalides' : 'Invalid customer information');
             }
 
             if (!consentRef.current) {
               setStatus('error');
               setError(
-                'Pour recevoir le contenu immédiatement après paiement, confirmez d’abord votre demande d’accès immédiat.'
+                isFr ? 'Pour recevoir le contenu immédiatement après paiement, confirmez d’abord votre demande d’accès immédiat.' : 'Confirm your request for immediate digital access before paying.'
               );
-              throw new Error('Consentement au contenu numérique requis');
+              throw new Error(isFr ? 'Consentement au contenu numérique requis' : 'Digital content consent required');
             }
 
             setStatus('processing');
@@ -202,13 +207,13 @@ export default function CheckoutClient({
 
             const payload = await response.json();
             if (!response.ok || !payload?.id) {
-              throw new Error(payload?.error || 'Paiement indisponible');
+              throw new Error(payload?.error || (isFr ? 'Paiement indisponible' : 'Payment unavailable'));
             }
 
             return payload.id;
           },
           onApprove: async (data: { orderID?: string }) => {
-            if (!data.orderID) throw new Error('Référence PayPal manquante');
+            if (!data.orderID) throw new Error(isFr ? 'Référence PayPal manquante' : 'Missing PayPal reference');
             setStatus('processing');
 
             const response = await fetch('/api/store/paypal/capture-order', {
@@ -220,7 +225,7 @@ export default function CheckoutClient({
             const payload = await response.json();
             if (!response.ok || !payload?.ok || !payload?.accessToken) {
               throw new Error(
-                payload?.error || 'La confirmation du paiement a échoué'
+                payload?.error || (isFr ? 'La confirmation du paiement a échoué' : 'Payment confirmation failed')
               );
             }
 
@@ -233,7 +238,7 @@ export default function CheckoutClient({
             });
 
             window.location.assign(
-              `/outils/acces?token=${encodeURIComponent(payload.accessToken)}`
+              `${isFr ? '/outils/acces' : '/en/tools/access'}?token=${encodeURIComponent(payload.accessToken)}`
             );
           },
           onCancel: () => {
@@ -243,7 +248,7 @@ export default function CheckoutClient({
             console.error('PayPal checkout error', reason);
             setStatus('error');
             setError(
-              'Le paiement n’a pas pu être finalisé. Vous pouvez réessayer sans être débité deux fois.'
+              isFr ? 'Le paiement n’a pas pu être finalisé. Vous pouvez réessayer sans être débité deux fois.' : 'Payment could not be completed. You can try again without being charged twice.'
             );
           },
         })
@@ -253,7 +258,7 @@ export default function CheckoutClient({
     } catch (reason) {
       console.error('PayPal render error', reason);
       setStatus('error');
-      setError('Le module de paiement PayPal est momentanément indisponible.');
+      setError(isFr ? 'Le module de paiement PayPal est momentanément indisponible.' : 'PayPal checkout is temporarily unavailable.');
     }
   }
 
@@ -261,24 +266,21 @@ export default function CheckoutClient({
     <div className="min-h-screen bg-[#020b1f] px-5 py-10 text-white sm:px-8 sm:py-16">
       <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1fr_420px] lg:items-start">
         <div className="pt-3">
-          <a
-            href="/outils"
-            className="text-2xl font-black tracking-tight text-white"
-          >
-            TalentiQues
-          </a>
+          <div className="flex max-w-xl items-center justify-between">
+            <a href={isFr ? '/outils' : '/en/tools'} className="text-2xl font-black tracking-tight text-white">TalentiQues</a>
+            <StoreLanguageSwitcher market={product.market} />
+          </div>
 
           <div className="mt-10 inline-flex items-center gap-2 rounded-full border border-sky-300/20 bg-sky-400/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-sky-200">
-            <LockKeyhole className="h-4 w-4" /> Paiement sécurisé
+            <LockKeyhole className="h-4 w-4" /> {isFr ? 'Paiement sécurisé' : 'Secure checkout'}
           </div>
 
           <h1 className="mt-5 max-w-xl text-4xl font-black tracking-[-0.04em] sm:text-5xl">
-            Finalisez votre accès à{' '}
+            {isFr ? 'Finalisez votre accès à' : 'Complete your access to'}{' '}
             <span className="text-sky-400">{selectedProductName}</span>
           </h1>
           <p className="mt-5 max-w-xl text-base leading-7 text-slate-300">
-            Paiement unique. Aucun abonnement. Après confirmation, votre accès
-            est disponible immédiatement et envoyé par e-mail.
+            {isFr ? 'Paiement unique. Aucun abonnement. Après confirmation, votre accès est disponible immédiatement et envoyé par e-mail.' : 'One-time payment. No subscription. After confirmation, your access is available immediately and sent by email.'}
           </p>
 
           <div className="mt-8 grid max-w-xl gap-3 sm:grid-cols-3">
@@ -296,7 +298,7 @@ export default function CheckoutClient({
 
         <div className="rounded-[32px] border border-white/10 bg-white p-6 text-slate-900 shadow-[0_35px_100px_rgba(14,165,233,.18)] sm:p-8">
           <div className="text-sm font-bold uppercase tracking-[0.12em] text-sky-600">
-            Votre commande
+            {isFr ? 'Votre commande' : 'Your order'}
           </div>
           <h2 className="mt-3 text-2xl font-black">{selectedProductName}</h2>
           <p className="mt-2 text-sm leading-6 text-slate-500">
@@ -306,10 +308,10 @@ export default function CheckoutClient({
           {canUpgrade && (
             <label className="mt-6 block cursor-pointer rounded-2xl border-2 border-sky-300 bg-sky-50 p-4 shadow-[0_12px_35px_rgba(14,165,233,.10)] sm:p-5">
               <span className="inline-flex rounded-full bg-sky-600 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-white">
-                Recommandé
+                {isFr ? 'Recommandé' : 'Recommended'}
               </span>
               <span className="mt-2 block text-sm font-black text-sky-900">
-                Complétez votre système
+                {isFr ? 'Complétez votre système' : 'Complete your system'}
               </span>
               <span className="mt-3 flex items-start gap-3">
                 <input
@@ -332,12 +334,12 @@ export default function CheckoutClient({
                   </span>
                   <span className="mt-1 block text-sm leading-6 text-slate-600">
                     {product.id === 'tracker'
-                      ? 'Ajoutez CV ATS & LinkedIn Pro + tous les guides pour'
-                      : 'Ajoutez Tracker Candidatures Pro + ses guides pour'}
+                      ? isFr ? 'Ajoutez CV ATS & LinkedIn Pro + tous les guides pour' : 'Add ATS Resume & LinkedIn Pro and all guides for'
+                      : isFr ? 'Ajoutez Tracker Candidatures Pro + ses guides pour' : 'Add Application Tracker Pro and its guides for'}
                     {' '}<strong>{upgradeDelta}</strong>.
                   </span>
                   <span className="mt-2 block text-sm font-black text-sky-800">
-                    Nouveau total : 14,90 €
+                    {isFr ? 'Nouveau total' : 'New total'}: {getStoreProduct('bundle', product.market).displayPrice}
                   </span>
                 </span>
               </span>
@@ -349,14 +351,14 @@ export default function CheckoutClient({
           <div className="flex items-end justify-between gap-4">
             <div>
               <div className="text-xs font-semibold text-slate-400">
-                Total à payer
+                {isFr ? 'Total à payer' : 'Total due'}
               </div>
               <div className="mt-1 text-4xl font-black tracking-tight text-slate-950">
                 {selectedProduct.displayPrice}
               </div>
             </div>
             <div className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-black text-emerald-700">
-              Aucun abonnement
+              {isFr ? 'Aucun abonnement' : 'No subscription'}
             </div>
           </div>
 
@@ -378,11 +380,10 @@ export default function CheckoutClient({
               </div>
               <div>
                 <h3 className="font-black text-slate-950">
-                  Vos informations
+                  {isFr ? 'Vos informations' : 'Your information'}
                 </h3>
                 <p className="mt-1 text-xs leading-5 text-slate-500">
-                  Ces informations nous permettent de préparer votre accès et
-                  de vous envoyer vos ressources après le paiement.
+                  {isFr ? 'Ces informations nous permettent de préparer votre accès et de vous envoyer vos ressources après le paiement.' : 'We use this information to prepare your access and send your resources after payment.'}
                 </p>
               </div>
             </div>
@@ -390,7 +391,7 @@ export default function CheckoutClient({
             <div className="mt-5 space-y-4">
               <label className="block text-xs font-bold text-slate-700">
                 <span className="flex items-center gap-2">
-                  <UserRound className="h-4 w-4 text-sky-600" /> Nom complet
+                  <UserRound className="h-4 w-4 text-sky-600" /> {isFr ? 'Nom complet' : 'Full name'}
                 </span>
                 <input
                   type="text"
@@ -403,7 +404,7 @@ export default function CheckoutClient({
                     updateCustomer('fullName', event.target.value)
                   }
                   onBlur={() => finishCustomerField('fullName')}
-                  placeholder="Ex. Marie Dupont"
+                  placeholder={isFr ? 'Ex. Marie Dupont' : 'e.g. Alex Morgan'}
                   aria-invalid={Boolean(fieldError('fullName'))}
                   className={inputClassName}
                 />
@@ -442,7 +443,7 @@ export default function CheckoutClient({
 
               <label className="block text-xs font-bold text-slate-700">
                 <span className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-sky-600" /> Téléphone / WhatsApp
+                  <Phone className="h-4 w-4 text-sky-600" /> {isFr ? 'Téléphone / WhatsApp' : 'Phone / WhatsApp'}
                 </span>
                 <input
                   type="tel"
@@ -468,7 +469,7 @@ export default function CheckoutClient({
 
               <label className="block text-xs font-bold text-slate-700">
                 <span className="flex items-center gap-2">
-                  <Globe2 className="h-4 w-4 text-sky-600" /> Pays
+                  <Globe2 className="h-4 w-4 text-sky-600" /> {isFr ? 'Pays' : 'Country'}
                 </span>
                 <input
                   type="text"
@@ -481,7 +482,7 @@ export default function CheckoutClient({
                     updateCustomer('country', event.target.value)
                   }
                   onBlur={() => finishCustomerField('country')}
-                  placeholder="Ex. France"
+                  placeholder={isFr ? 'Ex. France' : 'e.g. United States'}
                   aria-invalid={Boolean(fieldError('country'))}
                   className={inputClassName}
                 />
@@ -495,7 +496,7 @@ export default function CheckoutClient({
               <label className="block text-xs font-bold text-slate-700">
                 <span className="flex items-center gap-2">
                   <BriefcaseBusiness className="h-4 w-4 text-sky-600" />
-                  Situation actuelle
+                  {isFr ? 'Situation actuelle' : 'Current status'}
                 </span>
                 <select
                   name="currentStatus"
@@ -508,10 +509,10 @@ export default function CheckoutClient({
                   aria-invalid={Boolean(fieldError('currentStatus'))}
                   className={inputClassName}
                 >
-                  <option value="">Sélectionnez votre situation</option>
+                  <option value="">{isFr ? 'Sélectionnez votre situation' : 'Select your current status'}</option>
                   {STORE_CUSTOMER_STATUSES.map((option) => (
                     <option key={option} value={option}>
-                      {option}
+                      {isFr ? option : EN_STATUS_LABELS[option]}
                     </option>
                   ))}
                 </select>
@@ -537,16 +538,14 @@ export default function CheckoutClient({
                 className="mt-0.5 h-4 w-4 shrink-0"
               />
               <span>
-                Je demande l’accès immédiat au contenu numérique avant la fin du
-                délai de rétractation et reconnais qu’une fois l’accès fourni, je
-                perdrai mon droit de rétractation applicable à ce contenu.{' '}
+                {isFr ? 'Je demande l’accès immédiat au contenu numérique avant la fin du délai de rétractation et reconnais qu’une fois l’accès fourni, je perdrai mon droit de rétractation applicable à ce contenu.' : 'I request immediate access to the digital content and acknowledge that the applicable withdrawal right ends once access is supplied.'}{' '}
                 <a
                   href="/conditions-generales"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-bold text-sky-700 underline underline-offset-2"
                 >
-                  Conditions générales
+                  {isFr ? 'Conditions générales' : 'Terms and conditions'}
                 </a>
                 .
               </span>
@@ -563,8 +562,8 @@ export default function CheckoutClient({
                 {!canPay && (
                   <div className="grid min-h-[120px] place-items-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-5 text-center text-sm font-semibold leading-6 text-slate-500">
                     {customerIsValid
-                      ? 'Cochez la confirmation ci-dessus pour afficher le paiement PayPal.'
-                      : 'Complétez vos informations pour accéder au paiement PayPal.'}
+                      ? isFr ? 'Cochez la confirmation ci-dessus pour afficher le paiement PayPal.' : 'Confirm immediate digital access above to display PayPal checkout.'
+                      : isFr ? 'Complétez vos informations pour accéder au paiement PayPal.' : 'Complete your information to access PayPal checkout.'}
                   </div>
                 )}
                 <Script
@@ -575,21 +574,20 @@ export default function CheckoutClient({
                   onLoad={renderPayPal}
                   onError={() => {
                     setStatus('error');
-                    setError('Impossible de charger PayPal. Réessayez dans un instant.');
+                    setError(isFr ? 'Impossible de charger PayPal. Réessayez dans un instant.' : 'PayPal could not be loaded. Please try again shortly.');
                   }}
                 />
               </>
             ) : (
               <div className="rounded-2xl bg-amber-50 p-4 text-sm font-semibold text-amber-800">
-                Le paiement n’est pas encore configuré sur cet environnement.
+                {isFr ? 'Le paiement n’est pas encore configuré sur cet environnement.' : 'Payment is not configured in this environment yet.'}
               </div>
             )}
           </div>
 
           {status === 'processing' && (
             <div className="mt-4 flex items-center justify-center gap-2 text-sm font-semibold text-slate-500">
-              <LoaderCircle className="h-4 w-4 animate-spin" /> Confirmation en
-              cours…
+              <LoaderCircle className="h-4 w-4 animate-spin" /> {isFr ? 'Confirmation en cours…' : 'Confirming payment…'}
             </div>
           )}
 
@@ -600,8 +598,7 @@ export default function CheckoutClient({
           )}
 
           <p className="mt-6 text-center text-[11px] leading-5 text-slate-400">
-            Le montant du produit est fixé côté serveur. Aucune donnée bancaire
-            n’est enregistrée par TalentiQues.
+            {isFr ? 'Le montant du produit est fixé côté serveur. Aucune donnée bancaire n’est enregistrée par TalentiQues.' : 'The product total is set securely on the server. TalentiQues does not store your payment card details.'}
           </p>
         </div>
       </div>

@@ -14,16 +14,18 @@ import Link from 'next/link';
 import LaunchCountdown from '@/components/store/LaunchCountdown';
 import RecentPurchaseToast from '@/components/store/RecentPurchaseToast';
 import StoreCTA from '@/components/store/StoreCTA';
+import StoreLanguageSwitcher from '@/components/store/StoreLanguageSwitcher';
 import {
   AtsVisual,
   BundleVisual,
   TrackerVisual,
 } from '@/components/store/ProductVisuals';
-import { STORE_FR_PRODUCTS, type StoreProductId } from '@/lib/store/catalog';
+import { STORE_EN_PRODUCTS, STORE_FR_PRODUCTS, type StoreMarket, type StoreProductId } from '@/lib/store/catalog';
 import {
   STORE_PRODUCT_DETAILS_FR,
   getStoreDetailHrefFR,
 } from '@/lib/store/product-details-fr';
+import { STORE_PRODUCT_DETAILS_EN, getStoreDetailHrefEN } from '@/lib/store/product-details-en';
 
 function ProductVisual({ id }: { id: StoreProductId }) {
   if (id === 'tracker') return <TrackerVisual />;
@@ -42,18 +44,21 @@ function CheckLine({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function ProductDetailPageFR({ productId }: { productId: StoreProductId }) {
-  const product = STORE_FR_PRODUCTS[productId];
-  const detail = STORE_PRODUCT_DETAILS_FR[productId];
+export default function ProductDetailPageFR({ productId, market = 'fr' }: { productId: StoreProductId; market?: StoreMarket }) {
+  const isFr = market === 'fr';
+  const products = isFr ? STORE_FR_PRODUCTS : STORE_EN_PRODUCTS;
+  const product = products[productId];
+  const detail = isFr ? STORE_PRODUCT_DETAILS_FR[productId] : STORE_PRODUCT_DETAILS_EN[productId];
+  const detailHref = isFr ? getStoreDetailHrefFR : getStoreDetailHrefEN;
   const isBundle = productId === 'bundle';
   const upgradeDelta =
     productId === 'tracker'
-      ? Number(STORE_FR_PRODUCTS.bundle.amount) - Number(product.amount)
+      ? Number(products.bundle.amount) - Number(product.amount)
       : productId === 'ats'
-        ? Number(STORE_FR_PRODUCTS.bundle.amount) - Number(product.amount)
+        ? Number(products.bundle.amount) - Number(product.amount)
         : 0;
 
-  const upgradeLabel = upgradeDelta.toFixed(2).replace('.', ',');
+  const upgradeLabel = isFr ? upgradeDelta.toFixed(2).replace('.', ',') : upgradeDelta.toFixed(2);
 
   return (
     <main className="min-h-screen bg-white text-slate-950">
@@ -62,15 +67,18 @@ export default function ProductDetailPageFR({ productId }: { productId: StorePro
 
         <header className="relative border-b border-white/[0.07] bg-[#020b1f]/75 backdrop-blur-xl">
           <div className="mx-auto flex h-[70px] max-w-7xl items-center justify-between px-5 sm:px-8">
-            <Link href="/" className="text-xl font-black tracking-tight">
+            <Link href={isFr ? '/' : '/en'} className="text-xl font-black tracking-tight">
               TalentiQues
             </Link>
+            <div className="flex items-center gap-4">
+              <StoreLanguageSwitcher market={market} />
             <a
-              href="/outils"
+              href={isFr ? '/outils' : '/en/tools'}
               className="text-sm font-bold text-slate-300 transition hover:text-white"
             >
-              ← Retour aux outils
+              ← {isFr ? 'Retour aux outils' : 'Back to tools'}
             </a>
+            </div>
           </div>
         </header>
 
@@ -89,7 +97,7 @@ export default function ProductDetailPageFR({ productId }: { productId: StorePro
             <div className="mt-7 flex flex-wrap items-end gap-4">
               <div>
                 <div className="text-xs font-bold uppercase tracking-[0.12em] text-slate-400">
-                  Tarif de lancement
+                  {isFr ? 'Tarif de lancement' : 'Launch price'}
                 </div>
                 <div className="mt-1 text-5xl font-black tracking-[-0.05em]">
                   {product.displayPrice}
@@ -109,10 +117,10 @@ export default function ProductDetailPageFR({ productId }: { productId: StorePro
 
             <div className="mt-7 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
               {[
-                [CreditCard, 'Paiement unique'],
-                [Zap, 'Accès immédiat'],
-                [InfinityIcon, 'Réutilisable'],
-                [ShieldCheck, 'Paiement sécurisé'],
+                [CreditCard, isFr ? 'Paiement unique' : 'One-time payment'],
+                [Zap, isFr ? 'Accès immédiat' : 'Instant access'],
+                [InfinityIcon, isFr ? 'Réutilisable' : 'Reusable'],
+                [ShieldCheck, isFr ? 'Paiement sécurisé' : 'Secure payment'],
               ].map(([Icon, label]) => {
                 const IconComponent = Icon as typeof CreditCard;
                 return (
@@ -129,14 +137,14 @@ export default function ProductDetailPageFR({ productId }: { productId: StorePro
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
               <StoreCTA
-                href={`/outils/checkout?product=${productId}`}
+                href={`${isFr ? '/outils' : '/en/tools'}/checkout?product=${productId}`}
                 productId={productId}
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-sky-400 to-blue-600 px-7 py-4 text-sm font-black text-white shadow-[0_16px_45px_rgba(14,165,233,.35)] transition hover:-translate-y-0.5"
               >
-                Accéder maintenant — {product.displayPrice}
+                {isFr ? 'Accéder maintenant' : 'Get instant access'} — {product.displayPrice}
               </StoreCTA>
               <div className="text-xs leading-5 text-slate-400">
-                Aucun abonnement.<br />Vos fichiers restent à vous.
+                {isFr ? <>Aucun abonnement.<br />Vos fichiers restent à vous.</> : <>No subscription.<br />Keep your files.</>}
               </div>
             </div>
 
@@ -153,10 +161,10 @@ export default function ProductDetailPageFR({ productId }: { productId: StorePro
         <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1fr_0.95fr]">
           <article className="rounded-[32px] border border-slate-100 bg-slate-50/70 p-6 sm:p-8">
             <div className="text-xs font-black uppercase tracking-[0.14em] text-sky-600">
-              Ce que vous gagnez
+              {isFr ? 'Ce que vous gagnez' : 'WHAT YOU GAIN'}
             </div>
             <h2 className="mt-3 text-3xl font-black tracking-[-0.035em]">
-              Un outil que vous pouvez réutiliser au-delà de votre recherche actuelle.
+              {isFr ? 'Un outil que vous pouvez réutiliser au-delà de votre recherche actuelle.' : 'A system you can reuse beyond your current search.'}
             </h2>
             <p className="mt-4 text-sm leading-7 text-slate-600">
               {detail.outcome}
@@ -170,7 +178,7 @@ export default function ProductDetailPageFR({ productId }: { productId: StorePro
 
           <article className="rounded-[32px] border border-sky-100 bg-white p-6 shadow-[0_20px_70px_rgba(15,23,42,.07)] sm:p-8">
             <div className="flex items-center gap-2 text-sm font-black text-sky-700">
-              <Gift className="h-5 w-5" /> Tout ce que vous recevez
+              <Gift className="h-5 w-5" /> {isFr ? 'Tout ce que vous recevez' : 'Everything you receive'}
             </div>
             <ul className="mt-5 space-y-3">
               {detail.includes.map((item) => (
@@ -187,23 +195,23 @@ export default function ProductDetailPageFR({ productId }: { productId: StorePro
             <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center">
               <div>
                 <div className="text-xs font-black uppercase tracking-[0.15em] text-sky-300">
-                  Avant de payer, comparez
+                  {isFr ? 'Avant de payer, comparez' : 'Complete your system'}
                 </div>
                 <h2 className="mt-2 text-3xl font-black tracking-[-0.04em]">
-                  Passez au système complet
+                  {isFr ? 'Passez au système complet' : 'Complete your system'}
                 </h2>
                 <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
                   {productId === 'tracker'
-                    ? `Ajoutez le CV ATS & LinkedIn Pro et tous les guides pour seulement +${upgradeLabel} €.`
-                    : `Ajoutez le Tracker Candidatures Pro et ses guides pour seulement +${upgradeLabel} €.`}
+                    ? isFr ? `Ajoutez le CV ATS & LinkedIn Pro et tous les guides pour seulement +${upgradeLabel} €.` : `Add ATS Resume & LinkedIn Pro and all guides for only +$${upgradeLabel}.`
+                    : isFr ? `Ajoutez le Tracker Candidatures Pro et ses guides pour seulement +${upgradeLabel} €.` : `Add Application Tracker Pro and its guides for only +$${upgradeLabel}.`}
                 </p>
               </div>
               <StoreCTA
-                href={getStoreDetailHrefFR('bundle')}
+                href={detailHref('bundle')}
                 productId="bundle"
                 className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-sky-400 to-blue-600 px-7 py-4 text-sm font-black text-white shadow-[0_15px_45px_rgba(14,165,233,.35)]"
               >
-                Choisir le Bundle — 14,90 €
+                {isFr ? 'Choisir le Bundle' : 'Choose the Bundle'} — {products.bundle.displayPrice}
               </StoreCTA>
             </div>
           </div>
@@ -214,10 +222,10 @@ export default function ProductDetailPageFR({ productId }: { productId: StorePro
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
             <div className="text-xs font-black uppercase tracking-[0.14em] text-sky-600">
-              Après votre paiement
+              {isFr ? 'Après votre paiement' : 'AFTER PAYMENT'}
             </div>
             <h2 className="mt-3 text-3xl font-black tracking-[-0.035em] sm:text-4xl">
-              Comment allez-vous recevoir votre achat ?
+              {isFr ? 'Comment allez-vous recevoir votre achat ?' : 'How will you receive your purchase?'}
             </h2>
           </div>
 
@@ -252,13 +260,13 @@ export default function ProductDetailPageFR({ productId }: { productId: StorePro
         <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div>
             <div className="text-xs font-black uppercase tracking-[0.14em] text-sky-600">
-              Pour qui ?
+              {isFr ? 'Pour qui ?' : 'WHO IS IT FOR?'}
             </div>
             <h2 className="mt-3 text-3xl font-black tracking-[-0.035em]">
-              Conçu pour rester utile quand votre prochaine opportunité arrive.
+              {isFr ? 'Conçu pour rester utile quand votre prochaine opportunité arrive.' : 'Designed to stay useful when your next opportunity comes up.'}
             </h2>
             <p className="mt-4 text-sm leading-7 text-slate-600">
-              L’objectif n’est pas de vous vendre un téléchargement isolé, mais de vous donner une base que vous pourrez reprendre, mettre à jour et réutiliser.
+              {isFr ? 'L’objectif n’est pas de vous vendre un téléchargement isolé, mais de vous donner une base que vous pourrez reprendre, mettre à jour et réutiliser.' : 'This is more than a one-off download: it is a practical foundation you can update, adapt and reuse.'}
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -279,20 +287,20 @@ export default function ProductDetailPageFR({ productId }: { productId: StorePro
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(14,165,233,.20),transparent_35%)]" />
         <div className="relative mx-auto max-w-3xl text-center">
           <div className="text-xs font-black uppercase tracking-[0.15em] text-sky-300">
-            Paiement unique • accès immédiat
+            {isFr ? 'Paiement unique • accès immédiat' : 'One-time payment • instant access'}
           </div>
           <h2 className="mt-4 text-3xl font-black tracking-[-0.04em] sm:text-4xl">
-            Faites l’investissement une fois. Réutilisez le système à chaque nouvelle opportunité.
+            {isFr ? 'Faites l’investissement une fois. Réutilisez le système à chaque nouvelle opportunité.' : 'Invest once. Reuse your system for every new career opportunity.'}
           </h2>
           <StoreCTA
-            href={`/outils/checkout?product=${productId}`}
+            href={`${isFr ? '/outils' : '/en/tools'}/checkout?product=${productId}`}
             productId={productId}
             className="mx-auto mt-7 inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-sky-400 to-blue-600 px-8 py-4 text-sm font-black text-white shadow-[0_16px_45px_rgba(14,165,233,.35)]"
           >
-            Continuer vers le paiement — {product.displayPrice}
+            {isFr ? 'Continuer vers le paiement' : 'Continue to checkout'} — {product.displayPrice}
           </StoreCTA>
           <div className="mt-4 text-xs text-slate-400">
-            PayPal sécurisé • aucun abonnement • accès envoyé après confirmation
+            {isFr ? 'PayPal sécurisé • aucun abonnement • accès envoyé après confirmation' : 'Secure PayPal checkout • no subscription • access sent after confirmation'}
           </div>
         </div>
       </section>
@@ -301,28 +309,28 @@ export default function ProductDetailPageFR({ productId }: { productId: StorePro
         <div className="flex items-center justify-between gap-3">
           <div>
             <div className="text-[10px] font-black uppercase tracking-[0.12em] text-sky-300">
-              {isBundle ? 'Offre recommandée' : 'Paiement unique'}
+              {isBundle ? (isFr ? 'Offre recommandée' : 'Recommended offer') : (isFr ? 'Paiement unique' : 'One-time payment')}
             </div>
             <div className="text-sm font-black text-white">
-              {productId === 'tracker'
+              {isFr ? (productId === 'tracker'
                 ? 'Tracker Candidatures Pro'
                 : productId === 'ats'
                   ? 'CV ATS & LinkedIn Pro'
-                  : 'Career Search Bundle'}{' '}
+                  : 'Career Search Bundle') : product.name}{' '}
               • {product.displayPrice}
             </div>
           </div>
           <StoreCTA
-            href={`/outils/checkout?product=${productId}`}
+            href={`${isFr ? '/outils' : '/en/tools'}/checkout?product=${productId}`}
             productId={productId}
             className="inline-flex items-center gap-2 rounded-full bg-sky-500 px-4 py-3 text-xs font-black text-white"
             arrow={false}
           >
-            J’y accède
+            {isFr ? 'J’y accède' : 'Get access'}
           </StoreCTA>
         </div>
       </div>
-      <RecentPurchaseToast hasMobileStickyCta />
+      <RecentPurchaseToast hasMobileStickyCta market={market} />
     </main>
   );
 }
