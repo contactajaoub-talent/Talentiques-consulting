@@ -12,11 +12,12 @@ import {
   Mail,
   Phone,
   ShieldCheck,
+  Sparkles,
   UserRound,
   type LucideIcon,
 } from 'lucide-react';
 import type { StoreProduct, StoreTracking } from '@/lib/store/catalog';
-import { STORE_TRACKING_KEYS } from '@/lib/store/catalog';
+import { getStoreProduct, STORE_TRACKING_KEYS } from '@/lib/store/catalog';
 import {
   trackStoreCheckoutStarted,
   trackStorePurchaseOnce,
@@ -66,6 +67,8 @@ export default function CheckoutClient({
   clientId: string;
 }) {
   const rendered = useRef(false);
+  const [selectedProduct, setSelectedProduct] = useState(product);
+  const selectedProductRef = useRef(product);
   const consentRef = useRef(false);
   const customerRef = useRef<StoreCustomerInput>(emptyCustomer);
   const checkoutStartedRef = useRef(false);
@@ -77,6 +80,13 @@ export default function CheckoutClient({
   const [digitalConsent, setDigitalConsent] = useState(false);
   const [status, setStatus] = useState<'idle' | 'processing' | 'error'>('idle');
   const [error, setError] = useState('');
+  const canUpgrade = product.market === 'fr' && product.id !== 'bundle';
+  const isUpgraded = selectedProduct.id === 'bundle' && product.id !== 'bundle';
+  const upgradeDelta = product.id === 'tracker' ? '+7,00 €' : '+5,00 €';
+
+  useEffect(() => {
+    selectedProductRef.current = selectedProduct;
+  }, [selectedProduct]);
 
   useEffect(() => {
     consentRef.current = digitalConsent;
@@ -167,15 +177,15 @@ export default function CheckoutClient({
 
             if (!checkoutStartedRef.current) {
               checkoutStartedRef.current = true;
-              trackStoreCheckoutStarted(product);
+              trackStoreCheckoutStarted(selectedProductRef.current);
             }
 
             const response = await fetch('/api/store/paypal/create-order', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                productId: product.id,
-                market: product.market,
+                productId: selectedProductRef.current.id,
+                market: selectedProductRef.current.market,
                 tracking: getTrackingFromLocation(),
                 digitalContentConsent: true,
                 customer: customerResult.data,
@@ -206,11 +216,12 @@ export default function CheckoutClient({
               );
             }
 
+            const purchasedProduct = selectedProductRef.current;
             trackStorePurchaseOnce({
-              product,
+              product: purchasedProduct,
               transactionId: data.orderID,
-              amount: Number(payload.amount || product.amount),
-              currency: payload.currency || product.currency,
+              amount: Number(payload.amount || purchasedProduct.amount),
+              currency: payload.currency || purchasedProduct.currency,
             });
 
             window.location.assign(
@@ -255,7 +266,7 @@ export default function CheckoutClient({
 
           <h1 className="mt-5 max-w-xl text-4xl font-black tracking-[-0.04em] sm:text-5xl">
             Finalisez votre accès à{' '}
-            <span className="text-sky-400">{product.name}</span>
+            <span className="text-sky-400">{selectedProduct.name}</span>
           </h1>
           <p className="mt-5 max-w-xl text-base leading-7 text-slate-300">
             Paiement unique. Aucun abonnement. Après confirmation, votre accès
@@ -279,10 +290,51 @@ export default function CheckoutClient({
           <div className="text-sm font-bold uppercase tracking-[0.12em] text-sky-600">
             Votre commande
           </div>
-          <h2 className="mt-3 text-2xl font-black">{product.name}</h2>
+          <h2 className="mt-3 text-2xl font-black">{selectedProduct.name}</h2>
           <p className="mt-2 text-sm leading-6 text-slate-500">
-            {product.description}
+            {selectedProduct.description}
           </p>
+
+          {canUpgrade && (
+            <label className="mt-6 block cursor-pointer rounded-2xl border-2 border-sky-300 bg-sky-50 p-4 shadow-[0_12px_35px_rgba(14,165,233,.10)] sm:p-5">
+              <span className="inline-flex rounded-full bg-sky-600 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-white">
+                Recommandé
+              </span>
+              <span className="mt-2 block text-sm font-black text-sky-900">
+                Passez au Career Search Bundle
+              </span>
+              <span className="mt-3 flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  checked={isUpgraded}
+                  onChange={(event) => {
+                    const next = event.target.checked
+                      ? getStoreProduct('bundle', product.market)
+                      : product;
+                    selectedProductRef.current = next;
+                    setSelectedProduct(next);
+                    checkoutStartedRef.current = false;
+                  }}
+                  className="mt-0.5 h-6 w-6 shrink-0 accent-sky-600"
+                />
+                <span className="min-w-0">
+                  <span className="flex items-center gap-2 text-base font-black text-slate-950">
+                    <Sparkles className="h-5 w-5 shrink-0 text-sky-600" />
+                    Le système complet
+                  </span>
+                  <span className="mt-1 block text-sm leading-6 text-slate-600">
+                    {product.id === 'tracker'
+                      ? 'Ajoutez CV ATS System + tous les guides'
+                      : 'Ajoutez Opportunity Tracker Pro + ses guides'}
+                    {' '}pour seulement <strong>{upgradeDelta}</strong>.
+                  </span>
+                  <span className="mt-2 block text-sm font-black text-sky-800">
+                    Nouveau total : 14,90 €
+                  </span>
+                </span>
+              </span>
+            </label>
+          )}
 
           <div className="my-6 h-px bg-slate-200" />
 
@@ -292,7 +344,7 @@ export default function CheckoutClient({
                 Total à payer
               </div>
               <div className="mt-1 text-4xl font-black tracking-tight text-slate-950">
-                {product.displayPrice}
+                {selectedProduct.displayPrice}
               </div>
             </div>
             <div className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-black text-emerald-700">
@@ -300,12 +352,12 @@ export default function CheckoutClient({
             </div>
           </div>
 
-          {product.compareAt && (
+          {selectedProduct.compareAt && (
             <div className="mt-2 text-sm text-slate-400">
-              <span className="line-through">{product.compareAt}</span>
-              {product.savings && (
+              <span className="line-through">{selectedProduct.compareAt}</span>
+              {selectedProduct.savings && (
                 <span className="ml-2 font-bold text-sky-700">
-                  {product.savings}
+                  {selectedProduct.savings}
                 </span>
               )}
             </div>
@@ -510,7 +562,7 @@ export default function CheckoutClient({
                 <Script
                   src={`https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(
                     clientId
-                  )}&currency=${product.currency}&intent=capture&components=buttons`}
+                  )}&currency=${selectedProduct.currency}&intent=capture&components=buttons`}
                   strategy="afterInteractive"
                   onLoad={renderPayPal}
                   onError={() => {

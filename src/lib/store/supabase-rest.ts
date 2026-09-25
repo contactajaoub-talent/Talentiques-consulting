@@ -26,7 +26,7 @@ function headers(extra: HeadersInit = {}): HeadersInit {
 
 async function jsonOrThrow(response: Response) {
   const text = await response.text();
-  let body: any = null;
+  let body: unknown = null;
   if (text) {
     try {
       body = JSON.parse(text);
@@ -36,7 +36,11 @@ async function jsonOrThrow(response: Response) {
   }
 
   if (!response.ok) {
-    const message = body?.message || body?.error || `Supabase ${response.status}`;
+    const errorBody = body && typeof body === 'object' ? (body as Json) : {};
+    const message =
+      (typeof errorBody.message === 'string' && errorBody.message) ||
+      (typeof errorBody.error === 'string' && errorBody.error) ||
+      `Supabase ${response.status}`;
     throw new Error(message);
   }
 
@@ -119,6 +123,27 @@ export async function findStoreOrderByAccessToken(accessToken: string) {
 
   const rows = (await jsonOrThrow(response)) as Json[];
   return rows?.[0] || null;
+}
+
+export async function getRecentPaidStoreOrders(limit = 6) {
+  const { url } = config();
+  const safeLimit = Math.min(Math.max(Math.trunc(limit), 1), 10);
+  const query = new URLSearchParams({
+    select: 'customer_name,product_id,market',
+    status: 'eq.paid',
+    order: 'paid_at.desc.nullslast',
+    limit: String(safeLimit),
+  });
+  const response = await fetch(`${url}/rest/v1/store_orders?${query}`, {
+    headers: headers(),
+    cache: 'no-store',
+  });
+
+  return (await jsonOrThrow(response)) as Array<{
+    customer_name?: unknown;
+    product_id?: unknown;
+    market?: unknown;
+  }>;
 }
 
 export async function claimOrderDelivery(orderId: string) {

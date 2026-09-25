@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Outfit, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import { cn } from '@/lib/utils';
-import { Preloader } from '@/components/Preloader';
+import { RouteAwarePreloader } from '@/components/RouteAwarePreloader';
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -62,7 +62,7 @@ export default function RootLayout({
           'bg-white text-slate-900 min-h-screen antialiased selection:bg-blue-500/30 selection:text-blue-700'
         )}
       >
-        <Preloader />
+        <RouteAwarePreloader />
 
         {children}
       </body>

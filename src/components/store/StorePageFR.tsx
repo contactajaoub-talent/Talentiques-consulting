@@ -16,7 +16,9 @@ import {
   Zap,
   type LucideIcon,
 } from 'lucide-react';
-import LaunchCountdown from '@/components/store/LaunchCountdown';
+import Image from 'next/image';
+import Link from 'next/link';
+import RecentPurchaseToast from '@/components/store/RecentPurchaseToast';
 import StoreCTA from '@/components/store/StoreCTA';
 import {
   AtsVisual,
@@ -55,11 +57,39 @@ const bundleFeatures = [
 ];
 
 const trustItems: ReadonlyArray<readonly [LucideIcon, string, string]> = [
-  [CreditCard, 'Paiement unique', 'aucun abonnement'],
-  [Zap, 'Accès immédiat', 'après confirmation'],
-  [InfinityIcon, 'Réutilisable', 'pour vos futures recherches'],
-  [Globe2, 'FR + EN inclus', 'sur la version française'],
+  [CreditCard, 'Paiement unique', 'Aucun abonnement'],
+  [Zap, 'Accès immédiat', 'Après paiement'],
+  [InfinityIcon, 'Réutilisable', 'À vie, sur vos propres recherches'],
+  [Globe2, 'FR + EN inclus', 'Ressources bilingues'],
 ];
+
+const offerFeatures: Record<'tracker' | 'ats' | 'bundle', string[]> = {
+  tracker: [
+    'Suivi des candidatures et statuts',
+    'Tableau de bord clair et priorités',
+    'Relances automatiques (J+5)',
+    'Entretiens et contacts',
+    'Compatible Google Sheets',
+  ],
+  bundle: [
+    'Opportunity Tracker Pro',
+    'Modèles CV ATS',
+    'Optimisation LinkedIn',
+    '2 guides pratiques (FR + EN inclus)',
+  ],
+  ats: [
+    '7 modèles CV ATS professionnels',
+    'Guide CV complet (FR + EN)',
+    'Méthode de personnalisation selon l’offre',
+    'Guide LinkedIn offert (FR + EN)',
+  ],
+};
+
+const offerVisuals = {
+  tracker: '/store/premium/tracker-fr.png',
+  bundle: '/store/premium/bundle-fr.png',
+  ats: '/store/premium/ats-fr.png',
+} as const;
 
 const benefitItems: ReadonlyArray<readonly [LucideIcon, string, string]> = [
   [Clock3, 'Gagnez du temps', 'Vous partez d’un système déjà structuré au lieu de reconstruire votre méthode à chaque recherche.'],
@@ -108,6 +138,8 @@ function OfferCard({
   featured = false,
   compareAt,
   savings,
+  bonus,
+  bonusDetail,
 }: {
   id: 'tracker' | 'ats' | 'bundle';
   title: string;
@@ -116,15 +148,17 @@ function OfferCard({
   featured?: boolean;
   compareAt?: string;
   savings?: string;
+  bonus?: string;
+  bonusDetail?: string;
 }) {
   const href = getStoreDetailHrefFR(id);
 
   return (
     <article
-      className={`relative rounded-[28px] border p-5 text-left transition sm:p-6 ${
+      className={`relative flex h-full flex-col rounded-[26px] border p-5 text-left transition sm:p-6 ${
         featured
-          ? 'z-10 border-sky-400/80 bg-gradient-to-b from-sky-500/15 to-indigo-500/10 shadow-[0_0_0_1px_rgba(56,189,248,.22),0_25px_80px_rgba(14,165,233,.28)] lg:-translate-y-3'
-          : 'border-white/10 bg-white/[0.055] shadow-[0_18px_50px_rgba(0,0,0,.18)]'
+          ? 'z-10 border-sky-400 bg-gradient-to-b from-sky-500/15 to-[#06142d] shadow-[0_0_0_1px_rgba(56,189,248,.28),0_25px_80px_rgba(14,165,233,.30)] lg:-translate-y-3'
+          : 'border-white/10 bg-[#07152d] shadow-[0_18px_50px_rgba(0,0,0,.22)]'
       }`}
     >
       {featured && (
@@ -153,6 +187,17 @@ function OfferCard({
           <h3 className="text-lg font-black leading-tight text-white">{title}</h3>
           <p className="mt-2 text-xs leading-5 text-slate-400">{description}</p>
         </div>
+      </div>
+
+      <div className="mt-5 overflow-hidden rounded-2xl border border-sky-400/15 bg-[#020b1f]">
+        <Image
+          src={offerVisuals[id]}
+          alt=""
+          width={id === 'bundle' ? 1672 : 1448}
+          height={id === 'bundle' ? 941 : 1086}
+          sizes="(max-width: 1023px) calc(100vw - 72px), 350px"
+          className="aspect-[16/9] w-full object-cover"
+        />
       </div>
 
       <div className="mt-6">
@@ -184,21 +229,45 @@ function OfferCard({
             ? 'Voir les détails du Tracker'
             : 'Voir les détails du système CV'}
       </StoreCTA>
+
+      <ul className="mt-6 space-y-2.5">
+        {offerFeatures[id].map((feature) => (
+          <li key={feature} className="flex items-start gap-2.5 text-xs leading-5 text-slate-300 sm:text-sm">
+            <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-sky-500 text-white">
+              <Check className="h-3 w-3" strokeWidth={3} />
+            </span>
+            {feature}
+          </li>
+        ))}
+      </ul>
+
+      {bonus && (
+        <div className="mt-auto pt-6">
+          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.035] p-3.5 text-xs font-black text-sky-100">
+            <Gift className="mr-2 inline h-4 w-4 text-sky-400" /> {bonus}
+            {bonusDetail && (
+              <span className="mt-1 block pl-6 text-[10px] font-medium leading-4 text-slate-400">
+                {bonusDetail}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
     </article>
   );
 }
 
 export default function StorePageFR() {
   return (
-    <main className="min-h-screen overflow-x-hidden bg-white text-slate-950">
+    <main className="min-h-screen overflow-x-hidden bg-white pb-24 text-slate-950 md:pb-0">
       <section className="relative overflow-hidden bg-[#020b1f] text-white">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,rgba(14,165,233,.22),transparent_34%),radial-gradient(circle_at_8%_40%,rgba(37,99,235,.16),transparent_28%),radial-gradient(circle_at_94%_44%,rgba(124,58,237,.12),transparent_30%)]" />
 
         <header className="relative z-40 border-b border-white/[0.07] bg-[#020b1f]/70 backdrop-blur-xl">
           <div className="mx-auto flex h-[70px] max-w-7xl items-center justify-between px-5 sm:px-8">
-            <a href="/" className="text-xl font-black tracking-tight text-white">
+            <Link href="/" className="text-xl font-black tracking-tight text-white">
               TalentiQues
-            </a>
+            </Link>
             <nav className="hidden items-center gap-7 text-sm font-semibold text-slate-300 md:flex">
               <a href="#produits" className="transition hover:text-white">Produits</a>
               <a href="#bundle" className="transition hover:text-white">Bundle</a>
@@ -213,39 +282,31 @@ export default function StorePageFR() {
           </div>
         </header>
 
-        <div className="relative mx-auto max-w-7xl px-5 pb-16 pt-10 text-center sm:px-8 sm:pt-14 lg:pt-16">
-          <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-sky-300/15 bg-sky-400/[0.08] px-4 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-sky-200 sm:text-xs">
-            <Sparkles className="h-4 w-4" /> Outils carrière • paiement unique
-          </div>
-
-          <h1 className="mx-auto mt-5 max-w-4xl text-4xl font-black leading-[1.03] tracking-[-0.045em] sm:text-5xl lg:text-6xl">
-            Structurez votre recherche. Renforcez vos candidatures.{' '}
-            <span className="text-sky-400">Gardez le système pour la suite.</span>
-          </h1>
-          <p className="mx-auto mt-5 max-w-3xl text-sm leading-7 text-slate-300 sm:text-base">
-            Tracker, CV ATS, LinkedIn et guides pratiques réunis pour vous aider à mieux agir aujourd’hui — et à réutiliser la même base lors de vos prochaines opportunités.
+        <div className="relative mx-auto max-w-7xl px-4 pb-14 pt-1 text-center sm:px-8 sm:pt-5">
+          <h1 className="sr-only">Career Search Bundle</h1>
+          <p className="sr-only">
+            Tracker, CV ATS, LinkedIn et guides pratiques réunis dans un système complet, accessible après un paiement unique.
           </p>
-          <p className="mx-auto mt-2 max-w-3xl text-sm font-black text-white sm:text-base">
-            Un investissement unique. Aucun abonnement. Accès après paiement.
-          </p>
-
           <HeroProductVisual />
-          <LaunchCountdown />
+
+          <div className="mx-auto h-4 max-w-6xl bg-gradient-to-b from-transparent to-[#020b1f] sm:h-8" />
 
           <div
             id="offres"
-            className="mx-auto mt-9 grid max-w-6xl gap-4 text-left lg:grid-cols-3 lg:items-stretch"
+            className="mx-auto grid max-w-6xl gap-5 text-left lg:grid-cols-3 lg:items-stretch"
           >
             <OfferCard
               id="tracker"
               title={products.tracker.name}
-              description="Suivi des candidatures, relances, entretiens, dashboard et analytics."
+              description="Suivez vos opportunités, candidatures, relances, contacts et entretiens."
               price={products.tracker.displayPrice}
+              bonus="2 guides premium inclus"
+              bonusDetail="Identifier & qualifier + Suivi & relances"
             />
             <OfferCard
               id="bundle"
               title={products.bundle.name}
-              description="Le système complet pour organiser, candidater, suivre et relancer."
+              description="Le système complet pour une recherche d’emploi plus efficace."
               price={products.bundle.displayPrice}
               featured
               compareAt={products.bundle.compareAt}
@@ -254,16 +315,18 @@ export default function StorePageFR() {
             <OfferCard
               id="ats"
               title={products.ats.name}
-              description="7 modèles CV ATS, guide CV complet et guide LinkedIn offert."
+              description="Des modèles et méthodes complètes pour un CV et un profil LinkedIn plus performants."
               price={products.ats.displayPrice}
+              bonus="Guide LinkedIn offert"
+              bonusDetail="Un guide pratique pour un profil plus visible."
             />
           </div>
 
-          <div className="mx-auto mt-7 grid max-w-5xl grid-cols-2 gap-3 text-left sm:grid-cols-4">
+          <div className="mx-auto mt-7 grid max-w-6xl grid-cols-2 gap-3 text-left lg:grid-cols-4">
             {trustItems.map(([Icon, title, detail]) => (
               <div
                 key={title}
-                className="flex items-start gap-3 rounded-2xl border border-white/[0.07] bg-white/[0.035] p-3.5"
+                className="flex items-start gap-3 rounded-2xl border border-white/[0.07] bg-[#07152d] p-3.5"
               >
                 <Icon className="mt-0.5 h-5 w-5 shrink-0 text-sky-300" />
                 <div>
@@ -275,6 +338,7 @@ export default function StorePageFR() {
           </div>
         </div>
       </section>
+      <RecentPurchaseToast hasMobileStickyCta />
 
       <section className="bg-white px-5 py-14 sm:px-8 sm:py-16">
         <div className="mx-auto max-w-6xl">
