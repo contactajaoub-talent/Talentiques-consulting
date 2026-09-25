@@ -5,7 +5,7 @@ const premiumImageClass =
 
 export function HeroProductVisual() {
   return (
-    <div className="relative -mx-4 w-[calc(100%+2rem)] sm:mx-auto sm:w-auto sm:max-w-5xl">
+    <div className="relative -mx-4 w-[calc(100%+2rem)] sm:mx-auto sm:w-full sm:max-w-[800px]">
       <div className="pointer-events-none absolute -inset-6 -z-10 hidden rounded-[42px] bg-[radial-gradient(circle_at_50%_55%,rgba(14,165,233,.18),transparent_62%)] blur-2xl sm:block" />
       <picture>
         <source
@@ -20,7 +20,7 @@ export function HeroProductVisual() {
           width={592}
           height={451}
           priority
-          sizes="(max-width: 639px) 100vw, 1024px"
+          sizes="(max-width: 639px) 100vw, (max-width: 863px) calc(100vw - 64px), 800px"
           className={premiumImageClass}
         />
       </picture>
