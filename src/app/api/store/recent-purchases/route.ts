@@ -17,12 +17,14 @@ function anonymizeName(value: unknown) {
   return lastInitial ? `${firstName} ${lastInitial}.` : `${firstName.charAt(0).toUpperCase()}.`;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const requestedMarket = new URL(request.url).searchParams.get('market');
     const rows = await getRecentPaidStoreOrders(6);
     const purchases = rows.flatMap((row) => {
       const buyer = anonymizeName(row.customer_name);
       if (!buyer || !isStoreProductId(row.product_id) || !isStoreMarket(row.market)) return [];
+      if (isStoreMarket(requestedMarket) && row.market !== requestedMarket) return [];
       return [{ buyer, productName: getStoreProduct(row.product_id, row.market).name }];
     });
 

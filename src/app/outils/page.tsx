@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: 'Outils carrière : Tracker, CV ATS & Bundle',
   description:
     'Opportunity Tracker Pro, CV ATS System et Career Search Bundle : des outils réutilisables pour structurer votre recherche, renforcer vos candidatures et suivre vos opportunités.',
-  alternates: { canonical: '/outils' },
+  alternates: { canonical: '/outils', languages: { 'fr-FR': '/outils', en: '/en/tools' } },
   openGraph: {
     title: 'TalentiQues Store | Outils carrière',
     description:

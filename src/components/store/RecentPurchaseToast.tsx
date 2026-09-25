@@ -3,20 +3,23 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { Check } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import type { StoreMarket } from '@/lib/store/catalog';
 
 type Purchase = { buyer: string; productName: string };
 
 export default function RecentPurchaseToast({
   hasMobileStickyCta = false,
+  market = 'fr',
 }: {
   hasMobileStickyCta?: boolean;
+  market?: StoreMarket;
 }) {
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [visibleIndex, setVisibleIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch('/api/store/recent-purchases', { signal: controller.signal })
+    fetch(`/api/store/recent-purchases?market=${market}`, { signal: controller.signal })
       .then((response) => (response.ok ? response.json() : { purchases: [] }))
       .then((payload) => {
         if (Array.isArray(payload.purchases)) setPurchases(payload.purchases);
@@ -27,7 +30,7 @@ export default function RecentPurchaseToast({
         }
       });
     return () => controller.abort();
-  }, []);
+  }, [market]);
 
   useEffect(() => {
     if (!purchases.length) return;
@@ -67,9 +70,9 @@ export default function RecentPurchaseToast({
               <Check className="h-5 w-5" strokeWidth={3} />
             </span>
             <div className="min-w-0">
-              <p className="text-xs font-semibold text-slate-300">{purchase.buyer} vient d’acheter</p>
+              <p className="text-xs font-semibold text-slate-300">{purchase.buyer} {market === 'fr' ? 'vient d’acheter' : 'just purchased'}</p>
               <p className="mt-0.5 truncate text-sm font-black">{purchase.productName}</p>
-              <p className="mt-1 text-[11px] font-semibold text-sky-200">Accès immédiat • Paiement unique</p>
+              <p className="mt-1 text-[11px] font-semibold text-sky-200">{market === 'fr' ? 'Accès immédiat • Paiement unique' : 'Instant access • One-time payment'}</p>
             </div>
           </div>
         </motion.aside>

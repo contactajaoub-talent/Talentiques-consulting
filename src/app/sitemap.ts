@@ -6,6 +6,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: base, changeFrequency: 'weekly', priority: 1 },
     { url: `${base}/diagnostic-cv-ats`, changeFrequency: 'monthly', priority: .9 },
     { url: `${base}/outils`, changeFrequency: 'weekly', priority: .95 },
+    { url: `${base}/en/tools`, changeFrequency: 'weekly', priority: .95 },
     { url: `${base}/ressources`, changeFrequency: 'weekly', priority: .8 },
     { url: `${base}/accompagnement`, changeFrequency: 'monthly', priority: .8 },
     { url: `${base}/blog`, changeFrequency: 'weekly', priority: .8 },

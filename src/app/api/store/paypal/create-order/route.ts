@@ -92,7 +92,7 @@ export async function POST(request: Request) {
       customer_country: customerResult.data.country,
       customer_status: customerResult.data.currentStatus,
       digital_content_consent_at: new Date().toISOString(),
-      consent_version: 'store-fr-v1-2026-09',
+      consent_version: `store-${market}-v1-2026-09`,
       ...tracking,
     });
 
