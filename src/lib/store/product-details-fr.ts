@@ -19,13 +19,13 @@ export const STORE_PRODUCT_DETAILS_FR: Record<StoreProductId, StoreProductDetail
     id: 'tracker',
     slug: 'opportunity-tracker',
     eyebrow: 'Pilotez votre recherche au lieu de la subir',
-    headline: 'Opportunity Tracker Pro',
+    headline: 'Tracker Candidatures Pro',
     subheadline:
       'Un système de pilotage réutilisable pour centraliser vos opportunités, vos relances, vos entretiens et vos prochaines actions.',
     outcome:
       'Vous savez quoi faire, quand le faire et quelles opportunités méritent votre temps — sans reconstruire votre organisation à chaque recherche.',
     includes: [
-      'Opportunity Tracker Pro FR + EN',
+      'Tracker Candidatures Pro FR + EN',
       'Dashboard de pilotage et indicateurs',
       'Suivi des candidatures, relances et entretiens',
       'Mini CRM recruteurs / contacts',
@@ -59,7 +59,7 @@ export const STORE_PRODUCT_DETAILS_FR: Record<StoreProductId, StoreProductDetail
     id: 'ats',
     slug: 'cv-ats',
     eyebrow: 'Présentez une candidature plus claire et plus solide',
-    headline: 'CV ATS System',
+    headline: 'CV ATS & LinkedIn Pro',
     subheadline:
       '7 modèles CV ATS modifiables + une méthode complète pour construire, adapter et renforcer votre candidature.',
     outcome:
@@ -105,7 +105,7 @@ export const STORE_PRODUCT_DETAILS_FR: Record<StoreProductId, StoreProductDetail
     outcome:
       'Au lieu d’acheter des ressources isolées, vous réunissez le pilotage de votre recherche, le CV ATS, LinkedIn et les guides d’exécution dans un seul système.',
     includes: [
-      'Opportunity Tracker Pro FR + EN',
+      'Tracker Candidatures Pro FR + EN',
       'Toutes les automatisations du Tracker',
       '2 guides premium Opportunités / Relances / Entretiens',
       '7 modèles CV ATS professionnels',
@@ -130,7 +130,7 @@ export const STORE_PRODUCT_DETAILS_FR: Record<StoreProductId, StoreProductDetail
     delivery: [
       'Vous finalisez un seul paiement sécurisé PayPal.',
       'Votre accès au Bundle est débloqué immédiatement après confirmation.',
-      'Vous recevez par e-mail les deux packs : Tracker + CV ATS System.',
+      'Vous recevez par e-mail les deux packs : Tracker Candidatures Pro + CV ATS & LinkedIn Pro.',
       'Vous pouvez conserver les fichiers et les réutiliser pour vos prochaines opportunités.',
     ],
     note: '14,90 € au lieu de 17,80 € si les deux systèmes sont achetés séparément. Paiement unique, aucun abonnement.',

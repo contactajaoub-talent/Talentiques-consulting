@@ -83,6 +83,14 @@ export default function CheckoutClient({
   const canUpgrade = product.market === 'fr' && product.id !== 'bundle';
   const isUpgraded = selectedProduct.id === 'bundle' && product.id !== 'bundle';
   const upgradeDelta = product.id === 'tracker' ? '+7,00 €' : '+5,00 €';
+  const selectedProductName =
+    selectedProduct.market === 'fr'
+      ? selectedProduct.id === 'tracker'
+        ? 'Tracker Candidatures Pro'
+        : selectedProduct.id === 'ats'
+          ? 'CV ATS & LinkedIn Pro'
+          : 'Career Search Bundle'
+      : selectedProduct.name;
 
   useEffect(() => {
     selectedProductRef.current = selectedProduct;
@@ -266,7 +274,7 @@ export default function CheckoutClient({
 
           <h1 className="mt-5 max-w-xl text-4xl font-black tracking-[-0.04em] sm:text-5xl">
             Finalisez votre accès à{' '}
-            <span className="text-sky-400">{selectedProduct.name}</span>
+            <span className="text-sky-400">{selectedProductName}</span>
           </h1>
           <p className="mt-5 max-w-xl text-base leading-7 text-slate-300">
             Paiement unique. Aucun abonnement. Après confirmation, votre accès
@@ -290,7 +298,7 @@ export default function CheckoutClient({
           <div className="text-sm font-bold uppercase tracking-[0.12em] text-sky-600">
             Votre commande
           </div>
-          <h2 className="mt-3 text-2xl font-black">{selectedProduct.name}</h2>
+          <h2 className="mt-3 text-2xl font-black">{selectedProductName}</h2>
           <p className="mt-2 text-sm leading-6 text-slate-500">
             {selectedProduct.description}
           </p>
@@ -301,7 +309,7 @@ export default function CheckoutClient({
                 Recommandé
               </span>
               <span className="mt-2 block text-sm font-black text-sky-900">
-                Passez au Career Search Bundle
+                Complétez votre système
               </span>
               <span className="mt-3 flex items-start gap-3">
                 <input
@@ -320,13 +328,13 @@ export default function CheckoutClient({
                 <span className="min-w-0">
                   <span className="flex items-center gap-2 text-base font-black text-slate-950">
                     <Sparkles className="h-5 w-5 shrink-0 text-sky-600" />
-                    Le système complet
+                    Career Search Bundle
                   </span>
                   <span className="mt-1 block text-sm leading-6 text-slate-600">
                     {product.id === 'tracker'
-                      ? 'Ajoutez CV ATS System + tous les guides'
-                      : 'Ajoutez Opportunity Tracker Pro + ses guides'}
-                    {' '}pour seulement <strong>{upgradeDelta}</strong>.
+                      ? 'Ajoutez CV ATS & LinkedIn Pro + tous les guides pour'
+                      : 'Ajoutez Tracker Candidatures Pro + ses guides pour'}
+                    {' '}<strong>{upgradeDelta}</strong>.
                   </span>
                   <span className="mt-2 block text-sm font-black text-sky-800">
                     Nouveau total : 14,90 €

@@ -190,10 +190,12 @@ export default function ProductDetailPageFR({ productId }: { productId: StorePro
                   Avant de payer, comparez
                 </div>
                 <h2 className="mt-2 text-3xl font-black tracking-[-0.04em]">
-                  Pour seulement +{upgradeLabel} €, obtenez le système complet.
+                  Passez au système complet
                 </h2>
                 <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
-                  Ajoutez {productId === 'tracker' ? 'les 7 modèles CV ATS, le guide CV et le guide LinkedIn' : 'l’Opportunity Tracker Pro et ses 2 guides premium'} pour passer directement au Career Search Bundle.
+                  {productId === 'tracker'
+                    ? `Ajoutez le CV ATS & LinkedIn Pro et tous les guides pour seulement +${upgradeLabel} €.`
+                    : `Ajoutez le Tracker Candidatures Pro et ses guides pour seulement +${upgradeLabel} €.`}
                 </p>
               </div>
               <StoreCTA
@@ -201,7 +203,7 @@ export default function ProductDetailPageFR({ productId }: { productId: StorePro
                 productId="bundle"
                 className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-sky-400 to-blue-600 px-7 py-4 text-sm font-black text-white shadow-[0_15px_45px_rgba(14,165,233,.35)]"
               >
-                Voir le Bundle — 14,90 €
+                Choisir le Bundle — 14,90 €
               </StoreCTA>
             </div>
           </div>
@@ -302,7 +304,12 @@ export default function ProductDetailPageFR({ productId }: { productId: StorePro
               {isBundle ? 'Offre recommandée' : 'Paiement unique'}
             </div>
             <div className="text-sm font-black text-white">
-              {product.name} • {product.displayPrice}
+              {productId === 'tracker'
+                ? 'Tracker Candidatures Pro'
+                : productId === 'ats'
+                  ? 'CV ATS & LinkedIn Pro'
+                  : 'Career Search Bundle'}{' '}
+              • {product.displayPrice}
             </div>
           </div>
           <StoreCTA
