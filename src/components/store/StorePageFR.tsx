@@ -23,7 +23,6 @@ import StoreCTA from '@/components/store/StoreCTA';
 import {
   AtsVisual,
   BundleVisual,
-  HeroProductVisual,
   TrackerVisual,
 } from '@/components/store/ProductVisuals';
 import { STORE_FR_PRODUCTS } from '@/lib/store/catalog';
@@ -48,7 +47,7 @@ const atsFeatures = [
 ];
 
 const bundleFeatures = [
-  'Opportunity Tracker Pro',
+  'Tracker Candidatures Pro',
   '2 guides premium de recherche & suivi',
   '7 modèles CV ATS',
   'Guide CV ATS complet',
@@ -72,16 +71,17 @@ const offerFeatures: Record<'tracker' | 'ats' | 'bundle', string[]> = {
     'Compatible Google Sheets',
   ],
   bundle: [
-    'Opportunity Tracker Pro',
-    'Modèles CV ATS',
+    'Tracker Candidatures Pro',
+    'Modèles CV ATS professionnels',
     'Optimisation LinkedIn',
-    '2 guides pratiques (FR + EN inclus)',
+    '2 guides pratiques',
+    'Ressources FR + EN',
   ],
   ats: [
     '7 modèles CV ATS professionnels',
-    'Guide CV complet (FR + EN)',
+    'Guide CV complet FR + EN',
     'Méthode de personnalisation selon l’offre',
-    'Guide LinkedIn offert (FR + EN)',
+    'Guide LinkedIn FR + EN',
   ],
 };
 
@@ -224,10 +224,10 @@ function OfferCard({
         }`}
       >
         {featured
-          ? 'Voir le système complet'
+          ? 'Obtenir le système complet'
           : id === 'tracker'
-            ? 'Voir les détails du Tracker'
-            : 'Voir les détails du système CV'}
+            ? 'Organiser ma recherche'
+            : 'Renforcer ma candidature'}
       </StoreCTA>
 
       <ul className="mt-6 space-y-2.5">
@@ -282,14 +282,40 @@ export default function StorePageFR() {
           </div>
         </header>
 
-        <div className="relative mx-auto max-w-7xl px-4 pb-14 pt-1 text-center sm:px-8 sm:pt-5">
-          <h1 className="sr-only">Career Search Bundle</h1>
-          <p className="sr-only">
-            Tracker, CV ATS, LinkedIn et guides pratiques réunis dans un système complet, accessible après un paiement unique.
-          </p>
-          <HeroProductVisual />
+        <div className="relative mx-auto max-w-7xl px-4 pb-14 text-center sm:px-8">
+          <div className="mx-auto max-w-4xl pt-9 sm:pt-11">
+            <h1 className="text-4xl font-black leading-[1.02] tracking-[-0.045em] text-white sm:text-5xl lg:text-6xl">
+              Career Search <span className="block text-sky-400 sm:inline">Bundle</span>
+            </h1>
+            <p className="mx-auto mt-4 max-w-3xl text-[17px] font-bold leading-7 text-slate-100 sm:text-xl">
+              Le système complet pour structurer votre recherche d’emploi.
+            </p>
+            <p className="mx-auto mt-2 max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">
+              Tracker de candidatures, CV ATS, LinkedIn et guides pratiques réunis pour mieux cibler, candidater et relancer.
+            </p>
+            <p className="mt-3 text-xs font-bold text-sky-200 sm:text-sm">
+              Paiement unique · Accès immédiat · Réutilisable à vie
+            </p>
+          </div>
 
-          <div className="mx-auto h-4 max-w-6xl bg-gradient-to-b from-transparent to-[#020b1f] sm:h-8" />
+          <div className="relative mx-auto mt-7 max-w-[960px]">
+            <div className="pointer-events-none absolute -inset-5 -z-10 bg-[radial-gradient(circle_at_50%_50%,rgba(14,165,233,.22),transparent_68%)] blur-2xl" />
+            <div className="overflow-hidden rounded-2xl border border-sky-400/35 bg-[#03122e] p-1.5 shadow-[0_22px_70px_rgba(14,165,233,.20)] sm:rounded-3xl sm:p-2">
+              <div className="aspect-video overflow-hidden rounded-xl bg-black sm:rounded-2xl">
+                <iframe
+                  className="h-full w-full"
+                  src="https://www.youtube-nocookie.com/embed/PEnwV5-O-2w?playsinline=1&rel=0"
+                  title="Présentation du Career Search Bundle TalentiQues"
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="mx-auto mt-6 h-4 max-w-6xl bg-gradient-to-b from-transparent to-[#020b1f] sm:h-6" />
 
           <div
             id="offres"
@@ -297,16 +323,16 @@ export default function StorePageFR() {
           >
             <OfferCard
               id="tracker"
-              title={products.tracker.name}
-              description="Suivez vos opportunités, candidatures, relances, contacts et entretiens."
+              title="Tracker Candidatures Pro"
+              description="Gardez vos candidatures, relances, entretiens et priorités sous contrôle depuis un seul tableau de bord."
               price={products.tracker.displayPrice}
               bonus="2 guides premium inclus"
-              bonusDetail="Identifier & qualifier + Suivi & relances"
+              bonusDetail="Identifier, qualifier et suivre vos opportunités."
             />
             <OfferCard
               id="bundle"
-              title={products.bundle.name}
-              description="Le système complet pour une recherche d’emploi plus efficace."
+              title="Career Search Bundle"
+              description="Réunissez votre organisation, votre CV, votre profil LinkedIn et votre suivi dans un seul système."
               price={products.bundle.displayPrice}
               featured
               compareAt={products.bundle.compareAt}
@@ -314,11 +340,11 @@ export default function StorePageFR() {
             />
             <OfferCard
               id="ats"
-              title={products.ats.name}
-              description="Des modèles et méthodes complètes pour un CV et un profil LinkedIn plus performants."
+              title="CV ATS & LinkedIn Pro"
+              description="Construisez un CV plus adapté aux offres et un profil LinkedIn plus cohérent avec votre recherche."
               price={products.ats.displayPrice}
-              bonus="Guide LinkedIn offert"
-              bonusDetail="Un guide pratique pour un profil plus visible."
+              bonus="Guide LinkedIn inclus"
+              bonusDetail="Une méthode claire pour renforcer votre profil professionnel."
             />
           </div>
 
@@ -378,7 +404,7 @@ export default function StorePageFR() {
               Choisissez votre point de départ
             </div>
             <h2 className="mt-3 text-3xl font-black tracking-[-0.035em] sm:text-4xl">
-              Deux produits séparés. Un Bundle qui réunit tout.
+              Choisissez votre outil — ou passez au système complet.
             </h2>
           </div>
 
@@ -389,7 +415,7 @@ export default function StorePageFR() {
                   <div className="inline-flex items-center gap-2 rounded-full bg-sky-500/10 px-3 py-1.5 text-xs font-black text-sky-700">
                     <BarChart3 className="h-4 w-4" /> Pilotez votre recherche
                   </div>
-                  <h3 className="mt-4 text-2xl font-black">Opportunity Tracker Pro</h3>
+                  <h3 className="mt-4 text-2xl font-black">Tracker Candidatures Pro</h3>
                   <p className="mt-2 max-w-lg text-sm leading-6 text-slate-500">
                     Votre centre de contrôle pour garder vos candidatures, vos relances et vos entretiens sous contrôle.
                   </p>
@@ -431,7 +457,7 @@ export default function StorePageFR() {
                   <div className="inline-flex items-center gap-2 rounded-full bg-violet-500/10 px-3 py-1.5 text-xs font-black text-violet-700">
                     <FileCheck2 className="h-4 w-4" /> Renforcez votre candidature
                   </div>
-                  <h3 className="mt-4 text-2xl font-black">CV ATS System</h3>
+                  <h3 className="mt-4 text-2xl font-black">CV ATS &amp; LinkedIn Pro</h3>
                   <p className="mt-2 max-w-lg text-sm leading-6 text-slate-500">
                     Des modèles professionnels + une méthode complète pour construire et adapter votre candidature.
                   </p>
@@ -481,7 +507,7 @@ export default function StorePageFR() {
                   Offre recommandée
                 </div>
                 <h2 className="mt-3 text-3xl font-black tracking-[-0.04em] sm:text-4xl">
-                  Tout votre système de recherche dans une seule offre.
+                  Tout votre système de recherche. Une seule offre.
                 </h2>
                 <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
                   Le Tracker, les modèles CV ATS et les guides fonctionnent ensemble : vous structurez la recherche, améliorez la candidature et suivez les opportunités sans multiplier les outils.
@@ -542,18 +568,18 @@ export default function StorePageFR() {
             <ShieldCheck className="h-6 w-6" />
           </div>
           <h2 className="mt-5 text-3xl font-black tracking-[-0.04em] sm:text-4xl lg:text-5xl">
-            Faites l’investissement une fois.{' '}
+            Investissez une fois.{' '}
             <span className="text-sky-400">Réutilisez le système à chaque nouvelle opportunité.</span>
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-slate-300">
-            Choisissez le produit dont vous avez besoin aujourd’hui — ou prenez le Bundle si vous voulez tout réunir dès maintenant.
+            Commencez avec l’outil dont vous avez besoin ou choisissez le Bundle pour réunir toute votre recherche dans un seul système.
           </p>
           <StoreCTA
             href={getStoreDetailHrefFR('bundle')}
             productId="bundle"
             className="mx-auto mt-7 inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-sky-400 to-blue-600 px-7 py-4 text-sm font-black text-white shadow-[0_14px_45px_rgba(14,165,233,.35)] transition hover:-translate-y-0.5"
           >
-            Découvrir le Bundle — {products.bundle.displayPrice}
+            Obtenir le Career Search Bundle — {products.bundle.displayPrice}
           </StoreCTA>
           <div className="mt-6 flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-slate-400">
             <span>Paiement unique</span><span>Accès après confirmation</span><span>Aucun abonnement</span><span>FR + EN inclus</span>
@@ -565,7 +591,7 @@ export default function StorePageFR() {
         <div className="flex items-center justify-between gap-3">
           <div>
             <div className="text-[10px] font-black uppercase tracking-[0.12em] text-sky-300">Offre recommandée</div>
-            <div className="text-sm font-black text-white">Bundle • {products.bundle.displayPrice}</div>
+            <div className="text-sm font-black text-white">Career Search Bundle · {products.bundle.displayPrice}</div>
           </div>
           <StoreCTA
             href={getStoreDetailHrefFR('bundle')}
