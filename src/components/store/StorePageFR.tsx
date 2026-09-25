@@ -333,7 +333,7 @@ export default function StorePageFR({ market = 'fr' }: { market?: StoreMarket })
               <div className="aspect-video overflow-hidden rounded-xl bg-black sm:rounded-2xl">
                 <iframe
                   className="h-full w-full"
-                  src="https://www.youtube-nocookie.com/embed/PEnwV5-O-2w?playsinline=1&rel=0"
+                  src="https://www.youtube-nocookie.com/embed/wG9k307FZR8?playsinline=1&rel=0"
                   title={isFr ? 'Présentation du Career Search Bundle TalentiQues' : 'TalentiQues Career Search Bundle presentation'}
                   loading="lazy"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
