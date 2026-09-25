@@ -1,21 +1,29 @@
 import Image from 'next/image';
 
 const premiumImageClass =
-  'h-auto w-full rounded-[28px] object-cover shadow-[0_30px_100px_rgba(2,132,199,.20)]';
+  'h-auto w-full object-contain sm:rounded-2xl sm:shadow-[0_30px_100px_rgba(2,132,199,.20)]';
 
 export function HeroProductVisual() {
   return (
-    <div className="relative mx-auto mt-8 max-w-6xl">
-      <div className="pointer-events-none absolute -inset-6 -z-10 rounded-[42px] bg-[radial-gradient(circle_at_50%_55%,rgba(14,165,233,.18),transparent_62%)] blur-2xl" />
-      <Image
-        src="/store/premium/hero-fr.png"
-        alt="Career Search System TalentiQues : Opportunity Tracker, modèles CV ATS et guide LinkedIn"
-        width={1672}
-        height={941}
-        priority
-        sizes="(max-width: 768px) 100vw, 1200px"
-        className={premiumImageClass}
-      />
+    <div className="relative -mx-4 w-[calc(100%+2rem)] sm:mx-auto sm:w-auto sm:max-w-5xl">
+      <div className="pointer-events-none absolute -inset-6 -z-10 hidden rounded-[42px] bg-[radial-gradient(circle_at_50%_55%,rgba(14,165,233,.18),transparent_62%)] blur-2xl sm:block" />
+      <picture>
+        <source
+          media="(max-width: 639px)"
+          srcSet="/store/premium/hero-fr-mobile.webp"
+          width="1086"
+          height="1448"
+        />
+        <Image
+          src="/store/premium/hero-fr-desktop.webp"
+          alt="Career Search System TalentiQues : Opportunity Tracker, modèles CV ATS et guide LinkedIn"
+          width={592}
+          height={451}
+          priority
+          sizes="(max-width: 639px) 100vw, 1024px"
+          className={premiumImageClass}
+        />
+      </picture>
     </div>
   );
 }

@@ -1,5 +1,4 @@
 import {
-  ArrowRight,
   Check,
   CheckCircle2,
   CreditCard,
@@ -11,7 +10,9 @@ import {
   Sparkles,
   Zap,
 } from 'lucide-react';
+import Link from 'next/link';
 import LaunchCountdown from '@/components/store/LaunchCountdown';
+import RecentPurchaseToast from '@/components/store/RecentPurchaseToast';
 import StoreCTA from '@/components/store/StoreCTA';
 import {
   AtsVisual,
@@ -61,9 +62,9 @@ export default function ProductDetailPageFR({ productId }: { productId: StorePro
 
         <header className="relative border-b border-white/[0.07] bg-[#020b1f]/75 backdrop-blur-xl">
           <div className="mx-auto flex h-[70px] max-w-7xl items-center justify-between px-5 sm:px-8">
-            <a href="/" className="text-xl font-black tracking-tight">
+            <Link href="/" className="text-xl font-black tracking-tight">
               TalentiQues
-            </a>
+            </Link>
             <a
               href="/outils"
               className="text-sm font-bold text-slate-300 transition hover:text-white"
@@ -314,6 +315,7 @@ export default function ProductDetailPageFR({ productId }: { productId: StorePro
           </StoreCTA>
         </div>
       </div>
+      <RecentPurchaseToast hasMobileStickyCta />
     </main>
   );
 }
