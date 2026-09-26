@@ -30,6 +30,20 @@ create index if not exists affiliates_status_idx on public.affiliates (status);
 create index if not exists affiliates_email_idx on public.affiliates (lower(email));
 alter table public.affiliates enable row level security;
 
+alter table public.affiliates add column if not exists primary_channel text;
+alter table public.affiliates add column if not exists profile_url text;
+alter table public.affiliates add column if not exists audience_size text;
+alter table public.affiliates add column if not exists content_focus jsonb;
+alter table public.affiliates add column if not exists motivation text;
+alter table public.affiliates add column if not exists application_language text;
+alter table public.affiliates add column if not exists terms_accepted_at timestamptz;
+alter table public.affiliates add column if not exists terms_version text;
+alter table public.affiliates add column if not exists rejection_reason text;
+
+create unique index if not exists affiliates_open_email_uidx
+  on public.affiliates (lower(email))
+  where status <> 'rejected';
+
 create or replace function public.normalize_affiliate_code()
 returns trigger
 language plpgsql

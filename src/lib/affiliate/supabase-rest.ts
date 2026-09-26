@@ -51,6 +51,70 @@ export async function findActiveAffiliateByCode(code: string): Promise<ActiveAff
   return rows?.[0] || null;
 }
 
+export async function findAffiliateByCode(code: string) {
+  const { url } = config();
+  const query = new URLSearchParams({ code: `eq.${code}`, limit: '1' });
+  const response = await fetch(`${url}/rest/v1/affiliates?${query}`, {
+    headers: headers(), cache: 'no-store',
+  });
+  const rows = (await jsonOrThrow(response)) as Json[];
+  return rows?.[0] || null;
+}
+
+export async function findAffiliateById(id: string) {
+  const { url } = config();
+  const query = new URLSearchParams({ id: `eq.${id}`, limit: '1' });
+  const response = await fetch(`${url}/rest/v1/affiliates?${query}`, {
+    headers: headers(), cache: 'no-store',
+  });
+  const rows = (await jsonOrThrow(response)) as Json[];
+  return rows?.[0] || null;
+}
+
+export async function findLatestAffiliateByEmail(email: string) {
+  const { url } = config();
+  const query = new URLSearchParams({
+    email: `ilike.${email}`,
+    order: 'created_at.desc',
+    limit: '1',
+  });
+  const response = await fetch(`${url}/rest/v1/affiliates?${query}`, {
+    headers: headers(), cache: 'no-store',
+  });
+  const rows = (await jsonOrThrow(response)) as Json[];
+  return rows?.[0] || null;
+}
+
+export async function insertAffiliateApplication(payload: Json) {
+  const { url } = config();
+  const response = await fetch(`${url}/rest/v1/affiliates`, {
+    method: 'POST',
+    headers: headers({ Prefer: 'return=representation' }),
+    body: JSON.stringify(payload),
+    cache: 'no-store',
+  });
+  const rows = (await jsonOrThrow(response)) as Json[];
+  if (!rows?.[0]) throw new Error('Affiliate application creation failed');
+  return rows[0];
+}
+
+export async function updateAffiliateStatus(
+  affiliateId: string,
+  fromStatus: string,
+  payload: Json
+) {
+  const { url } = config();
+  const query = new URLSearchParams({ id: `eq.${affiliateId}`, status: `eq.${fromStatus}` });
+  const response = await fetch(`${url}/rest/v1/affiliates?${query}`, {
+    method: 'PATCH',
+    headers: headers({ Prefer: 'return=representation' }),
+    body: JSON.stringify(payload),
+    cache: 'no-store',
+  });
+  const rows = (await jsonOrThrow(response)) as Json[];
+  return rows?.[0] || null;
+}
+
 export async function insertAffiliateClick(payload: Json) {
   const { url } = config();
   const response = await fetch(`${url}/rest/v1/affiliate_clicks`, {

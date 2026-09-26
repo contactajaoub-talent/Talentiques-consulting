@@ -4,7 +4,7 @@ import React from 'react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { content } from '@/lib/content';
-import { Shield, Lock, FileText, Eye, Database, Server, Share2, Cookie } from 'lucide-react';
+import { Shield, Lock, FileText, Eye, Database, Share2, Cookie } from 'lucide-react';
 
 export default function PrivacyPolicyPage() {
     return (
@@ -47,7 +47,7 @@ export default function PrivacyPolicyPage() {
                             </div>
                             <div className="pl-0 md:pl-16">
                                 <p className="text-slate-600 leading-relaxed text-lg font-light">
-                                    Chez <strong>{content.businessName}</strong>, nous accordons une importance capitale à la confidentialité de vos données. Cette politique vise à vous informer de manière transparente sur la manière dont nous collectons, utilisons et protégeons vos informations personnelles lors de l'utilisation de notre site web et de nos services.
+                                    Chez <strong>{content.businessName}</strong>, nous accordons une importance capitale à la confidentialité de vos données. Cette politique vise à vous informer de manière transparente sur la manière dont nous collectons, utilisons et protégeons vos informations personnelles lors de l’utilisation de notre site web et de nos services.
                                 </p>
                             </div>
                         </div>
@@ -75,6 +75,9 @@ export default function PrivacyPolicyPage() {
                                         </li>
                                     ))}
                                 </ul>
+                                <p className="mt-6 text-slate-600 leading-relaxed">
+                                    Pour les candidatures au programme d’affiliation, nous collectons également les informations d’identité et de contact, les profils ou canaux soumis, la préférence de paiement et les données de performance des liens affiliés. Les adresses e-mail des affiliés ne sont pas publiées.
+                                </p>
                             </div>
                         </div>
 
@@ -115,7 +118,7 @@ export default function PrivacyPolicyPage() {
                             </div>
                             <div className="pl-0 md:pl-16">
                                 <p className="text-slate-600 leading-relaxed text-lg font-light bg-slate-50 p-6 rounded-2xl border border-slate-100">
-                                    Nous mettons en œuvre des mesures de sécurité techniques et organisationnelles appropriées pour protéger vos données contre l'accès non autorisé, la modification, la divulgation ou la destruction. Vos données sont hébergées sur des serveurs sécurisés.
+                                    Nous mettons en œuvre des mesures de sécurité techniques et organisationnelles appropriées pour protéger vos données contre l’accès non autorisé, la modification, la divulgation ou la destruction. Vos données sont hébergées sur des serveurs sécurisés.
                                 </p>
                             </div>
                         </div>
@@ -135,11 +138,11 @@ export default function PrivacyPolicyPage() {
                                 <ul className="space-y-3">
                                     <li className="flex items-center gap-3 text-slate-600">
                                         <div className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-                                        <span>Nos prestataires techniques (hébergement, outils d'emailing) soumis à confidentialité.</span>
+                                        <span>Nos prestataires techniques (hébergement, outils d’emailing) soumis à confidentialité.</span>
                                     </li>
                                     <li className="flex items-center gap-3 text-slate-600">
                                         <div className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-                                        <span>Les autorités légales si la loi l'exige.</span>
+                                        <span>Les autorités légales si la loi l’exige.</span>
                                     </li>
                                 </ul>
                             </div>
