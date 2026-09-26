@@ -130,4 +130,74 @@ create index if not exists affiliate_payouts_affiliate_status_idx
   on public.affiliate_payouts (affiliate_id, status);
 alter table public.affiliate_payouts enable row level security;
 
+create table if not exists public.affiliate_login_tokens (
+  id uuid primary key default gen_random_uuid(),
+  affiliate_id uuid not null references public.affiliates(id),
+  token_hash text not null unique,
+  expires_at timestamptz not null,
+  used_at timestamptz,
+  requested_language text check (requested_language is null or requested_language in ('fr', 'en')),
+  created_at timestamptz not null default now()
+);
+create index if not exists affiliate_login_tokens_affiliate_created_idx
+  on public.affiliate_login_tokens (affiliate_id, created_at desc);
+create index if not exists affiliate_login_tokens_expires_idx
+  on public.affiliate_login_tokens (expires_at);
+alter table public.affiliate_login_tokens enable row level security;
+
+create table if not exists public.affiliate_sessions (
+  id uuid primary key default gen_random_uuid(),
+  affiliate_id uuid not null references public.affiliates(id),
+  session_hash text not null unique,
+  created_at timestamptz not null default now(),
+  expires_at timestamptz not null,
+  last_seen_at timestamptz,
+  revoked_at timestamptz
+);
+create index if not exists affiliate_sessions_affiliate_idx
+  on public.affiliate_sessions (affiliate_id);
+create index if not exists affiliate_sessions_expires_idx
+  on public.affiliate_sessions (expires_at);
+alter table public.affiliate_sessions enable row level security;
+
+create or replace function public.consume_affiliate_login_token(p_token_hash text)
+returns table (affiliate_id uuid, requested_language text)
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  return query
+  update public.affiliate_login_tokens
+  set used_at = now()
+  where token_hash = p_token_hash
+    and used_at is null
+    and expires_at > now()
+  returning affiliate_login_tokens.affiliate_id, affiliate_login_tokens.requested_language;
+end;
+$$;
+
+create or replace function public.release_mature_affiliate_commissions(p_affiliate_id uuid)
+returns integer
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare released integer;
+begin
+  update public.affiliate_commissions
+  set status = 'available'
+  where affiliate_id = p_affiliate_id
+    and status = 'pending'
+    and available_at <= now();
+  get diagnostics released = row_count;
+  return released;
+end;
+$$;
+
+revoke all on function public.consume_affiliate_login_token(text) from public, anon, authenticated;
+revoke all on function public.release_mature_affiliate_commissions(uuid) from public, anon, authenticated;
+grant execute on function public.consume_affiliate_login_token(text) to service_role;
+grant execute on function public.release_mature_affiliate_commissions(uuid) to service_role;
+
 -- No public policies: all access is through server-side service-role requests.

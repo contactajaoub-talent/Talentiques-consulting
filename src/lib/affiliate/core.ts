@@ -1,6 +1,7 @@
 export const AFFILIATE_COOKIE_NAME = 'tq_affiliate_ref';
 export const AFFILIATE_CLICK_COOKIE_NAME = 'tq_affiliate_click';
-export const AFFILIATE_SESSION_COOKIE_NAME = 'tq_affiliate_session';
+export const AFFILIATE_SESSION_COOKIE_NAME = 'tq_affiliate_anon_session';
+export const AFFILIATE_AUTH_SESSION_COOKIE_NAME = 'tq_affiliate_session';
 export const AFFILIATE_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
 
 export type AffiliateMarket = 'fr' | 'en';

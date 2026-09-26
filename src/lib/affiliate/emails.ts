@@ -45,9 +45,25 @@ export function approvalEmail(data: AffiliateEmailData) {
     ? 'Bienvenue dans le programme d’affiliation Talentiques'
     : 'Welcome to the Talentiques Affiliate Program';
   const text = fr
-    ? `Bonjour ${name},\n\nVotre candidature a été validée.\n\nLien francophone : ${links.fr}\nLien anglophone : ${links.en}\nCommission : 50 %\nAttribution : 30 jours\nPaiements : mensuels, sous réserve des règles du programme.\n\nCommencer à partager Talentiques : ${links.fr}`
-    : `Hello ${name},\n\nYour application has been approved.\n\nFrench referral link: ${links.fr}\nEnglish referral link: ${links.en}\nCommission: 50%\nAttribution: 30 days\nPayouts: monthly, subject to the program rules.\n\nStart sharing Talentiques: ${links.en}`;
+    ? `Bonjour ${name},\n\nVotre candidature a été validée.\n\nLien francophone : ${links.fr}\nLien anglophone : ${links.en}\nCommission : 50 %\nAttribution : 30 jours\nPaiements : mensuels, sous réserve des règles du programme.\n\nCommencer à partager Talentiques : ${links.fr}\nAccéder à mon espace affilié : https://talentiques.com/affiliation/connexion`
+    : `Hello ${name},\n\nYour application has been approved.\n\nFrench referral link: ${links.fr}\nEnglish referral link: ${links.en}\nCommission: 50%\nAttribution: 30 days\nPayouts: monthly, subject to the program rules.\n\nStart sharing Talentiques: ${links.en}\nAccess My Affiliate Dashboard: https://talentiques.com/en/affiliate/login`;
   return { subject, text, html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#0f172a"><p>${text.replaceAll('\n', '<br>')}</p></div>` };
+}
+
+export function affiliateLoginEmail(data: AffiliateEmailData & { loginUrl: string }) {
+  const name = escapeHtml(firstName(data.fullName));
+  const fr = data.language === 'fr';
+  const subject = fr ? 'Votre lien de connexion — Talentiques Affiliés' : 'Your Talentiques Affiliate Login Link';
+  const cta = fr ? 'Accéder à mon espace affilié' : 'Access My Affiliate Dashboard';
+  const intro = fr
+    ? `Bonjour ${name},\n\nUtilisez le bouton ci-dessous pour accéder à votre espace affilié Talentiques.`
+    : `Hello ${name},\n\nUse the button below to access your Talentiques affiliate dashboard.`;
+  const note = fr
+    ? 'Ce lien est personnel et expire dans 15 minutes. Si vous n’avez pas demandé ce lien, vous pouvez ignorer cet e-mail.'
+    : 'This personal link expires in 15 minutes. If you did not request it, you can ignore this email.';
+  const text = `${intro}\n\n${cta}: ${data.loginUrl}\n\n${note}`;
+  const html = `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#0f172a"><p>${intro.replaceAll('\n', '<br>')}</p><p><a href="${escapeHtml(data.loginUrl)}" style="display:inline-block;background:#0683C9;color:#fff;text-decoration:none;padding:14px 22px;border-radius:10px;font-weight:700">${cta}</a></p><p>${note}</p></div>`;
+  return { subject, text, html };
 }
 
 export function rejectionEmail(data: AffiliateEmailData) {
@@ -84,6 +100,10 @@ export function sendRejectionEmail(data: AffiliateEmailData) {
   return sendEmail([data.email], rejectionEmail(data));
 }
 
+export function sendAffiliateLoginEmail(data: AffiliateEmailData & { loginUrl: string }) {
+  return sendEmail([data.email], affiliateLoginEmail(data));
+}
+
 export function sendAffiliateAdminNotification(data: AffiliateEmailData & Record<string, unknown>) {
   const adminEmail = process.env.AFFILIATE_ADMIN_EMAIL?.trim();
   if (!adminEmail) throw new Error('AFFILIATE_ADMIN_EMAIL missing');
@@ -100,4 +120,3 @@ export function sendAffiliateAdminNotification(data: AffiliateEmailData & Record
     html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#0f172a"><p>${escapeHtml(text).replaceAll('\n', '<br>')}</p></div>`,
   });
 }
-

@@ -21,6 +21,21 @@ import {
   hasValidAffiliateAdminAuthorization,
 } from '../src/lib/affiliate/admin.ts';
 import { approvalEmail, applicationConfirmationEmail } from '../src/lib/affiliate/emails.ts';
+import {
+  AFFILIATE_SESSION_TTL_MS,
+  LOGIN_TOKEN_TTL_MS,
+  affiliateSessionCookieOptions,
+  createSecureToken,
+  hashAffiliateToken,
+  canConsumeLoginToken,
+  shouldIssueMagicLink,
+} from '../src/lib/affiliate/auth-core.ts';
+import {
+  affiliateProductLinks,
+  buildAffiliateLink,
+  buildDashboardData,
+  conversionRate,
+} from '../src/lib/affiliate/dashboard.ts';
 
 const active = {
   id: '7b42e1ea-df67-4418-aed6-c143986485be',
@@ -223,4 +238,94 @@ test('application and approval emails contain safe status and correct FR/EN link
   assert.match(approved.text, /https:\/\/talentiques\.com\/outils\?ref=sarah/);
   assert.match(approved.text, /https:\/\/talentiques\.com\/en\/tools\?ref=sarah/);
   assert.match(approved.text, /50 %/);
+});
+
+test('magic tokens use at least 32 random bytes and only hashes are persistence-ready', () => {
+  const raw = createSecureToken();
+  const hash = hashAffiliateToken(raw);
+  assert.ok(raw.length >= 43);
+  assert.match(raw, /^[A-Za-z0-9_-]+$/);
+  assert.equal(hash.length, 64);
+  assert.notEqual(hash, raw);
+  assert.equal(LOGIN_TOKEN_TTL_MS, 15 * 60_000);
+});
+
+test('session cookie is HttpOnly, Lax, secure in production, and lasts 30 days', () => {
+  const cookie = affiliateSessionCookieOptions(true);
+  assert.equal(cookie.httpOnly, true);
+  assert.equal(cookie.sameSite, 'lax');
+  assert.equal(cookie.secure, true);
+  assert.equal(cookie.path, '/');
+  assert.equal(cookie.maxAge, 2_592_000);
+  assert.equal(AFFILIATE_SESSION_TTL_MS, 30 * 24 * 60 * 60_000);
+});
+
+test('only active affiliates receive magic links without account enumeration', () => {
+  assert.equal(shouldIssueMagicLink({ status: 'active' }), true);
+  for (const status of ['pending', 'suspended', 'rejected']) assert.equal(shouldIssueMagicLink({ status }), false);
+  assert.equal(shouldIssueMagicLink(null), false);
+});
+
+test('expired and used login tokens are rejected and valid token is consumable once', () => {
+  const now = new Date('2026-09-26T12:00:00Z');
+  assert.equal(canConsumeLoginToken({ expires_at: '2026-09-26T12:15:00Z', used_at: null }, now), true);
+  assert.equal(canConsumeLoginToken({ expires_at: '2026-09-26T11:59:00Z', used_at: null }, now), false);
+  assert.equal(canConsumeLoginToken({ expires_at: '2026-09-26T12:15:00Z', used_at: '2026-09-26T12:01:00Z' }, now), false);
+});
+
+test('conversion handles zero and normal traffic', () => {
+  assert.equal(conversionRate(0, 0), 0);
+  assert.equal(conversionRate(10, 1), 10);
+});
+
+const dashboardAffiliate = {
+  id: 'affiliate-a', full_name: 'Sarah Martin', email: 'sarah@example.com', country: 'France',
+  code: 'sarah', primary_channel: 'linkedin', profile_url: 'https://example.com',
+  commission_rate: 0.5, status: 'active', approved_at: '2026-08-01T00:00:00Z',
+};
+
+test('dashboard excludes refunded/disputed sales and never merges EUR with USD', () => {
+  const data = buildDashboardData(dashboardAffiliate, {
+    clicks: Array.from({ length: 10 }, (_, i) => ({ created_at: `2026-09-${String(20 + i % 5).padStart(2, '0')}T00:00:00Z` })),
+    orders: [
+      { id: 'eur', status: 'paid', paid_at: '2026-09-24T00:00:00Z', amount: 14.9, currency: 'EUR', product_id: 'bundle', market: 'fr' },
+      { id: 'usd', status: 'paid', paid_at: '2026-09-24T00:00:00Z', amount: 9.9, currency: 'USD', product_id: 'ats', market: 'en' },
+      { id: 'refund', status: 'refunded', paid_at: '2026-09-24T00:00:00Z', amount: 100, currency: 'EUR' },
+      { id: 'dispute', status: 'disputed', paid_at: '2026-09-24T00:00:00Z', amount: 100, currency: 'USD' },
+    ],
+    commissions: [
+      { order_id: 'eur', product_id: 'bundle', market: 'fr', order_amount: 14.9, commission_amount: 7.45, currency: 'EUR', status: 'pending', created_at: '2026-09-24T00:00:00Z' },
+      { order_id: 'usd', product_id: 'ats', market: 'en', order_amount: 9.9, commission_amount: 4.95, currency: 'USD', status: 'available', created_at: '2026-09-24T00:00:00Z' },
+    ], payouts: [],
+  }, '30d', new Date('2026-09-26T00:00:00Z'));
+  assert.equal(data.metrics.sales, 2);
+  assert.deepEqual(data.metrics.revenue, { EUR: 14.9, USD: 9.9 });
+  assert.deepEqual(data.metrics.balances.pending, { EUR: 7.45 });
+  assert.deepEqual(data.metrics.balances.available, { USD: 4.95 });
+  assert.equal(JSON.stringify(data).includes('customer_email'), false);
+  assert.equal(JSON.stringify(data).includes('paypal_order_id'), false);
+});
+
+test('authenticated links always use the affiliate code and actual product routes', () => {
+  const links = affiliateProductLinks('sarah');
+  assert.equal(links.fr.tracker, 'https://talentiques.com/outils/opportunity-tracker?ref=sarah');
+  assert.equal(links.fr.ats, 'https://talentiques.com/outils/cv-ats?ref=sarah');
+  assert.equal(links.en.ats, 'https://talentiques.com/en/tools/ats-resume?ref=sarah');
+  const built = buildAffiliateLink('sarah', 'en', { utm_source: 'instagram', ref: 'attacker' });
+  assert.match(built, /ref=sarah/);
+  assert.doesNotMatch(built, /attacker/);
+});
+
+test('database functions atomically consume tokens and release only mature pending commissions', async () => {
+  const sql = await readFile(new URL('../supabase/affiliate_program.sql', import.meta.url), 'utf8');
+  assert.match(sql, /token_hash text not null unique/i);
+  assert.match(sql, /used_at is null[\s\S]*expires_at > now\(\)/i);
+  assert.match(sql, /status = 'pending'[\s\S]*available_at <= now\(\)/i);
+  assert.doesNotMatch(sql, /set status = 'available'[\s\S]*status in \('cancelled','paid'\)/i);
+});
+
+test('dashboard API derives identity from session and ignores browser affiliate identifiers', async () => {
+  const route = await readFile(new URL('../src/app/api/affiliate/dashboard/route.ts', import.meta.url), 'utf8');
+  assert.match(route, /getCurrentAffiliate\(\)/);
+  assert.doesNotMatch(route, /searchParams\.get\(['"]affiliate_(?:id|code)/);
 });

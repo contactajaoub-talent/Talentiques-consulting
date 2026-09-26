@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight, BadgeCheck, CalendarDays, Check, Megaphone, Percent, Sparkles } from 'lucide-react';
 import AffiliateApplicationForm from './AffiliateApplicationForm';
+import { getCurrentAffiliate } from '@/lib/affiliate/auth';
 
 const data = {
   fr: {
@@ -27,10 +28,17 @@ const data = {
 
 const valueIcons = [Percent, CalendarDays, Sparkles, Megaphone];
 
-export default function AffiliateProgramPage({ locale }: { locale: 'fr' | 'en' }) {
+export default async function AffiliateProgramPage({ locale }: { locale: 'fr' | 'en' }) {
   const t = data[locale];
+  const authenticated = Boolean(await getCurrentAffiliate());
+  const portalHref = locale === 'fr'
+    ? authenticated ? '/affiliation/espace' : '/affiliation/connexion'
+    : authenticated ? '/en/affiliate/dashboard' : '/en/affiliate/login';
+  const portalLabel = authenticated
+    ? locale === 'fr' ? 'Accéder à mon espace' : 'Open my dashboard'
+    : locale === 'fr' ? 'Déjà affilié ? Se connecter' : 'Already an affiliate? Sign in';
   return <main className="min-h-screen bg-white text-slate-950">
-    <header className="absolute inset-x-0 top-0 z-20"><div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 lg:px-8"><Link href={locale === 'fr' ? '/' : '/en/tools'} className="font-heading text-2xl font-bold text-white">TalentiQues</Link><div className="flex items-center gap-4"><Link href={t.localeLink} className="text-sm font-semibold text-slate-300 hover:text-white">{t.localeLabel}</Link><a href="#apply" className="hidden rounded-full bg-white px-5 py-2.5 text-sm font-bold text-slate-950 sm:inline-flex">{t.cta}</a></div></div></header>
+    <header className="absolute inset-x-0 top-0 z-20"><div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 lg:px-8"><Link href={locale === 'fr' ? '/' : '/en/tools'} className="font-heading text-2xl font-bold text-white">TalentiQues</Link><div className="flex items-center gap-4"><Link href={t.localeLink} className="text-sm font-semibold text-slate-300 hover:text-white">{t.localeLabel}</Link><Link href={portalHref} className="hidden rounded-full bg-white px-5 py-2.5 text-sm font-bold text-slate-950 sm:inline-flex">{portalLabel}</Link></div></div></header>
     <section className="relative overflow-hidden bg-[#071b2b] px-5 pb-24 pt-36 text-white lg:pb-32 lg:pt-44"><div className="absolute inset-0 opacity-70 [background:radial-gradient(circle_at_78%_20%,rgba(6,131,201,.45),transparent_28%),radial-gradient(circle_at_12%_90%,rgba(14,165,233,.18),transparent_30%)]" /><div className="relative mx-auto grid max-w-7xl gap-14 lg:grid-cols-[1.15fr_.85fr] lg:items-center"><div><div className="inline-flex rounded-full border border-sky-300/20 bg-sky-400/10 px-4 py-2 text-xs font-bold tracking-[.18em] text-sky-200">{t.eyebrow}</div><h1 className="mt-7 max-w-4xl font-heading text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">{t.headline}</h1><p className="mt-7 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">{t.copy}</p><div className="mt-9 flex flex-col gap-3 sm:flex-row"><a href="#apply" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full bg-[#0683C9] px-7 font-bold text-white hover:bg-sky-500">{t.cta}<ArrowRight size={18} /></a><a href="#how" className="inline-flex min-h-14 items-center justify-center rounded-full border border-white/20 px-7 font-bold text-white hover:bg-white/5">{t.howCta}</a></div><div className="mt-9 flex flex-wrap gap-x-5 gap-y-3">{t.trust.map((item) => <span key={item} className="flex items-center gap-2 text-sm text-slate-300"><Check size={16} className="text-sky-300" />{item}</span>)}</div></div><div className="relative mx-auto w-full max-w-md"><div className="rounded-[2rem] border border-white/10 bg-white/[.07] p-7 shadow-2xl backdrop-blur"><p className="text-sm font-bold uppercase tracking-[.16em] text-sky-300">50% commission</p><div className="my-8 flex items-end gap-3"><span className="font-heading text-8xl font-bold">50</span><span className="mb-3 text-4xl font-bold text-sky-300">%</span></div><div className="space-y-4 border-t border-white/10 pt-6">{t.trust.slice(1).map((item) => <div key={item} className="flex items-center gap-3"><BadgeCheck className="text-sky-300" size={20} /><span className="text-slate-200">{item}</span></div>)}</div></div></div></div></section>
     <section className="px-5 py-20 lg:py-28"><div className="mx-auto max-w-7xl"><h2 className="max-w-3xl font-heading text-3xl font-bold tracking-tight sm:text-5xl">{t.valuesTitle}</h2><div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">{t.values.map(([title, text], index) => { const Icon = valueIcons[index]; return <article key={title} className="rounded-3xl border border-slate-200 p-6 transition hover:-translate-y-1 hover:shadow-xl"><span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-50 text-[#0683C9]"><Icon /></span><h3 className="mt-6 font-heading text-xl font-bold">{title}</h3><p className="mt-3 leading-7 text-slate-600">{text}</p></article>; })}</div></div></section>
     <section className="bg-slate-50 px-5 py-20 lg:py-28"><div className="mx-auto max-w-7xl"><h2 className="font-heading text-3xl font-bold sm:text-5xl">{t.examplesTitle}</h2><div className="mt-12 grid gap-5 md:grid-cols-3">{t.products.map(([name, price, amount]) => <article key={name} className="rounded-3xl border border-slate-200 bg-white p-7"><p className="font-heading text-xl font-bold">{name}</p><p className="mt-2 text-slate-500">{price}</p><div className="mt-8 border-t border-slate-100 pt-6"><p className="text-sm font-semibold text-slate-500">{t.commission}</p><p className="mt-1 font-heading text-4xl font-bold text-[#0683C9]">{amount}</p></div></article>)}</div><p className="mt-6 text-sm leading-6 text-slate-500">{t.disclaimer}</p></div></section>
@@ -41,4 +49,3 @@ export default function AffiliateProgramPage({ locale }: { locale: 'fr' | 'en' }
     <a href="#apply" className="fixed inset-x-4 bottom-4 z-30 flex min-h-14 items-center justify-center rounded-full bg-[#0683C9] px-5 font-bold text-white shadow-2xl sm:hidden">{t.sticky}</a>
   </main>;
 }
-
