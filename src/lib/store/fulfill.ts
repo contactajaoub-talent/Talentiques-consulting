@@ -1,4 +1,13 @@
 import {
+  calculateCommission,
+  commissionAvailableAt,
+  isSelfReferral,
+} from '@/lib/affiliate/core';
+import {
+  createAffiliateCommission,
+  findActiveAffiliateByCode,
+} from '@/lib/affiliate/supabase-rest';
+import {
   getStoreProduct,
   isStoreMarket,
   isStoreProductId,
@@ -65,6 +74,8 @@ export async function fulfillStorePayment(input: {
     .filter(Boolean)
     .join(' ')
     .trim();
+  const paidAt =
+    typeof raw.paid_at === 'string' ? raw.paid_at : new Date().toISOString();
 
   if (
     raw.status !== 'paid' ||
@@ -77,8 +88,38 @@ export async function fulfillStorePayment(input: {
       paypal_capture_id: input.capture.id || raw.paypal_capture_id || null,
       customer_email: raw.customer_email || input.payer?.email_address || null,
       customer_name: raw.customer_name || fullName || null,
-      paid_at: raw.paid_at || new Date().toISOString(),
+      paid_at: paidAt,
     });
+  }
+
+  try {
+    const affiliateCode = typeof raw.affiliate_ref === 'string' ? raw.affiliate_ref : '';
+    if (affiliateCode && typeof raw.affiliate_id === 'string') {
+      const affiliate = await findActiveAffiliateByCode(affiliateCode);
+      const customerEmail = raw.customer_email || input.payer?.email_address;
+      if (
+        affiliate &&
+        affiliate.id === raw.affiliate_id &&
+        !isSelfReferral(customerEmail, affiliate.email)
+      ) {
+        const orderAmount = Number(input.capture.amount?.value);
+        const commissionRate = Number(affiliate.commission_rate ?? 0.5);
+        await createAffiliateCommission({
+          affiliate_id: affiliate.id,
+          order_id: input.internalOrderId,
+          product_id: product.id,
+          market,
+          order_amount: orderAmount,
+          commission_rate: commissionRate,
+          commission_amount: calculateCommission(orderAmount, commissionRate),
+          currency: product.currency,
+          status: 'pending',
+          available_at: commissionAvailableAt(paidAt),
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Affiliate commission creation error', error);
   }
 
   let delivery: 'sent' | 'already_processing' | 'pending' = 'pending';

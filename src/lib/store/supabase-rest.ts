@@ -125,6 +125,19 @@ export async function findStoreOrderByAccessToken(accessToken: string) {
   return rows?.[0] || null;
 }
 
+export async function findStoreOrderByPayPalCaptureId(paypalCaptureId: string) {
+  const { url } = config();
+  const response = await fetch(
+    `${url}/rest/v1/store_orders?paypal_capture_id=eq.${encodeURIComponent(
+      paypalCaptureId
+    )}&limit=1`,
+    { headers: headers(), cache: 'no-store' }
+  );
+
+  const rows = (await jsonOrThrow(response)) as Json[];
+  return rows?.[0] || null;
+}
+
 export async function getRecentPaidStoreOrders(limit = 6) {
   const { url } = config();
   const safeLimit = Math.min(Math.max(Math.trunc(limit), 1), 10);
