@@ -1,4 +1,4 @@
-import { createHash, randomBytes } from 'node:crypto';
+import { createHash, createHmac, randomBytes } from 'node:crypto';
 
 export const LOGIN_TOKEN_TTL_MS = 15 * 60_000;
 export const AFFILIATE_SESSION_TTL_MS = 30 * 24 * 60 * 60_000;
@@ -8,6 +8,9 @@ export function createSecureToken() {
 }
 
 export function hashAffiliateToken(token: string) {
+  const secret = process.env.AFFILIATE_SESSION_SECRET?.trim();
+  if (secret) return createHmac('sha256', secret).update(token).digest('hex');
+  if (process.env.NODE_ENV === 'production') throw new Error('AFFILIATE_SESSION_SECRET missing');
   return createHash('sha256').update(token).digest('hex');
 }
 

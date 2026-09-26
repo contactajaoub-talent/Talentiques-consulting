@@ -353,3 +353,21 @@ test('admin access is server-session based and admin pages are noindex', async (
   assert.match(action, /requireAdminSession\(\)/);
   assert.match(action, /status === 'paid'/);
 });
+
+test('production auth requires a server-only HMAC secret', async () => {
+  const authCore = await readFile(new URL('../src/lib/affiliate/auth-core.ts', import.meta.url), 'utf8');
+  const env = await readFile(new URL('../.env.example', import.meta.url), 'utf8');
+  assert.match(authCore, /createHmac\('sha256', secret\)/);
+  assert.match(authCore, /NODE_ENV === 'production'[\s\S]*AFFILIATE_SESSION_SECRET missing/);
+  assert.match(env, /^AFFILIATE_SESSION_SECRET=$/m);
+  assert.doesNotMatch(env, /^NEXT_PUBLIC_(?:SUPABASE_SERVICE_ROLE_KEY|AFFILIATE_ADMIN_SECRET|AFFILIATE_SESSION_SECRET)=/m);
+});
+
+test('only public affiliate pages appear in the sitemap', async () => {
+  const sitemap = await readFile(new URL('../src/app/sitemap.ts', import.meta.url), 'utf8');
+  assert.match(sitemap, /\/affiliation/);
+  assert.match(sitemap, /\/en\/affiliate/);
+  assert.doesNotMatch(sitemap, /affiliation\/(?:connexion|espace)/);
+  assert.doesNotMatch(sitemap, /affiliate\/(?:login|dashboard)/);
+  assert.doesNotMatch(sitemap, /admin\/affiliates/);
+});
