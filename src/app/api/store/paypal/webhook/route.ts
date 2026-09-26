@@ -1,9 +1,14 @@
 import { NextResponse } from 'next/server';
+import { affiliateCancellationReason } from '@/lib/affiliate/core';
+import { createPaidAdjustment } from '@/lib/affiliate/admin-supabase';
+import { cancelAffiliateCommissionByOrderId } from '@/lib/affiliate/supabase-rest';
 import { fulfillStorePayment } from '@/lib/store/fulfill';
 import { paypalFetch } from '@/lib/store/paypal';
 import {
   findStoreOrderById,
+  findStoreOrderByPayPalCaptureId,
   findStoreOrderByPayPalId,
+  updateStoreOrder,
 } from '@/lib/store/supabase-rest';
 
 export const runtime = 'nodejs';
@@ -44,7 +49,29 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Signature invalide' }, { status: 400 });
     }
 
-    if (event?.event_type !== 'PAYMENT.CAPTURE.COMPLETED') {
+    const eventType = event?.event_type;
+    const cancellationReason = affiliateCancellationReason(eventType);
+
+    if (cancellationReason) {
+      const captureId =
+        event?.resource?.disputed_transactions?.[0]?.seller_transaction_id ||
+        event?.resource?.supplementary_data?.related_ids?.capture_id ||
+        event?.resource?.id;
+      const order = captureId
+        ? await findStoreOrderByPayPalCaptureId(captureId)
+        : null;
+      if (!order || typeof order.id !== 'string') {
+        return NextResponse.json({ ok: true, ignored: true });
+      }
+      await updateStoreOrder(order.id, {
+        status: cancellationReason === 'refund' ? 'refunded' : 'disputed',
+      });
+      await cancelAffiliateCommissionByOrderId(order.id, cancellationReason);
+      await createPaidAdjustment(order.id, cancellationReason);
+      return NextResponse.json({ ok: true });
+    }
+
+    if (eventType !== 'PAYMENT.CAPTURE.COMPLETED') {
       return NextResponse.json({ ok: true, ignored: true });
     }
 

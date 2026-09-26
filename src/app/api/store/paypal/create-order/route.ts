@@ -1,4 +1,14 @@
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import {
+  AFFILIATE_CLICK_COOKIE_NAME,
+  AFFILIATE_COOKIE_NAME,
+  normalizeAffiliateCode,
+} from '@/lib/affiliate/core';
+import {
+  findActiveAffiliateByCode,
+  findAffiliateClick,
+} from '@/lib/affiliate/supabase-rest';
 import {
   getStoreProduct,
   isStoreMarket,
@@ -76,6 +86,29 @@ export async function POST(request: Request) {
       ''
     );
 
+    let affiliateAttribution: Record<string, string> = {};
+    try {
+      const cookieStore = await cookies();
+      const affiliateCode = normalizeAffiliateCode(
+        cookieStore.get(AFFILIATE_COOKIE_NAME)?.value
+      );
+      if (affiliateCode) {
+        const affiliate = await findActiveAffiliateByCode(affiliateCode);
+        if (affiliate && typeof affiliate.id === 'string') {
+          affiliateAttribution = {
+            affiliate_id: affiliate.id,
+            affiliate_ref: affiliateCode,
+          };
+          const clickId = cookieStore.get(AFFILIATE_CLICK_COOKIE_NAME)?.value;
+          if (clickId && (await findAffiliateClick(clickId, affiliate.id))) {
+            affiliateAttribution.affiliate_click_id = clickId;
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Affiliate order attribution ignored', error);
+    }
+
     await insertStoreOrder({
       id: internalOrderId,
       access_token: accessToken,
@@ -94,6 +127,7 @@ export async function POST(request: Request) {
       digital_content_consent_at: new Date().toISOString(),
       consent_version: `store-${market}-v1-2026-09`,
       ...tracking,
+      ...affiliateAttribution,
     });
 
     const paypalResponse = await paypalFetch('/v2/checkout/orders', {
