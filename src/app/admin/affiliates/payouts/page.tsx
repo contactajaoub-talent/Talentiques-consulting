@@ -1,0 +1,9 @@
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import AdminShell, { AdminTable } from '@/components/affiliate/admin/AdminShell';
+import { PayoutBatchCreator } from '@/components/affiliate/admin/AdminActions';
+import { requireAdminSession } from '@/lib/affiliate/admin-auth';
+import { listBatches, payoutReady, releaseAllMature } from '@/lib/affiliate/admin-supabase';
+export const metadata: Metadata = { title: 'Paiements affiliés', robots: { index: false, follow: false } };
+export const dynamic = 'force-dynamic';
+export default async function Page() { await requireAdminSession(); await releaseAllMature(); const [ready, batches] = await Promise.all([payoutReady(), listBatches()]); return <AdminShell title="Paiements" subtitle="Revue humaine obligatoire avant chaque paiement. Aucun transfert automatique."><section className="rounded-3xl border border-slate-200 bg-white p-6"><h2 className="font-heading text-2xl font-bold">Prêts au paiement</h2><p className="mt-2 text-sm text-slate-500">Seuil indépendant : 20 EUR ou 20 USD. Les comptes suspendus sont signalés pour revue.</p><div className="mt-6"><PayoutBatchCreator ready={ready} /></div></section><section className="mt-8"><h2 className="mb-5 font-heading text-2xl font-bold">Lots de paiement</h2><AdminTable headers={['Création', 'Devise', 'Montant', 'Affiliés', 'Statut', 'Détail']}>{batches.rows.map((row) => <tr key={String(row.id)} className="border-t border-slate-100"><td className="px-4 py-4">{new Date(String(row.created_at)).toLocaleDateString('fr-FR')}</td><td className="px-4">{String(row.currency)}</td><td className="px-4 font-bold">{Number(row.total_amount).toFixed(2)}</td><td className="px-4">{String(row.affiliate_count)}</td><td className="px-4">{String(row.status)}</td><td className="px-4"><Link className="font-bold text-[#0683C9]" href={`/admin/affiliates/payouts/${row.id}`}>Ouvrir</Link></td></tr>)}</AdminTable></section></AdminShell> }

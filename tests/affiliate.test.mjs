@@ -329,3 +329,27 @@ test('dashboard API derives identity from session and ignores browser affiliate 
   assert.match(route, /getCurrentAffiliate\(\)/);
   assert.doesNotMatch(route, /searchParams\.get\(['"]affiliate_(?:id|code)/);
 });
+
+test('admin payout workflow is transactional, currency-scoped, and replay safe', async () => {
+  const sql = await readFile(new URL('../supabase/affiliate_program.sql', import.meta.url), 'utf8');
+  assert.match(sql, /create_affiliate_payout_batch[\s\S]*p_currency[\s\S]*status='available'[\s\S]*payout_batch_item_id is null/i);
+  assert.match(sql, /affiliate_adjustments set payout_batch_item_id=v_item/i);
+  assert.match(sql, /affiliate_adjustments set status='applied',applied_at=v_now/i);
+  assert.match(sql, /affiliate_adjustments set payout_batch_item_id=null[\s\S]*status='open'/i);
+  assert.match(sql, /return 'already_'\|\|v_item.status/i);
+  assert.match(sql, /on conflict\(payout_batch_item_id\) do nothing/i);
+  assert.match(sql, /greatest\(b.available_balance-coalesce\(d.open_adjustment,0\),0\)>=20/i);
+});
+
+test('admin access is server-session based and admin pages are noindex', async () => {
+  const auth = await readFile(new URL('../src/lib/affiliate/admin-auth.ts', import.meta.url), 'utf8');
+  const authCore = await readFile(new URL('../src/lib/affiliate/auth-core.ts', import.meta.url), 'utf8');
+  const page = await readFile(new URL('../src/app/admin/affiliates/page.tsx', import.meta.url), 'utf8');
+  const action = await readFile(new URL('../src/app/api/affiliate/admin/action/route.ts', import.meta.url), 'utf8');
+  assert.match(authCore, /httpOnly:\s*true/i);
+  assert.match(authCore, /sameSite:\s*'lax'/i);
+  assert.match(auth, /AFFILIATE_ADMIN_EMAIL/);
+  assert.match(page, /robots:\{index:false,follow:false\}/);
+  assert.match(action, /requireAdminSession\(\)/);
+  assert.match(action, /status === 'paid'/);
+});

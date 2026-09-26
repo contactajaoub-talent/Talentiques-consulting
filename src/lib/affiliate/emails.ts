@@ -104,6 +104,22 @@ export function sendAffiliateLoginEmail(data: AffiliateEmailData & { loginUrl: s
   return sendEmail([data.email], affiliateLoginEmail(data));
 }
 
+export function sendAffiliateAdminLoginEmail(email: string, loginUrl: string) {
+  const subject = 'Votre accès administrateur — Talentiques Affiliés';
+  const text = `Utilisez ce lien personnel pour accéder à l’administration du programme d’affiliation Talentiques :\n\n${loginUrl}\n\nCe lien expire dans 15 minutes. Si vous ne l’avez pas demandé, ignorez cet e-mail.`;
+  const html = `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#0f172a"><p>Utilisez le bouton ci-dessous pour accéder à l’administration Talentiques Affiliés.</p><p><a href="${escapeHtml(loginUrl)}" style="display:inline-block;background:#0683C9;color:#fff;text-decoration:none;padding:14px 22px;border-radius:10px;font-weight:700">Ouvrir l’administration</a></p><p>Ce lien expire dans 15 minutes. Si vous ne l’avez pas demandé, ignorez cet e-mail.</p></div>`;
+  return sendEmail([email], { subject, text, html });
+}
+
+export function sendAffiliatePayoutPaidEmail(data: AffiliateEmailData & { amount: string; currency: string; method: string; paymentDate: string }) {
+  const fr = data.language === 'fr';
+  const subject = fr ? 'Votre commission Talentiques a été payée' : 'Your Talentiques affiliate payout has been sent';
+  const text = fr
+    ? `Bonjour ${firstName(data.fullName)},\n\nVotre paiement affilié de ${data.amount} ${data.currency} a été confirmé.\nMéthode : ${data.method || 'Non précisée'}\nDate : ${data.paymentDate}\n\nL’équipe Talentiques`
+    : `Hello ${firstName(data.fullName)},\n\nYour affiliate payout of ${data.amount} ${data.currency} has been confirmed.\nMethod: ${data.method || 'Not specified'}\nDate: ${data.paymentDate}\n\nThe Talentiques team`;
+  return sendEmail([data.email], { subject, text, html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#0f172a"><p>${escapeHtml(text).replaceAll('\n','<br>')}</p></div>` });
+}
+
 export function sendAffiliateAdminNotification(data: AffiliateEmailData & Record<string, unknown>) {
   const adminEmail = process.env.AFFILIATE_ADMIN_EMAIL?.trim();
   if (!adminEmail) throw new Error('AFFILIATE_ADMIN_EMAIL missing');

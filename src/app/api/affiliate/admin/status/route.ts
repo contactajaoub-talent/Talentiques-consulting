@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { getAdminSession } from '@/lib/affiliate/admin-auth';
+import { insertAdminAudit } from '@/lib/affiliate/admin-supabase';
 import {
   AFFILIATE_STATUS_TRANSITIONS,
   hasValidAffiliateAdminAuthorization,
@@ -15,7 +17,8 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
-  if (!hasValidAffiliateAdminAuthorization(request)) {
+  const adminSession = await getAdminSession();
+  if (!adminSession && !hasValidAffiliateAdminAuthorization(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -48,6 +51,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: `Affiliate must be ${transition.from}` }, { status: 409 });
     }
 
+    await insertAdminAudit({
+      admin_identity: String(adminSession?.email || 'legacy-admin-secret'),
+      action: `affiliate_${action === 'approve' ? 'approved' : action === 'reject' ? 'rejected' : action === 'suspend' ? 'suspended' : 'reactivated'}`,
+      affiliate_id: affiliate.id,
+    });
+
     const emailData = {
       fullName: String(updated.full_name || ''),
       email: String(updated.email || ''),
@@ -67,4 +76,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Status update failed' }, { status: 500 });
   }
 }
-

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { affiliateCancellationReason } from '@/lib/affiliate/core';
+import { createPaidAdjustment } from '@/lib/affiliate/admin-supabase';
 import { cancelAffiliateCommissionByOrderId } from '@/lib/affiliate/supabase-rest';
 import { fulfillStorePayment } from '@/lib/store/fulfill';
 import { paypalFetch } from '@/lib/store/paypal';
@@ -66,6 +67,7 @@ export async function POST(request: Request) {
         status: cancellationReason === 'refund' ? 'refunded' : 'disputed',
       });
       await cancelAffiliateCommissionByOrderId(order.id, cancellationReason);
+      await createPaidAdjustment(order.id, cancellationReason);
       return NextResponse.json({ ok: true });
     }
 
