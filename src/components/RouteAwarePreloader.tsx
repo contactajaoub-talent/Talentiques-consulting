@@ -7,6 +7,8 @@ export function RouteAwarePreloader() {
   const pathname = usePathname();
 
   if (
+    pathname === '/' ||
+    pathname === '/en' ||
     pathname === '/outils' ||
     pathname.startsWith('/outils/') ||
     pathname === '/en/tools' ||
