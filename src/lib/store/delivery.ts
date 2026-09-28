@@ -100,14 +100,14 @@ export function getDeliveryItems(
     }
 
     const trackerItem = (): DeliveryItem => ({
-      label: 'Opportunity Tracker Pro',
+      label: 'Opportunity Management System',
       description:
         'Tracker + automatisations + guides premium. Versions française et anglaise incluses.',
       url: getSecureDownloadUrl(accessToken, 'tracker'),
     });
 
     const atsItem = (): DeliveryItem => ({
-      label: 'CV ATS System',
+      label: 'Career Branding Toolkit',
       description:
         'Modèles ATS + guide CV + bonus LinkedIn. Versions française et anglaise incluses.',
       url: getSecureDownloadUrl(accessToken, 'ats'),
@@ -131,13 +131,13 @@ export function getDeliveryItems(
    * Il sera migré vers Blob Private lorsque la version EN du Store sera lancée.
    */
   const trackerItem = (): DeliveryItem => ({
-    label: 'Application Tracker Pro',
+    label: 'Opportunity Management System',
     description: 'Tracker + automations + premium guides.',
     url: requiredDeliveryUrl('STORE_TRACKER_PACKAGE_EN_URL'),
   });
 
   const atsItem = (): DeliveryItem => ({
-    label: 'ATS Resume & LinkedIn Pro',
+    label: 'Career Branding Toolkit',
     description: 'ATS resume templates + resume guide + LinkedIn optimization guide.',
     url: requiredDeliveryUrl('STORE_ATS_PACKAGE_EN_URL'),
   });

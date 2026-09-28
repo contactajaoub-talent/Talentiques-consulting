@@ -85,14 +85,18 @@ export default function CheckoutClient({
   const [error, setError] = useState('');
   const canUpgrade = product.id !== 'bundle';
   const isUpgraded = selectedProduct.id === 'bundle' && product.id !== 'bundle';
-  const upgradeDelta = product.id === 'tracker' ? (isFr ? '+7,00 €' : '+$7.00') : (isFr ? '+5,00 €' : '+$5.00');
+  const bundleProduct = getStoreProduct('bundle', product.market);
+  const upgradeAmount = Number(bundleProduct.amount) - Number(product.amount);
+  const upgradeDelta = isFr
+    ? `+${upgradeAmount.toFixed(2).replace('.', ',')} €`
+    : `+$${upgradeAmount.toFixed(2)}`;
   const selectedProductName =
     selectedProduct.market === 'fr'
       ? selectedProduct.id === 'tracker'
-        ? 'Tracker Candidatures Pro'
+        ? 'Opportunity Management System'
         : selectedProduct.id === 'ats'
-          ? 'CV ATS & LinkedIn Pro'
-          : 'Career Search Bundle'
+          ? 'Career Branding Toolkit'
+          : 'Career Search 360'
       : selectedProduct.name;
 
   useEffect(() => {
@@ -330,12 +334,12 @@ export default function CheckoutClient({
                 <span className="min-w-0">
                   <span className="flex items-center gap-2 text-base font-black text-slate-950">
                     <Sparkles className="h-5 w-5 shrink-0 text-sky-600" />
-                    Career Search Bundle
+                    Career Search 360
                   </span>
                   <span className="mt-1 block text-sm leading-6 text-slate-600">
                     {product.id === 'tracker'
-                      ? isFr ? 'Ajoutez CV ATS & LinkedIn Pro + tous les guides pour' : 'Add ATS Resume & LinkedIn Pro and all guides for'
-                      : isFr ? 'Ajoutez Tracker Candidatures Pro + ses guides pour' : 'Add Application Tracker Pro and its guides for'}
+                      ? isFr ? 'Ajoutez Career Branding Toolkit + tous les guides pour' : 'Add Career Branding Toolkit and all guides for'
+                      : isFr ? 'Ajoutez Opportunity Management System + ses guides pour' : 'Add Opportunity Management System and its guides for'}
                     {' '}<strong>{upgradeDelta}</strong>.
                   </span>
                   <span className="mt-2 block text-sm font-black text-sky-800">

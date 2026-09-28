@@ -19,13 +19,13 @@ export const STORE_PRODUCT_DETAILS_FR: Record<StoreProductId, StoreProductDetail
     id: 'tracker',
     slug: 'opportunity-tracker',
     eyebrow: 'Pilotez votre recherche au lieu de la subir',
-    headline: 'Tracker Candidatures Pro',
+    headline: 'Opportunity Management System',
     subheadline:
-      'Un système de pilotage réutilisable pour centraliser vos opportunités, vos relances, vos entretiens et vos prochaines actions.',
+      'Centralisez vos candidatures, relances, entretiens et prochaines actions dans un seul système de suivi.',
     outcome:
       'Vous savez quoi faire, quand le faire et quelles opportunités méritent votre temps — sans reconstruire votre organisation à chaque recherche.',
     includes: [
-      'Tracker Candidatures Pro FR + EN',
+      'Opportunity Management System FR + EN',
       'Dashboard de pilotage et indicateurs',
       'Suivi des candidatures, relances et entretiens',
       'Mini CRM recruteurs / contacts',
@@ -59,9 +59,9 @@ export const STORE_PRODUCT_DETAILS_FR: Record<StoreProductId, StoreProductDetail
     id: 'ats',
     slug: 'cv-ats',
     eyebrow: 'Présentez une candidature plus claire et plus solide',
-    headline: 'CV ATS & LinkedIn Pro',
+    headline: 'Career Branding Toolkit',
     subheadline:
-      '7 modèles CV ATS modifiables + une méthode complète pour construire, adapter et renforcer votre candidature.',
+      'Renforcez votre profil avec des modèles CV ATS, une méthode de personnalisation et un guide LinkedIn.',
     outcome:
       'Vous ne repartez plus d’une page blanche : vous disposez d’une structure professionnelle et d’une méthode réutilisable pour adapter votre CV à chaque offre.',
     includes: [
@@ -99,13 +99,13 @@ export const STORE_PRODUCT_DETAILS_FR: Record<StoreProductId, StoreProductDetail
     id: 'bundle',
     slug: 'bundle',
     eyebrow: 'L’offre recommandée',
-    headline: 'Career Search Bundle',
+    headline: 'Career Search 360',
     subheadline:
-      'Le système complet pour structurer votre recherche, renforcer vos candidatures et garder chaque opportunité sous contrôle.',
+      'Tout ce qu’il vous faut pour renforcer votre profil, gérer vos opportunités et garder le contrôle de votre recherche.',
     outcome:
       'Au lieu d’acheter des ressources isolées, vous réunissez le pilotage de votre recherche, le CV ATS, LinkedIn et les guides d’exécution dans un seul système.',
     includes: [
-      'Tracker Candidatures Pro FR + EN',
+      'Opportunity Management System FR + EN',
       'Toutes les automatisations du Tracker',
       '2 guides premium Opportunités / Relances / Entretiens',
       '7 modèles CV ATS professionnels',
@@ -130,10 +130,10 @@ export const STORE_PRODUCT_DETAILS_FR: Record<StoreProductId, StoreProductDetail
     delivery: [
       'Vous finalisez un seul paiement sécurisé PayPal.',
       'Votre accès au Bundle est débloqué immédiatement après confirmation.',
-      'Vous recevez par e-mail les deux packs : Tracker Candidatures Pro + CV ATS & LinkedIn Pro.',
+      'Vous recevez par e-mail les deux packs : Opportunity Management System + Career Branding Toolkit.',
       'Vous pouvez conserver les fichiers et les réutiliser pour vos prochaines opportunités.',
     ],
-    note: '14,90 € au lieu de 17,80 € si les deux systèmes sont achetés séparément. Paiement unique, aucun abonnement.',
+    note: '14,50 € au lieu de 17,20 € si les deux systèmes sont achetés séparément. Paiement unique, aucun abonnement.',
   },
 };
 

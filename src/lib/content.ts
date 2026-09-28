@@ -198,21 +198,21 @@ export const content = {
 
     paid: [
       {
-        title: 'Opportunity Tracker Pro',
+        title: 'Opportunity Management System',
         description:
           'Système de pilotage pour candidatures, relances, entretiens et prochaines actions.',
         status: STORE_FR_PRODUCTS.tracker.displayPrice,
         href: '/outils#produits',
       },
       {
-        title: 'CV ATS System',
+        title: 'Career Branding Toolkit',
         description:
           '7 modèles CV ATS, guide CV complet et guide LinkedIn offert.',
         status: STORE_FR_PRODUCTS.ats.displayPrice,
         href: '/outils#produits',
       },
       {
-        title: 'Career Search Bundle',
+        title: 'Career Search 360',
         description:
           'Tracker + CV ATS + tous les guides dans une seule offre.',
         status: STORE_FR_PRODUCTS.bundle.displayPrice,

@@ -202,8 +202,8 @@ export default function ProductDetailPageFR({ productId, market = 'fr' }: { prod
                 </h2>
                 <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
                   {productId === 'tracker'
-                    ? isFr ? `Ajoutez le CV ATS & LinkedIn Pro et tous les guides pour seulement +${upgradeLabel} €.` : `Add ATS Resume & LinkedIn Pro and all guides for only +$${upgradeLabel}.`
-                    : isFr ? `Ajoutez le Tracker Candidatures Pro et ses guides pour seulement +${upgradeLabel} €.` : `Add Application Tracker Pro and its guides for only +$${upgradeLabel}.`}
+                    ? isFr ? `Ajoutez le Career Branding Toolkit et tous les guides pour seulement +${upgradeLabel} €.` : `Add Career Branding Toolkit and all guides for only +$${upgradeLabel}.`
+                    : isFr ? `Ajoutez le Opportunity Management System et ses guides pour seulement +${upgradeLabel} €.` : `Add Opportunity Management System and its guides for only +$${upgradeLabel}.`}
                 </p>
               </div>
               <StoreCTA
@@ -313,10 +313,10 @@ export default function ProductDetailPageFR({ productId, market = 'fr' }: { prod
             </div>
             <div className="text-sm font-black text-white">
               {isFr ? (productId === 'tracker'
-                ? 'Tracker Candidatures Pro'
+                ? 'Opportunity Management System'
                 : productId === 'ats'
-                  ? 'CV ATS & LinkedIn Pro'
-                  : 'Career Search Bundle') : product.name}{' '}
+                  ? 'Career Branding Toolkit'
+                  : 'Career Search 360') : product.name}{' '}
               • {product.displayPrice}
             </div>
           </div>

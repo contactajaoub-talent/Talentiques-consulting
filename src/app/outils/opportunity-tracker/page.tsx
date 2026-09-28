@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import ProductDetailPageFR from '@/components/store/ProductDetailPageFR';
 
 export const metadata: Metadata = {
-  title: 'Opportunity Tracker Pro | TalentiQues',
+  title: 'Opportunity Management System | TalentiQues',
   description:
     'Pilotez vos candidatures, relances, entretiens et opportunités avec un système réutilisable. Paiement unique, accès immédiat.',
 };
