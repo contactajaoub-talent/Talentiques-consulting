@@ -5,10 +5,22 @@ import { getHomeContent, type HomeLocale } from '@/lib/home-content';
 
 export function Process({ locale = 'fr' }: { locale?: HomeLocale }) {
   const copy = getHomeContent(locale).process;
-  return <section id="process" className="relative overflow-hidden bg-white py-28">
-    <div className="container relative z-10 mx-auto px-4 md:px-6">
-      <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mx-auto mb-20 max-w-3xl text-center"><span className="mb-4 inline-block rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-600">{copy.eyebrow}</span><h2 className="mb-6 font-heading text-4xl font-bold text-slate-900 md:text-5xl">{copy.title}</h2><p className="mx-auto max-w-2xl text-lg font-light text-slate-600">{copy.description}</p></motion.div>
-      <div className="relative"><div className="absolute left-0 top-12 hidden h-1.5 w-full rounded-full bg-gradient-to-r from-brand-100 via-brand-400 to-brand-100 opacity-30 md:block"/><div className="relative z-10 grid grid-cols-1 gap-10 md:grid-cols-5">{copy.steps.map(([step, title, description], index) => <motion.article key={step} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * .08, duration: .5 }} className="group flex flex-col items-center text-center"><div className="relative mb-8"><div className="relative z-10 flex h-24 w-24 items-center justify-center rounded-[2rem] border border-slate-100 bg-white font-heading text-2xl font-bold shadow-xl shadow-brand-900/5 transition-transform duration-300 group-hover:-translate-y-1"><span className="bg-gradient-to-br from-brand-500 to-blue-700 bg-clip-text text-transparent">{step}</span></div></div><h3 className="mb-4 font-heading text-xl font-bold text-slate-900">{title}</h3><p className="text-sm font-light leading-relaxed text-slate-500">{description}</p></motion.article>)}</div></div>
+  return <section id="process" className="overflow-hidden bg-slate-50 py-24 lg:py-28">
+    <div className="container mx-auto px-5 md:px-8">
+      <motion.header initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mx-auto max-w-3xl text-center">
+        <span className="text-xs font-bold uppercase tracking-[.2em] text-[#0683C9]">{copy.eyebrow}</span>
+        <h2 className="mt-5 font-heading text-4xl font-bold text-slate-950 md:text-5xl">{copy.title}</h2>
+        <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600">{copy.description}</p>
+      </motion.header>
+      <div className="relative mx-auto mt-16 max-w-7xl">
+        <div className="absolute bottom-8 left-[1.5rem] top-8 w-px bg-sky-200 md:bottom-auto md:left-[10%] md:right-[10%] md:top-6 md:h-px md:w-auto" aria-hidden="true"/>
+        <div className="relative grid gap-8 md:grid-cols-5 md:gap-5">
+          {copy.steps.map(([step, title, description], index) => <motion.article key={step} initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * .08 }} className="grid grid-cols-[3rem_1fr] gap-4 md:block md:text-center">
+            <div className="relative flex h-12 w-12 items-center justify-center rounded-full border-4 border-slate-50 bg-[#0683C9] font-heading text-xs font-bold text-white shadow-sm md:mx-auto">{step}</div>
+            <div className="pt-1 md:pt-6"><h3 className="font-heading text-lg font-bold text-slate-950">{title}</h3><p className="mt-2 text-sm leading-6 text-slate-600">{description}</p></div>
+          </motion.article>)}
+        </div>
+      </div>
     </div>
   </section>;
 }

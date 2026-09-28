@@ -4,7 +4,8 @@ import { MotionConfig } from 'framer-motion';
 import { Navbar } from '@/components/Navbar';
 import { Hero } from '@/components/Hero';
 import { WhyUs } from '@/components/WhyUs';
-import { Resources } from '@/components/Resources';
+import { Credibility } from '@/components/Credibility';
+import { AlternanceFeature } from '@/components/AlternanceFeature';
 import { Services } from '@/components/Services';
 import { Process } from '@/components/Process';
 import { Testimonials } from '@/components/Testimonials';
@@ -19,7 +20,8 @@ export function HomePage({ locale }: { locale: HomeLocale }) {
       <main>
         <Hero locale={locale}/>
         <WhyUs locale={locale}/>
-        <Resources locale={locale}/>
+        <Credibility locale={locale}/>
+        <AlternanceFeature locale={locale}/>
         <Services locale={locale}/>
         <Process locale={locale}/>
         <Testimonials/>

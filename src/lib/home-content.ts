@@ -12,39 +12,70 @@ export function getHomeContent(locale: HomeLocale) {
     switchLabel: fr ? 'EN' : 'FR',
     nav: fr
       ? [
-          ['Ressources', '/#resources'], ['Services', '/#services'],
+          ['Outils', '/outils'], ['Services', '/#services'],
           ['Alternance', 'https://alternance.talentiques.com/'], ['Blog', '/blog'], ['Contact', '/#contact'],
         ]
       : [
-          ['Resources', '/en#resources'], ['Services', '/en#services'],
+          ['Tools', '/en/tools'], ['Services', '/en#services'],
           ['Work-study', 'https://alternance.talentiques.com/'], ['Blog', '/blog'], ['Contact', '/en#contact'],
         ],
-    resourcesCta: fr ? 'Découvrir les ressources' : 'Explore resources',
+    diagnosticCta: fr ? 'Diagnostic CV ATS gratuit' : 'Free ATS Resume Check',
     hero: {
-      eyebrow: fr ? 'L’ÉCOSYSTÈME DES OPPORTUNITÉS PROFESSIONNELLES' : 'THE PROFESSIONAL OPPORTUNITIES ECOSYSTEM',
-      title: fr ? 'Accédez à de meilleures opportunités professionnelles.' : 'Access better professional opportunities.',
+      eyebrow: fr ? 'L’ÉCOSYSTÈME TALENTIQUES' : 'THE TALENTIQUES ECOSYSTEM',
+      titleStart: fr ? 'Accédez à de meilleures' : 'Access better',
+      titleHighlight: fr ? 'opportunités professionnelles.' : 'professional opportunities.',
       description: fr
-        ? 'Talentiques réunit outils, ressources, services et parcours spécialisés pour vous aider à renforcer votre profil, structurer votre recherche et avancer vers la bonne opportunité.'
-        : 'Talentiques brings together tools, resources, services and specialized programs to help you strengthen your profile, structure your search and move toward the right opportunity.',
-      secondary: fr ? 'Découvrir Talentiques' : 'Discover Talentiques',
-    },
-    approach: {
-      title: fr ? 'L’approche TalentiQues' : 'The TalentiQues approach',
-      description: fr
-        ? 'Une démarche claire et structurée pour mieux préparer, organiser et saisir vos opportunités professionnelles.'
-        : 'A clear, structured approach to better prepare, organize and capture professional opportunities.',
-      items: fr
+        ? 'Talentiques réunit des services, des outils et des parcours spécialisés pour vous aider à mieux vous positionner, structurer votre recherche et avancer vers la bonne opportunité.'
+        : 'Talentiques brings together services, tools and specialized programs to help you position yourself more effectively, structure your search and move toward the right opportunity.',
+      servicesCta: fr ? 'Découvrir nos services' : 'Explore our services',
+      toolsCta: fr ? 'Découvrir nos outils' : 'Explore our tools',
+      visualLabel: fr ? 'UNE DÉMARCHE COHÉRENTE' : 'ONE COHERENT APPROACH',
+      visualItems: fr
         ? [
-            ['Clarté', 'Un objectif et un positionnement immédiatement compréhensibles.'],
-            ['Cohérence', 'Un profil et des actions alignés avec l’opportunité ciblée.'],
-            ['Approche humaine', 'Des recommandations adaptées à votre parcours réel.'],
-            ['Mise en action', 'Des ressources directement exploitables pour avancer.'],
+            ['Se positionner', 'Clarifier votre profil et votre valeur.'],
+            ['Structurer', 'Organiser votre recherche et vos actions.'],
+            ['Avancer', 'Mobiliser les bons outils et parcours.'],
           ]
         : [
-            ['Clarity', 'A goal and positioning that are immediately understandable.'],
-            ['Consistency', 'A profile and actions aligned with the target opportunity.'],
-            ['Human approach', 'Recommendations tailored to your actual background.'],
-            ['Action', 'Practical resources you can use to move forward.'],
+            ['Position', 'Clarify your profile and your value.'],
+            ['Structure', 'Organize your search and actions.'],
+            ['Move forward', 'Use the right tools and programs.'],
+          ],
+    },
+    approach: {
+      eyebrow: fr ? 'NOTRE APPROCHE' : 'OUR APPROACH',
+      title: fr ? 'Une approche structurée pour avancer vers la bonne opportunité.' : 'A structured approach to move toward the right opportunity.',
+      description: fr
+        ? 'Talentiques relie positionnement, organisation et passage à l’action dans une même démarche.'
+        : 'Talentiques connects positioning, organization and action within one coherent approach.',
+      items: fr
+        ? [
+            ['Se positionner', 'Clarifier son profil, son image professionnelle et sa valeur.'],
+            ['Structurer sa recherche', 'Organiser ses opportunités, actions, candidatures, relances et priorités.'],
+            ['Avancer avec méthode', 'S’appuyer sur des outils, des parcours et un accompagnement adapté à sa situation.'],
+          ]
+        : [
+            ['Position yourself', 'Clarify your profile, professional image and value.'],
+            ['Structure your search', 'Organize opportunities, actions, applications, follow-ups and priorities.'],
+            ['Move forward methodically', 'Rely on tools, programs and support suited to your situation.'],
+          ],
+    },
+    credibility: {
+      eyebrow: fr ? 'POURQUOI TALENTIQUES' : 'WHY TALENTIQUES',
+      title: fr ? 'Pensé pour transformer une recherche dispersée en démarche structurée.' : 'Designed to turn a scattered search into a structured approach.',
+      description: fr
+        ? 'Chaque solution s’inscrit dans une logique simple : mieux comprendre la situation, choisir les bons leviers et avancer avec cohérence.'
+        : 'Every solution follows a simple logic: understand the situation, choose the right levers and move forward consistently.',
+      items: fr
+        ? [
+            ['Une approche structurée', 'Un cadre lisible pour relier objectif, positionnement et actions.'],
+            ['Des solutions ancrées dans le réel', 'Des outils et parcours conçus autour de situations professionnelles concrètes.'],
+            ['Un accompagnement sur mesure', 'Une intervention humaine lorsque la situation nécessite davantage de profondeur.'],
+          ]
+        : [
+            ['A structured approach', 'A clear framework connecting goals, positioning and actions.'],
+            ['Solutions grounded in reality', 'Tools and programs designed around concrete professional situations.'],
+            ['Tailored support', 'Human guidance when a situation requires greater depth.'],
           ],
     },
     resources: {
@@ -76,50 +107,62 @@ export function getHomeContent(locale: HomeLocale) {
           ],
     },
     alternance: {
+      eyebrow: fr ? 'PARCOURS SPÉCIALISÉ' : 'SPECIALIZED PROGRAM',
       title: 'Alternance Talentiques',
       description: fr
         ? 'Un parcours dédié pour structurer votre recherche d’alternance, de votre positionnement jusqu’au suivi des candidatures et des entretiens.'
         : 'A dedicated program to structure your work-study search, from positioning through application and interview follow-up.',
       cta: fr ? 'Découvrir Alternance Talentiques' : 'Discover Alternance Talentiques',
+      items: fr
+        ? ['Positionnement', 'Suivi des candidatures', 'Préparation des entretiens']
+        : ['Positioning', 'Application tracking', 'Interview preparation'],
     },
     services: {
       eyebrow: fr ? 'SERVICES TALENTIQUES' : 'TALENTIQUES SERVICES',
-      title: fr ? 'Un accompagnement personnalisé pour votre candidature.' : 'Personalized support for your application.',
+      title: fr ? 'Un accompagnement adapté lorsque votre situation demande plus.' : 'Tailored support when your situation requires more.',
       description: fr
-        ? 'Deux offres ciblées pour renforcer votre profil avec un travail adapté à votre situation.'
-        : 'Two focused offers to strengthen your profile with work tailored to your situation.',
-      payment: fr ? 'paiement unique' : 'one-time payment',
-      recommended: fr ? 'Recommandé' : 'Recommended',
-      paymentNote: fr ? 'Demande enregistrée avant le paiement PayPal' : 'Request registered before PayPal payment',
-    },
-    process: {
-      eyebrow: fr ? 'Notre méthodologie' : 'Our method',
-      title: fr ? 'Une méthode simple en 5 étapes' : 'A simple five-step method',
-      description: fr
-        ? 'Un cadre clair pour avancer de votre objectif vers la prochaine opportunité.'
-        : 'A clear framework to move from your goal toward the next opportunity.',
-      steps: fr
+        ? 'Talentiques propose également un accompagnement personnalisé lorsque votre situation nécessite une intervention plus approfondie.'
+        : 'Talentiques also provides personalized support when your situation requires a more in-depth intervention.',
+      cards: fr
         ? [
-            ['01', 'Définir', 'Clarifiez votre objectif et les opportunités ciblées.'],
-            ['02', 'Se positionner', 'Construisez un profil cohérent avec votre objectif.'],
-            ['03', 'Identifier', 'Repérez les opportunités réellement pertinentes.'],
-            ['04', 'Agir', 'Candidatez, développez votre réseau et relancez.'],
-            ['05', 'Convertir', 'Préparez vos échanges et avancez vers la prochaine étape.'],
+            { audience: 'Professionnels · évolution · transition', title: 'Valorisation professionnelle complète', description: 'Clarifier et renforcer l’ensemble de votre présentation professionnelle pour porter un positionnement plus cohérent.', points: ['CV et supports de candidature', 'Positionnement LinkedIn', 'Cohérence du parcours'], cta: 'Découvrir l’accompagnement' },
+            { audience: 'Étudiants · alternants · demandeurs d’emploi', title: 'Pack Étudiant & Demandeur d’emploi', description: 'Construire une candidature plus claire et plus solide, adaptée aux premières expériences et aux périodes de recherche.', points: ['CV optimisé ATS', 'Lettre de motivation ciblée', 'Profil LinkedIn'], cta: 'Découvrir l’accompagnement' },
+            { audience: 'Marché francophone', title: 'Accompagnement de A à Z — Marché francophone', description: 'Être accompagné dans la structuration complète de sa démarche, du positionnement au suivi des opportunités.', points: ['Clarification de la stratégie', 'Organisation des actions', 'Suivi adapté à la situation'], cta: 'Réserver un appel découverte' },
           ]
         : [
-            ['01', 'Define', 'Clarify your goal and the opportunities you are targeting.'],
-            ['02', 'Position', 'Build a profile that is consistent with your goal.'],
-            ['03', 'Identify', 'Find the opportunities that are genuinely relevant.'],
-            ['04', 'Act', 'Apply, grow your network and follow up.'],
-            ['05', 'Convert', 'Prepare your conversations and move toward the next step.'],
+            { audience: 'Professionals · growth · transition', title: 'Complete Professional Profile Optimization', description: 'Clarify and strengthen your complete professional presentation for a more consistent positioning.', points: ['Resume and application materials', 'LinkedIn positioning', 'Career-story consistency'], cta: 'Explore the support' },
+            { audience: 'Students · work-study candidates · job seekers', title: 'Student & Job Seeker Pack', description: 'Build a clearer, stronger application suited to early experience and active job-search periods.', points: ['ATS-optimized resume', 'Targeted cover letter', 'LinkedIn profile'], cta: 'Explore the support' },
+            { audience: 'Francophone market', title: 'End-to-End Support — Francophone Market', description: 'Get support structuring your complete approach, from positioning through opportunity follow-up.', points: ['Strategy clarification', 'Action planning', 'Support adapted to your situation'], cta: 'Book a discovery call' },
+          ],
+    },
+    process: {
+      eyebrow: fr ? 'MÉTHODE TALENTIQUES' : 'THE TALENTIQUES METHOD',
+      title: fr ? 'Une progression claire, de la situation à l’action.' : 'A clear progression from situation to action.',
+      description: fr
+        ? 'Cinq étapes reliées pour construire une démarche cohérente et la faire avancer.'
+        : 'Five connected steps to build a coherent approach and move it forward.',
+      steps: fr
+        ? [
+            ['01', 'Comprendre', 'Clarifier la situation, l’objectif et les priorités.'],
+            ['02', 'Positionner', 'Construire un positionnement professionnel cohérent.'],
+            ['03', 'Préparer', 'Structurer les outils, supports et actions nécessaires.'],
+            ['04', 'Agir', 'Passer à l’exécution avec une démarche organisée.'],
+            ['05', 'Suivre', 'Mesurer l’avancement, relancer et ajuster.'],
+          ]
+        : [
+            ['01', 'Understand', 'Clarify the situation, goal and priorities.'],
+            ['02', 'Position', 'Build a coherent professional positioning.'],
+            ['03', 'Prepare', 'Structure the tools, materials and actions required.'],
+            ['04', 'Act', 'Move into execution with an organized approach.'],
+            ['05', 'Follow through', 'Measure progress, follow up and adjust.'],
           ],
     },
     contact: {
       badge: fr ? 'Disponible pour vous' : 'Here for you',
       title: fr ? 'Vous ne savez pas par où commencer ?' : 'Not sure where to start?',
       description: fr
-        ? 'Parlez-nous de votre objectif. Talentiques vous aidera à identifier le point de départ adapté.'
-        : 'Tell us about your goal. Talentiques will help you identify the right starting point.',
+        ? 'Présentez-nous votre situation. Nous vous aiderons à identifier l’approche Talentiques la plus adaptée.'
+        : 'Tell us about your situation. We will help you identify the most suitable Talentiques approach.',
     },
   };
 }

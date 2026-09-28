@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { useReducedMotion } from 'framer-motion';
 
 interface Particle {
     x: number;
     y: number;
-    vx: number;
     vy: number;
     size: number;
     alpha: number;
@@ -13,6 +13,7 @@ interface Particle {
 
 export const HeroAnimation = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const shouldReduceMotion = useReducedMotion();
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -26,14 +27,16 @@ export const HeroAnimation = () => {
         let width = 0;
         let height = 0;
 
-        // Configuration
-        const particleCount = 60; // Number of nodes
-        const connectionDistance = 150; // Distance to connect
-        const moveSpeed = 0.5; // Base speed
+        const particleCount = 28;
 
         const resize = () => {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
+            const bounds = canvas.getBoundingClientRect();
+            const ratio = Math.min(window.devicePixelRatio || 1, 2);
+            width = bounds.width;
+            height = bounds.height;
+            canvas.width = Math.max(1, Math.floor(width * ratio));
+            canvas.height = Math.max(1, Math.floor(height * ratio));
+            ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
             initParticles();
         };
 
@@ -43,10 +46,9 @@ export const HeroAnimation = () => {
                 particles.push({
                     x: Math.random() * width,
                     y: Math.random() * height,
-                    vx: (Math.random() - 0.5) * moveSpeed,
-                    vy: -(Math.random() * moveSpeed + 0.2), // Always drift upward
-                    size: Math.random() * 2 + 1,
-                    alpha: Math.random() * 0.5 + 0.1
+                    vy: -(Math.random() * 0.16 + 0.08),
+                    size: Math.random() * 1.6 + 0.7,
+                    alpha: Math.random() * 0.18 + 0.08
                 });
             }
         };
@@ -54,42 +56,17 @@ export const HeroAnimation = () => {
         const draw = () => {
             ctx.clearRect(0, 0, width, height);
 
-            // Update and draw particles
-            particles.forEach((p, i) => {
-                // Move
-                p.x += p.vx;
-                p.y += p.vy;
-
-                // Reset if out of bounds
-                if (p.y < -50) p.y = height + 50;
-                if (p.x < -50) p.x = width + 50;
-                if (p.x > width + 50) p.x = -50;
-
-                // Draw Particle
+            particles.forEach((p) => {
+                if (!shouldReduceMotion) {
+                    p.y += p.vy;
+                    if (p.y < -10) p.y = height + 10;
+                }
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(14, 165, 233, ${p.alpha})`; // Brand blue-ish
+                ctx.fillStyle = `rgba(6, 131, 201, ${p.alpha})`;
                 ctx.fill();
-
-                // Connections
-                for (let j = i + 1; j < particles.length; j++) {
-                    const p2 = particles[j];
-                    const dx = p.x - p2.x;
-                    const dy = p.y - p2.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-
-                    if (dist < connectionDistance) {
-                        ctx.beginPath();
-                        ctx.strokeStyle = `rgba(14, 165, 233, ${0.15 * (1 - dist / connectionDistance)})`;
-                        ctx.lineWidth = 1;
-                        ctx.moveTo(p.x, p.y);
-                        ctx.lineTo(p2.x, p2.y);
-                        ctx.stroke();
-                    }
-                }
             });
-
-            animationFrameId = requestAnimationFrame(draw);
+            if (!shouldReduceMotion) animationFrameId = requestAnimationFrame(draw);
         };
 
         window.addEventListener('resize', resize);
@@ -100,13 +77,14 @@ export const HeroAnimation = () => {
             window.removeEventListener('resize', resize);
             cancelAnimationFrame(animationFrameId);
         };
-    }, []);
+    }, [shouldReduceMotion]);
 
     return (
         <canvas
             ref={canvasRef}
-            className="absolute inset-0 w-full h-full pointer-events-none"
-            style={{ opacity: 0.6 }}
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 h-full w-full"
+            style={{ opacity: 0.72 }}
         />
     );
 };
