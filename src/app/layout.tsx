@@ -18,12 +18,12 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://talentiques.com'),
 
   title: {
-    default: 'TalentiQues | CV ATS, LinkedIn & carrière francophone',
+    default: 'TalentiQues | L’écosystème des opportunités professionnelles',
     template: '%s | TalentiQues',
   },
 
   description:
-    'Diagnostic CV ATS gratuit, optimisation CV, lettre de motivation, LinkedIn, ressources et accompagnement carrière pour les marchés francophones.',
+    'Talentiques aide étudiants, candidats et professionnels à accéder à de meilleures opportunités grâce à des outils, ressources, systèmes et solutions pour l’emploi, les stages, l’alternance, la mobilité et l’évolution de carrière.',
 
   alternates: {
     canonical: '/',
@@ -36,10 +36,10 @@ export const metadata: Metadata = {
     siteName: 'TalentiQues',
 
     title:
-      'TalentiQues | CV ATS, LinkedIn & carrière francophone',
+      'TalentiQues | L’écosystème des opportunités professionnelles',
 
     description:
-      'Diagnostic CV ATS gratuit, services d’optimisation, ressources et accompagnement carrière sur les marchés francophones.',
+      'Talentiques aide étudiants, candidats et professionnels à accéder à de meilleures opportunités grâce à des outils, ressources, systèmes et solutions pour l’emploi, les stages, l’alternance, la mobilité et l’évolution de carrière.',
   },
 
   icons: {
