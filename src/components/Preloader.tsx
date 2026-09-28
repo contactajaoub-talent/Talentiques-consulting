@@ -24,7 +24,7 @@ export const Preloader = () => {
                     className="fixed inset-0 z-[9999] flex items-center justify-center bg-white"
                 >
                     <div className="relative overflow-hidden">
-                        <motion.div
+                        <motion.h1
                             initial={{ y: 20, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             transition={{ duration: 0.8, ease: "easeOut" }}
@@ -32,7 +32,7 @@ export const Preloader = () => {
                         >
                             TalentiQues
                             <span className="text-primary-600">.</span>
-                        </motion.div>
+                        </motion.h1>
 
                         {/* Shimmer effect line */}
                         <motion.div

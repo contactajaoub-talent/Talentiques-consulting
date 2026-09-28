@@ -4,7 +4,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const base = 'https://talentiques.com';
   return [
     { url: base, changeFrequency: 'weekly', priority: 1 },
-    { url: `${base}/en`, changeFrequency: 'weekly', priority: 1 },
     { url: `${base}/diagnostic-cv-ats`, changeFrequency: 'monthly', priority: .9 },
     { url: `${base}/outils`, changeFrequency: 'weekly', priority: .95 },
     { url: `${base}/en/tools`, changeFrequency: 'weekly', priority: .95 },

@@ -78,9 +78,10 @@ export const content = {
         'Corrections illimitées jusqu’à satisfaction',
       ],
       icon: FileSignature,
-      price: '45 €',
+      price: '60 €',
       delay: 'Livraison sous 48–72h ouvrées',
-      cta: 'Valoriser mon profil',
+      paypal: 'https://www.paypal.com/ncp/payment/X28ZHEKETU8FA',
+      cta: 'Accélérer mon évolution',
       popular: true,
     },
     {
@@ -99,7 +100,8 @@ export const content = {
       icon: GraduationCap,
       price: '30 €',
       delay: 'Livraison sous 48–72h ouvrées · justificatif requis',
-      cta: 'Renforcer ma candidature',
+      paypal: 'https://www.paypal.com/ncp/payment/268NRKMDVVJB2',
+      cta: 'Relancer ma candidature',
     },
   ],
 
