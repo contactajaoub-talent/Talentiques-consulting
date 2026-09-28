@@ -27,10 +27,10 @@ import {
 } from '@/lib/store/product-details-fr';
 import { STORE_PRODUCT_DETAILS_EN, getStoreDetailHrefEN } from '@/lib/store/product-details-en';
 
-function ProductVisual({ id }: { id: StoreProductId }) {
+function ProductVisual({ id, market }: { id: StoreProductId; market: StoreMarket }) {
   if (id === 'tracker') return <TrackerVisual />;
   if (id === 'ats') return <AtsVisual />;
-  return <BundleVisual />;
+  return <BundleVisual market={market} />;
 }
 
 function CheckLine({ children }: { children: React.ReactNode }) {
@@ -152,7 +152,7 @@ export default function ProductDetailPageFR({ productId, market = 'fr' }: { prod
           </div>
 
           <div className="lg:pl-2">
-            <ProductVisual id={productId} />
+            <ProductVisual id={productId} market={market} />
           </div>
         </div>
       </section>

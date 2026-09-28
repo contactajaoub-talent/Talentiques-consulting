@@ -87,7 +87,6 @@ const offerFeatures: Record<'tracker' | 'ats' | 'bundle', string[]> = {
 
 const offerVisuals = {
   tracker: '/store/premium/tracker-fr.png',
-  bundle: '/store/premium/bundle-fr.png',
   ats: '/store/premium/ats-fr.png',
 } as const;
 
@@ -206,7 +205,13 @@ function OfferCard({
 
       <div className="mt-5 overflow-hidden rounded-2xl border border-sky-400/15 bg-[#020b1f]">
         <Image
-          src={offerVisuals[id]}
+          src={
+            id === 'bundle'
+              ? market === 'fr'
+                ? '/store/premium/career-search-360-fr.png'
+                : '/store/premium/career-search-360-en.png'
+              : offerVisuals[id]
+          }
           alt=""
           width={id === 'bundle' ? 1672 : 1448}
           height={id === 'bundle' ? 941 : 1086}
@@ -534,7 +539,7 @@ export default function StorePageFR({ market = 'fr' }: { market?: StoreMarket })
       <section id="bundle" className="bg-white px-5 py-14 sm:px-8 sm:py-16">
         <div className="mx-auto max-w-6xl">
           <div className="rounded-[40px] border border-sky-200 bg-[#020b1f] p-4 shadow-[0_35px_100px_rgba(37,99,235,.18)] sm:p-6 lg:p-8">
-            <BundleVisual />
+            <BundleVisual market={market} />
 
             <div className="mt-7 grid gap-6 text-white lg:grid-cols-[1fr_340px] lg:items-center">
               <div>

@@ -30,11 +30,15 @@ export function AtsVisual() {
   );
 }
 
-export function BundleVisual() {
+export function BundleVisual({ market }: { market: 'fr' | 'en' }) {
   return (
     <div className="relative overflow-hidden rounded-[32px] border border-sky-300/25 bg-[#020b1f] shadow-[0_35px_100px_rgba(37,99,235,.24)]">
       <Image
-        src="/store/premium/bundle-fr.png"
+        src={
+          market === 'fr'
+            ? '/store/premium/career-search-360-fr.png'
+            : '/store/premium/career-search-360-en.png'
+        }
         alt="Career Search 360 : Opportunity Management System, 7 modèles CV ATS et guide LinkedIn"
         width={1672}
         height={941}
