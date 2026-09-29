@@ -7,7 +7,7 @@ export function Credibility({ locale = 'fr' }: { locale?: HomeLocale }) {
   const copy = getHomeContent(locale).credibility;
 
   return (
-    <section className="relative overflow-hidden border-y border-slate-100 bg-slate-50/70 py-24 lg:py-28">
+    <section className="relative overflow-hidden border-y border-slate-100 bg-slate-50/70 py-14 lg:py-20">
       <div
         className="pointer-events-none absolute left-1/2 top-0 h-64 w-[52rem] -translate-x-1/2 rounded-full bg-sky-100/55 blur-[110px]"
         aria-hidden="true"
@@ -23,8 +23,12 @@ export function Credibility({ locale = 'fr' }: { locale?: HomeLocale }) {
           <span className="text-xs font-bold uppercase tracking-[.22em] text-[#0683C9]">
             {copy.eyebrow}
           </span>
-          <h2 className="mt-5 font-heading text-4xl font-bold leading-[1.12] tracking-[-.03em] text-slate-950 md:text-5xl">
-            {copy.title}
+          <h2 className="mt-5 font-heading text-4xl font-bold leading-[1.12] tracking-[-.03em] text-[#0F3452] md:text-5xl">
+            {locale === 'fr' ? (
+              <>Une démarche pensée pour rendre votre recherche <span className="text-[#0683C9]">plus claire, plus cohérente et plus maîtrisée.</span></>
+            ) : (
+              <>An approach designed to make your search <span className="text-[#0683C9]">clearer, more consistent and more controlled.</span></>
+            )}
           </h2>
           <p className="mx-auto mt-6 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
             {copy.description}

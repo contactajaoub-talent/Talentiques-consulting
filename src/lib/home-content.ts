@@ -12,11 +12,11 @@ export function getHomeContent(locale: HomeLocale) {
     switchLabel: fr ? 'EN' : 'FR',
     nav: fr
       ? [
-          ['Outils', '/outils'], ['Services', '/#services'],
+          ['Outils', '/outils'], ['Services', '/services'],
           ['Alternance', 'https://alternance.talentiques.com/'], ['Blog', '/blog'], ['Contact', '/#contact'],
         ]
       : [
-          ['Tools', '/en/tools'], ['Services', '/en#services'],
+          ['Tools', '/en/tools'], ['Services', '/en/services'],
           ['Work-study', 'https://alternance.talentiques.com/'], ['Blog', '/blog'], ['Contact', '/en#contact'],
         ],
     diagnosticCta: fr ? 'Diagnostic CV ATS gratuit' : 'Free ATS Resume Check',
@@ -121,25 +121,25 @@ export function getHomeContent(locale: HomeLocale) {
     },
     services: {
       eyebrow: fr ? 'SERVICES TALENTIQUES' : 'TALENTIQUES SERVICES',
-      title: fr ? 'Un accompagnement adapté lorsque votre situation demande plus.' : 'Tailored support when your situation requires more.',
+      title: fr ? 'Un accompagnement adapté pour aller plus loin.' : 'Tailored support to go further.',
       description: fr
         ? 'Talentiques propose également un accompagnement personnalisé lorsque votre situation nécessite une intervention plus approfondie.'
         : 'Talentiques also provides personalized support when your situation requires a more in-depth intervention.',
       cards: fr
         ? [
             { audience: 'Professionnels · évolution · transition', title: 'Valorisation professionnelle complète', description: 'Clarifier et renforcer l’ensemble de votre présentation professionnelle pour porter un positionnement plus cohérent.', points: ['CV et supports de candidature', 'Positionnement LinkedIn', 'Cohérence du parcours'], cta: 'Découvrir l’accompagnement' },
-            { audience: 'Étudiants · alternants · demandeurs d’emploi', title: 'Pack Étudiant & Demandeur d’emploi', description: 'Construire une candidature plus claire et plus solide, adaptée aux premières expériences et aux périodes de recherche.', points: ['CV optimisé ATS', 'Lettre de motivation ciblée', 'Profil LinkedIn'], cta: 'Découvrir l’accompagnement' },
+            { audience: 'Étudiants · alternants · demandeurs d’emploi', title: 'Accompagnement Étudiant & Demandeur d’emploi', description: 'Construire une candidature plus claire et plus solide, adaptée aux premières expériences et aux périodes de recherche.', points: ['CV optimisé ATS', 'Lettre de motivation ciblée', 'Profil LinkedIn'], cta: 'Découvrir l’accompagnement' },
             { audience: 'Marché francophone', title: 'Accompagnement de A à Z — Marché francophone', description: 'Être accompagné dans la structuration complète de sa démarche, du positionnement au suivi des opportunités.', points: ['Clarification de la stratégie', 'Organisation des actions', 'Suivi adapté à la situation'], cta: 'Réserver un appel découverte' },
           ]
         : [
             { audience: 'Professionals · growth · transition', title: 'Complete Professional Profile Optimization', description: 'Clarify and strengthen your complete professional presentation for a more consistent positioning.', points: ['Resume and application materials', 'LinkedIn positioning', 'Career-story consistency'], cta: 'Explore the support' },
-            { audience: 'Students · work-study candidates · job seekers', title: 'Student & Job Seeker Pack', description: 'Build a clearer, stronger application suited to early experience and active job-search periods.', points: ['ATS-optimized resume', 'Targeted cover letter', 'LinkedIn profile'], cta: 'Explore the support' },
+            { audience: 'Students · work-study candidates · job seekers', title: 'Student & Job Seeker Support', description: 'Build a clearer, stronger application suited to early experience and active job-search periods.', points: ['ATS-optimized resume', 'Targeted cover letter', 'LinkedIn profile'], cta: 'Explore the support' },
             { audience: 'Francophone market', title: 'End-to-End Support — Francophone Market', description: 'Get support structuring your complete approach, from positioning through opportunity follow-up.', points: ['Strategy clarification', 'Action planning', 'Support adapted to your situation'], cta: 'Book a discovery call' },
           ],
     },
     process: {
       eyebrow: fr ? 'MÉTHODE TALENTIQUES' : 'THE TALENTIQUES METHOD',
-      title: fr ? 'Une progression claire, de la situation à l’action.' : 'A clear progression from situation to action.',
+      title: fr ? 'Une méthode claire pour passer de l’objectif à l’action.' : 'A clear method to move from objective to action.',
       description: fr
         ? 'Cinq étapes reliées pour construire une démarche cohérente et la faire avancer.'
         : 'Five connected steps to build a coherent approach and move it forward.',

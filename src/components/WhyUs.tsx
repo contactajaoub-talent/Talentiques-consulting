@@ -7,7 +7,7 @@ export function WhyUs({ locale = 'fr' }: { locale?: HomeLocale }) {
   const copy = getHomeContent(locale).approach;
 
   return (
-    <section id="why-us" className="overflow-hidden bg-white py-24 lg:py-32">
+    <section id="why-us" className="overflow-hidden bg-white py-16 lg:py-24">
       <div className="container mx-auto px-5 md:px-8">
         <div className="mx-auto grid max-w-7xl gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-24">
           <motion.header
@@ -19,7 +19,7 @@ export function WhyUs({ locale = 'fr' }: { locale?: HomeLocale }) {
             <span className="text-xs font-bold uppercase tracking-[.22em] text-[#0683C9]">
               {copy.eyebrow}
             </span>
-            <h2 className="mt-5 font-heading text-4xl font-bold leading-[1.12] tracking-[-.03em] text-slate-950 md:text-5xl">
+            <h2 className="mt-5 font-heading text-4xl font-bold leading-[1.12] tracking-[-.03em] text-[#0F3452] md:text-5xl">
               {copy.title}
             </h2>
             <p className="mt-6 max-w-lg text-lg leading-8 text-slate-600">
