@@ -15,9 +15,10 @@ test('normalization supports LinkedIn, email and phone deduplication', () => {
   assert.equal(normalizePhone('00 212 600-00-00-00'), '+212600000000');
 });
 
-test('duplicate detection reports every matching identity without merging', () => {
+test('duplicate detection utility reports every matching identity without merging', () => {
   const matches = detectDuplicates([baseProspect], { linkedinUrl: 'linkedin.com/in/alice-demo', email: 'alice.demo@example.com', phone: '+15550000000' });
-  assert.equal(matches.length, 1); assert.deepEqual(matches[0].fields, ['linkedin','email','phone']);
+  assert.equal(matches.length, 1);
+  assert.deepEqual(matches[0].fields, ['linkedin','email','phone']);
 });
 
 test('CSV parser supports quoted values and explicit mapping', () => {
@@ -26,20 +27,51 @@ test('CSV parser supports quoted values and explicit mapping', () => {
   assert.deepEqual(mapCsvRows(parsed.headers, parsed.rows, { Name:'first_name', Email:'email', Company:'company' })[0], { first_name:'Doe, Alice', email:'alice@example.com', company:'Example, Inc' });
 });
 
-test('prospect creation and updates persist related activity, contacts and tasks', () => {
+test('database duplicate lookup is independent from the 500-row UI state', () => {
+  const queries = source('src/lib/acquisition/queries.ts');
+  assert.match(queries, /findDuplicates[\s\S]*selectRows\('prospects'/);
+  assert.match(queries, /selectRows\('contact_methods'/);
+  assert.match(queries, /getProspectsByIds/);
+  assert.doesNotMatch(queries.match(/export async function findDuplicates[\s\S]*?export async function getDueToday/)?.[0] ?? '', /getAcquisitionState\(/);
+});
+
+test('prospect creation, safe merge and contact synchronization persist server-side', () => {
   const mutations = source('src/lib/acquisition/mutations.ts');
   assert.match(mutations, /createProspect[\s\S]*insertRows\('prospects'/);
-  assert.match(mutations, /replaceContacts/); assert.match(mutations, /insertActivity/); assert.match(mutations, /upsertTask/);
+  assert.match(mutations, /mergeProspects/);
+  assert.match(mutations, /syncContacts/);
+  assert.match(mutations, /updateRows\('contact_methods'/);
+  assert.match(mutations, /findDuplicates[\s\S]*id/);
   assert.equal(statusToDb['A répondu'], 'replied');
 });
 
+test('repository can page through more than the first Supabase response window', () => {
+  const repository = source('src/lib/acquisition/repository.ts');
+  assert.match(repository, /selectAllRows/);
+  assert.match(repository, /offset/);
+  assert.match(repository, /while \(true\)/);
+});
+
 test('task completion, campaign persistence and server route protection are present', () => {
-  const mutations = source('src/lib/acquisition/mutations.ts'); const route = source('src/app/api/acquisition/route.ts');
-  assert.match(mutations, /completeTask[\s\S]*completed_at/); assert.match(mutations, /saveCampaign[\s\S]*campaigns/);
-  assert.match(route, /getAdminSession/); assert.match(route, /status: 401/); assert.match(route, /action === 'complete_task'/);
+  const mutations = source('src/lib/acquisition/mutations.ts');
+  const route = source('src/app/api/acquisition/route.ts');
+  assert.match(mutations, /completeTask[\s\S]*completed_at/);
+  assert.match(mutations, /saveCampaign[\s\S]*campaigns/);
+  assert.match(route, /getAdminSession/);
+  assert.match(route, /status: 401/);
+  assert.match(route, /action === 'complete_task'/);
+});
+
+test('CSV export resolves the linked campaign rather than substituting market', () => {
+  const route = source('src/app/api/acquisition/export/route.ts');
+  assert.match(route, /campaignNames/);
+  assert.match(route, /campaignNames\.get\(item\.campaignId\)/);
 });
 
 test('service-role remains confined to server-only repository', () => {
-  const repository = source('src/lib/acquisition/repository.ts'); const provider = source('src/components/acquisition/AcquisitionProvider.tsx');
-  assert.match(repository, /import 'server-only'/); assert.match(repository, /SUPABASE_SERVICE_ROLE_KEY/); assert.doesNotMatch(provider, /SUPABASE_SERVICE_ROLE_KEY/);
+  const repository = source('src/lib/acquisition/repository.ts');
+  const provider = source('src/components/acquisition/AcquisitionProvider.tsx');
+  assert.match(repository, /import 'server-only'/);
+  assert.match(repository, /SUPABASE_SERVICE_ROLE_KEY/);
+  assert.doesNotMatch(provider, /SUPABASE_SERVICE_ROLE_KEY/);
 });

@@ -23,5 +23,5 @@ export async function POST(request:Request){
   }catch(error){
     console.error('Admin login request error',error);
   }
-  return NextResponse.json({ok:true,message:'Si cette adresse est autorisÃ©e, vous recevrez un lien de connexion.'});
+  return NextResponse.json({ok:true,message:'Si cette adresse est autorisée, vous recevrez un lien de connexion.'});
 }
