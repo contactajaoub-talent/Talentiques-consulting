@@ -62,20 +62,22 @@ export function getHomeContent(locale: HomeLocale) {
     },
     credibility: {
       eyebrow: fr ? 'POURQUOI TALENTIQUES' : 'WHY TALENTIQUES',
-      title: fr ? 'Pensé pour transformer une recherche dispersée en démarche structurée.' : 'Designed to turn a scattered search into a structured approach.',
+      title: fr
+        ? 'Une démarche pensée pour rendre votre recherche plus claire, plus cohérente et plus maîtrisée.'
+        : 'An approach designed to make your search clearer, more consistent and more controlled.',
       description: fr
-        ? 'Chaque solution s’inscrit dans une logique simple : mieux comprendre la situation, choisir les bons leviers et avancer avec cohérence.'
-        : 'Every solution follows a simple logic: understand the situation, choose the right levers and move forward consistently.',
+        ? 'Talentiques vous aide à mieux comprendre votre situation, structurer vos priorités et avancer avec une démarche cohérente.'
+        : 'Talentiques helps you better understand your situation, structure your priorities and move forward with a coherent approach.',
       items: fr
         ? [
-            ['Une approche structurée', 'Un cadre lisible pour relier objectif, positionnement et actions.'],
-            ['Des solutions ancrées dans le réel', 'Des outils et parcours conçus autour de situations professionnelles concrètes.'],
-            ['Un accompagnement sur mesure', 'Une intervention humaine lorsque la situation nécessite davantage de profondeur.'],
+            ['Clarté', 'Comprendre où vous en êtes et ce qui doit être amélioré.'],
+            ['Structure', 'Organiser votre recherche autour d’actions concrètes et suivies.'],
+            ['Cohérence', 'Aligner votre profil, vos outils et votre stratégie avec les opportunités ciblées.'],
           ]
         : [
-            ['A structured approach', 'A clear framework connecting goals, positioning and actions.'],
-            ['Solutions grounded in reality', 'Tools and programs designed around concrete professional situations.'],
-            ['Tailored support', 'Human guidance when a situation requires greater depth.'],
+            ['Clarity', 'Understand where you stand and what needs to be improved.'],
+            ['Structure', 'Organize your search around concrete, trackable actions.'],
+            ['Consistency', 'Align your profile, tools and strategy with the opportunities you are targeting.'],
           ],
     },
     resources: {
@@ -110,12 +112,12 @@ export function getHomeContent(locale: HomeLocale) {
       eyebrow: fr ? 'PARCOURS SPÉCIALISÉ' : 'SPECIALIZED PROGRAM',
       title: 'Alternance Talentiques',
       description: fr
-        ? 'Un parcours dédié pour structurer votre recherche d’alternance, de votre positionnement jusqu’au suivi des candidatures et des entretiens.'
-        : 'A dedicated program to structure your work-study search, from positioning through application and interview follow-up.',
+        ? 'Un parcours structuré pour vous aider à clarifier votre positionnement, organiser votre recherche, suivre vos candidatures et mieux préparer vos entretiens.'
+        : 'A structured program to help you clarify your positioning, organize your search, track your applications and prepare more effectively for interviews.',
       cta: fr ? 'Découvrir Alternance Talentiques' : 'Discover Alternance Talentiques',
       items: fr
-        ? ['Positionnement', 'Suivi des candidatures', 'Préparation des entretiens']
-        : ['Positioning', 'Application tracking', 'Interview preparation'],
+        ? ['Positionnement & stratégie', 'Suivi des candidatures', 'Préparation aux entretiens']
+        : ['Positioning & strategy', 'Application tracking', 'Interview preparation'],
     },
     services: {
       eyebrow: fr ? 'SERVICES TALENTIQUES' : 'TALENTIQUES SERVICES',
