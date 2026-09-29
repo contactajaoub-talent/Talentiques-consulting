@@ -27,13 +27,13 @@ export async function POST(request: NextRequest) {
             aiProvider: 'Advanced CV Analysis Engine'
         });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Analysis Error:', error);
 
         return NextResponse.json(
             {
                 error: 'Erreur lors de l\'analyse du CV. Veuillez réessayer.',
-                details: error.message
+                details: error instanceof Error ? error.message : 'Erreur inconnue'
             },
             { status: 500 }
         );
@@ -42,7 +42,6 @@ export async function POST(request: NextRequest) {
 
 function generatePersonalizedAnalysis(cvText: string): string {
     // DEEP CONTENT ANALYSIS
-    const lines = cvText.split('\n').map(l => l.trim()).filter(l => l);
     const wordCount = cvText.split(/\s+/).length;
     const lowerText = cvText.toLowerCase();
 
@@ -130,8 +129,24 @@ function generatePersonalizedAnalysis(cvText: string): string {
     });
 }
 
-function generateSpecificFeedback(data: any): string {
-    const { score, cvText, emails, phones, linkedInMatch, jobTitles, companies, totalYears, metrics, techSkills, hasSections, wordCount, educationMentions } = data;
+type CvAnalysisData = {
+    score: number;
+    cvText: string;
+    emails: string[];
+    phones: string[];
+    linkedInMatch: RegExpMatchArray | null;
+    jobTitles: string[];
+    companies: string[];
+    totalYears: number;
+    metrics: string[];
+    techSkills: string[];
+    hasSections: { experience: boolean; education: boolean; skills: boolean; projects: boolean; languages: boolean };
+    wordCount: number;
+    educationMentions: string[];
+};
+
+function generateSpecificFeedback(data: CvAnalysisData): string {
+    const { score, emails, phones, linkedInMatch, companies, totalYears, metrics, techSkills, hasSections, wordCount, educationMentions } = data;
 
     // Build SPECIFIC strengths
     const strengths = [];
@@ -293,7 +308,7 @@ ${wordCount > 200 && hasSections.experience ? '✅ **Structure complète et bien
 
 **Analyse:**
 - Longueur: ${wordCount} mots ${wordCount < 150 ? '(trop court, visez 250-350)' : wordCount > 500 ? '(un peu long, condensez à 300-400)' : '(bonne longueur)'}
-- Sections détectées: ${Object.entries(hasSections).filter(([_, v]) => v).map(([k]) => k).join(', ') || 'aucune section claire'}
+- Sections détectées: ${Object.entries(hasSections).filter(([, value]) => value).map(([key]) => key).join(', ') || 'aucune section claire'}
 
 **Conseils de mise en forme:**
 • **En-tête**: Prénom NOM (plus gros) | Email | Téléphone | LinkedIn | Ville

@@ -1,0 +1,17 @@
+'use client';
+
+import { Cable, CheckCircle2, RotateCcw, Settings } from 'lucide-react';
+import { useAcquisition } from './AcquisitionProvider';
+import { EmptyState, Panel, StatusBadge } from './ui';
+
+export function InboxView() { return <Panel title="Boîte de réception unifiée" eyebrow="Préparé pour la phase 2"><EmptyState title="Aucun canal connecté" detail="Les réponses LinkedIn, e-mail et WhatsApp pourront être centralisées ici quand les intégrations seront activées. Les envois automatiques LinkedIn ne sont pas prévus." /></Panel>; }
+
+export function IntegrationsView() {
+  const integrations = [['Supabase', 'Schéma prêt', 'La base PostgreSQL est préparée pour la persistance serveur.'], ['Gmail', 'Non connecté', 'Lecture et envoi d’e-mails à connecter ultérieurement.'], ['WhatsApp', 'Non connecté', 'Ouverture manuelle disponible, API à connecter ultérieurement.'], ['Apollo', 'Non connecté', 'Import et enrichissement à connecter ultérieurement.'], ['OpenAI', 'Non connecté', 'Suggestions personnalisées à connecter ultérieurement.']];
+  return <div className="grid gap-4 lg:grid-cols-2">{integrations.map(([name, status, detail]) => <div key={name} className="rounded-3xl border border-slate-200 bg-white p-6"><div className="flex items-center justify-between"><span className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-50 text-[#0683C9]"><Cable size={20} /></span><StatusBadge value={status} /></div><h2 className="mt-5 font-heading text-xl font-bold">{name}</h2><p className="mt-2 text-sm leading-6 text-slate-500">{detail}</p><button disabled className="mt-5 rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-400">Configurer en phase 2</button></div>)}</div>;
+}
+
+export function SettingsView() {
+  const { prospects, refresh, saving } = useAcquisition();
+  return <div className="grid gap-7 xl:grid-cols-2"><Panel title="Espace de travail"><dl className="grid gap-5 sm:grid-cols-2"><div><dt className="text-xs font-bold uppercase text-slate-400">Propriétaire</dt><dd className="mt-1 font-semibold">Othmane</dd></div><div><dt className="text-xs font-bold uppercase text-slate-400">Mode</dt><dd className="mt-1 font-semibold">Utilisateur unique</dd></div><div><dt className="text-xs font-bold uppercase text-slate-400">Source de vérité</dt><dd className="mt-1 font-semibold">Supabase PostgreSQL</dd></div><div><dt className="text-xs font-bold uppercase text-slate-400">Prospects actifs</dt><dd className="mt-1 font-semibold">{prospects.length}</dd></div></dl></Panel><Panel title="Synchronisation"><div className="flex gap-3"><span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600"><CheckCircle2 size={20} /></span><p className="text-sm leading-6 text-slate-600">Les données CRM sont enregistrées côté serveur. Aucune donnée prospect, campagne, tâche ou activité n’est stockée dans localStorage.</p></div><button disabled={saving} onClick={() => void refresh()} className="mt-6 inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold disabled:opacity-50"><RotateCcw size={17} />{saving ? 'Synchronisation…' : 'Rafraîchir depuis Supabase'}</button></Panel><Panel title="Préférences" className="xl:col-span-2"><div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-4"><Settings size={18} className="text-[#0683C9]" /><div><p className="font-bold">Fuseau horaire</p><p className="text-sm text-slate-500">Africa/Casablanca · utilisé par le Next Action Engine.</p></div></div></Panel></div>;
+}

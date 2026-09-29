@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { content } from '@/lib/content';
-import { Briefcase, MapPin, ArrowRight } from 'lucide-react';
+import { MapPin, ArrowRight } from 'lucide-react';
 
 export default function CareersPage() {
     return (
@@ -75,7 +75,7 @@ export default function CareersPage() {
                                     href={`/careers/${job.slug}`}
                                     className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-brand-600 text-white font-bold text-sm hover:bg-brand-700 transition-all group-hover:shadow-lg group-hover:shadow-brand-500/20 w-full md:w-auto"
                                 >
-                                    Voir l'offre
+                                    Voir l’offre
                                     <ArrowRight size={16} />
                                 </Link>
                             </div>
