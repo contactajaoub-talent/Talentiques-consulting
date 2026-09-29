@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, ArrowUpRight, User } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface BlogPost {
     id: number;

@@ -4,7 +4,7 @@ import React from 'react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { content } from '@/lib/content';
-import { Building2, Server, Globe } from 'lucide-react';
+import { Building2, Server, Globe, Mail } from 'lucide-react';
 
 export default function LegalMentionsPage() {
     return (
