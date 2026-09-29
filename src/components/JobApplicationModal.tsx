@@ -471,7 +471,7 @@ export const JobApplicationModal = ({
 
                       <div className="space-y-1.5">
                         <label className="text-sm font-bold text-slate-700">
-                          Votre niveau de français à l'oral *
+                          Votre niveau de français à l’oral *
                         </label>
 
                         <select
@@ -570,7 +570,7 @@ export const JobApplicationModal = ({
 
                       <div className="space-y-1.5">
                         <label className="text-sm font-bold text-slate-700">
-                          Disposez-vous d'un PC personnel et d'une connexion Internet stable ? *
+                          Disposez-vous d’un PC personnel et d’une connexion Internet stable ? *
                         </label>
 
                         <select
@@ -602,7 +602,7 @@ export const JobApplicationModal = ({
                         <p className="text-xs text-slate-500 leading-relaxed mb-2">
                           Un prospect est intéressé par notre solution mais vous dit :
                           « Je préfère réfléchir avant de prendre une décision. »
-                          Comment poursuivez-vous l'échange ?
+                          Comment poursuivez-vous l’échange ?
                         </p>
 
                         <textarea
@@ -638,7 +638,7 @@ export const JobApplicationModal = ({
                         />
 
                         <span className="text-xs text-slate-500 leading-relaxed">
-                          J'accepte que TalentiQues utilise les informations transmises
+                          J’accepte que TalentiQues utilise les informations transmises
                           dans le cadre du traitement de ma candidature. *
                         </span>
                       </label>

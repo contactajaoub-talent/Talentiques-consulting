@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, FileText, Sparkles, CheckCircle, AlertCircle, TrendingUp, Zap, Target, ArrowRight } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
@@ -50,8 +51,8 @@ export default function CVDiagnosisPage() {
             }
 
             setAnalysis(data.analysis);
-        } catch (err: any) {
-            setError(err.message || 'Une erreur est survenue. Veuillez réessayer.');
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Une erreur est survenue. Veuillez réessayer.');
         } finally {
             setIsAnalyzing(false);
         }
@@ -221,25 +222,25 @@ export default function CVDiagnosisPage() {
                                 {/* CTA Section */}
                                 <div className="mt-8 pt-8 border-t border-slate-200">
                                     <div className="bg-gradient-to-r from-brand-600 to-brand-700 rounded-xl p-6 text-white">
-                                        <h3 className="text-xl font-bold mb-2">Besoin d'aide pour optimiser votre CV ?</h3>
+                                        <h3 className="text-xl font-bold mb-2">Besoin d’aide pour optimiser votre CV ?</h3>
                                         <p className="text-brand-100 mb-4">
-                                            Notre équipe d'experts peut transformer votre CV en un outil puissant pour décrocher des entretiens.
+                                            Notre équipe d’experts peut transformer votre CV en un outil puissant pour décrocher des entretiens.
                                         </p>
                                         <div className="flex flex-wrap gap-3">
-                                            <a
+                                            <Link
                                                 href="/#contact"
                                                 className="px-6 py-3 bg-white text-brand-600 rounded-lg font-semibold hover:shadow-lg transition-all inline-flex items-center gap-2"
                                             >
                                                 <Target size={18} />
                                                 Obtenir un accompagnement
-                                            </a>
-                                            <a
+                                            </Link>
+                                            <Link
                                                 href="/#services"
                                                 className="px-6 py-3 bg-brand-800 text-white rounded-lg font-semibold hover:bg-brand-900 transition-all inline-flex items-center gap-2"
                                             >
                                                 <Zap size={18} />
                                                 Voir nos services
-                                            </a>
+                                            </Link>
                                         </div>
                                     </div>
                                 </div>

@@ -22,10 +22,10 @@ export default function TermsPage() {
                         Juridique
                     </div>
                     <h1 className="text-3xl md:text-5xl font-bold text-white mb-6 font-heading tracking-tight">
-                        Conditions Générales d'Utilisation
+                        Conditions Générales d’Utilisation
                     </h1>
                     <p className="text-lg text-slate-400 max-w-2xl mx-auto font-light leading-relaxed">
-                        Veuillez lire attentivement ces conditions régissant l'utilisation des services de {content.businessName}.
+                        Veuillez lire attentivement ces conditions régissant l’utilisation des services de {content.businessName}.
                     </p>
                 </div>
             </div>
@@ -47,7 +47,7 @@ export default function TermsPage() {
                             </div>
                             <div className="pl-0 md:pl-16">
                                 <p className="text-slate-600 leading-relaxed text-lg font-light">
-                                    Les présentes Conditions Générales ont pour objet de définir les modalités de mise à disposition des services du site <strong>{content.businessName}</strong> et les conditions d'utilisation du service par l'Utilisateur.
+                                    Les présentes Conditions Générales ont pour objet de définir les modalités de mise à disposition des services du site <strong>{content.businessName}</strong> et les conditions d’utilisation du service par l’Utilisateur.
                                 </p>
                             </div>
                         </div>
@@ -85,7 +85,7 @@ export default function TermsPage() {
                                     <h2 className="text-xl font-bold text-slate-900 font-heading">3. Obligations</h2>
                                 </div>
                                 <p className="text-slate-600 leading-relaxed text-sm">
-                                    L'Utilisateur s'engage à fournir des informations véridiques et à jour. Tout comportement illégal ou nuisible est interdit.
+                                    L’Utilisateur s’engage à fournir des informations véridiques et à jour. Tout comportement illégal ou nuisible est interdit.
                                 </p>
                             </div>
 
@@ -112,10 +112,10 @@ export default function TermsPage() {
                             </div>
                             <div className="pl-0 md:pl-16">
                                 <p className="text-slate-600 leading-relaxed mb-4">
-                                    Le paiement des prestations s'effectue selon les modalités convenues (virement, paiement en ligne).
+                                    Le paiement des prestations s’effectue selon les modalités convenues (virement, paiement en ligne).
                                 </p>
                                 <div className="bg-red-50 text-red-800 px-4 py-3 rounded-xl text-sm font-medium border border-red-100 inline-block">
-                                    En cas d'annulation moins de 24 heures à l'avance, la séance est due.
+                                    En cas d’annulation moins de 24 heures à l’avance, la séance est due.
                                 </div>
                             </div>
                         </div>
@@ -130,7 +130,7 @@ export default function TermsPage() {
                             </div>
                             <div className="pl-0 md:pl-16">
                                 <p className="text-slate-600 leading-relaxed italic border-l-4 border-slate-200 pl-4">
-                                    "{content.businessName} s'engage à une obligation de moyens. Cependant, le succès d'une recherche d'emploi dépend de facteurs extérieurs. Nous ne garantissons pas de résultat spécifique."
+                                    « {content.businessName} s’engage à une obligation de moyens. Cependant, le succès d’une recherche d’emploi dépend de facteurs extérieurs. Nous ne garantissons pas de résultat spécifique. »
                                 </p>
                             </div>
                         </div>

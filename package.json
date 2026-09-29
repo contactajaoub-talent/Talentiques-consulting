@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test:affiliate": "node --experimental-strip-types --test tests/affiliate.test.mjs",
-    "test:services": "node --experimental-strip-types --test tests/services.test.mjs"
+    "test:services": "node --experimental-strip-types --test tests/services.test.mjs",
+    "test:acquisition": "node --experimental-strip-types --test tests/acquisition.test.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
