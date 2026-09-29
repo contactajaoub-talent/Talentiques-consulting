@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
-import type { AcquisitionState, Activity, Campaign, MessageTemplate, Prospect, ProspectStatus } from '@/lib/acquisition/types';
+import type { AcquisitionState, Activity, AutomationSettings, Campaign, MarketRecord, MessageTemplate, Prospect, ProspectStatus } from '@/lib/acquisition/types';
 import type { DuplicateMatch } from '@/lib/acquisition/dedupe';
 
 type ImportReport = { imported: number; duplicates: number; skipped: number; errors: Array<{ row: number; message: string }> };
@@ -19,6 +19,8 @@ type AcquisitionContextValue = AcquisitionState & {
   saveTemplate: (template: MessageTemplate) => Promise<boolean>;
   deleteTemplate: (id: string) => Promise<boolean>;
   saveCampaign: (campaign: Campaign) => Promise<boolean>;
+  saveMarket: (market: MarketRecord) => Promise<boolean>;
+  saveSettings: (settings: AutomationSettings) => Promise<boolean>;
   importCsv: (rows: Array<Record<string, string>>, forceDuplicates?: boolean) => Promise<ImportReport>;
 };
 
@@ -50,8 +52,10 @@ export function AcquisitionProvider({ initialState, children }: { initialState: 
   const saveTemplate = useCallback((template: MessageTemplate) => run(async () => { await api({ action: 'save_template', template }); await refresh(); return true; }), [refresh, run]);
   const deleteTemplate = useCallback((id: string) => run(async () => { await api({ action: 'delete_template', id }); setState((current) => ({ ...current, templates: current.templates.filter((item) => item.id !== id) })); return true; }), [run]);
   const saveCampaign = useCallback((campaign: Campaign) => run(async () => { await api({ action: 'save_campaign', campaign }); await refresh(); return true; }), [refresh, run]);
+  const saveMarket = useCallback((market: MarketRecord) => run(async () => { await api({ action: 'save_market', market }); await refresh(); return true; }), [refresh, run]);
+  const saveSettings = useCallback((settings: AutomationSettings) => run(async () => { await api({ action: 'save_settings', settings }); await refresh(); return true; }), [refresh, run]);
   const importCsv = useCallback((rows: Array<Record<string, string>>, forceDuplicates = false) => run(async () => { const report = await api<ImportReport>({ action: 'import_csv', rows, forceDuplicates }); await refresh(); return report; }), [refresh, run]);
-  const value = useMemo(() => ({ ...state, hydrated: true as const, saving: pending > 0, error, clearError: () => setError(''), refresh, addProspect, updateProspect, archiveProspect, completeTask, addNote, saveTemplate, deleteTemplate, saveCampaign, importCsv }), [state, pending, error, refresh, addProspect, updateProspect, archiveProspect, completeTask, addNote, saveTemplate, deleteTemplate, saveCampaign, importCsv]);
+  const value = useMemo(() => ({ ...state, hydrated: true as const, saving: pending > 0, error, clearError: () => setError(''), refresh, addProspect, updateProspect, archiveProspect, completeTask, addNote, saveTemplate, deleteTemplate, saveCampaign, saveMarket, saveSettings, importCsv }), [state, pending, error, refresh, addProspect, updateProspect, archiveProspect, completeTask, addNote, saveTemplate, deleteTemplate, saveCampaign, saveMarket, saveSettings, importCsv]);
   return <AcquisitionContext.Provider value={value}>{children}</AcquisitionContext.Provider>;
 }
 

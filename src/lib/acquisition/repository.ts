@@ -32,6 +32,23 @@ export async function selectRows(table: string, params: Record<string, string> =
   return parse(await fetch(`${url}/rest/v1/${table}?${query}`, { headers: headers('GET'), cache: 'no-store' })) as Promise<JsonRow[]>;
 }
 
+export async function selectAllRows(table: string, params: Record<string, string> = {}, pageSize = 500) {
+  const rows: JsonRow[] = [];
+  let offset = 0;
+  const base = { ...params };
+  delete base.limit;
+  delete base.offset;
+
+  while (true) {
+    const batch = await selectRows(table, { ...base, limit: String(pageSize), offset: String(offset) });
+    rows.push(...batch);
+    if (batch.length < pageSize) break;
+    offset += batch.length;
+  }
+
+  return rows;
+}
+
 export async function insertRows(table: string, payload: JsonRow | JsonRow[]) {
   const { url } = config();
   return parse(await fetch(`${url}/rest/v1/${table}`, { method: 'POST', headers: headers('POST', { Prefer: 'return=representation' }), body: JSON.stringify(payload), cache: 'no-store' })) as Promise<JsonRow[]>;

@@ -13,7 +13,7 @@ function isToday(value: string) {
 }
 
 export function DashboardView() {
-  const { prospects, campaigns } = useAcquisition();
+  const { prospects, campaigns, revenue, markets } = useAcquisition();
   const active = prospects.filter((item) => !['Client', 'Perdu'].includes(item.status));
   const due = active.filter((item) => isToday(item.nextActionAt));
   const hot = active.filter((item) => item.score >= 80);
@@ -22,7 +22,7 @@ export function DashboardView() {
     ['Prospects à traiter', active.length, Users], ['À contacter', prospects.filter((item) => ['Nouveau', 'À qualifier', 'À contacter'].includes(item.status)).length, PhoneCall],
     ['Réponses à traiter', prospects.filter((item) => item.status === 'A répondu').length, MessageCircleReply], ['Relances aujourd’hui', due.length, CircleCheck],
     ['Prospects chauds', hot.length, Flame], ['Offres envoyées', prospects.filter((item) => item.status === 'Offre envoyée').length, MailCheck],
-    ['Ventes aujourd’hui', clients.filter((item) => isToday(item.updatedAt)).length, Target], ['Chiffre d’affaires aujourd’hui', '790 €', BadgeDollarSign],
+    ['Ventes aujourd’hui', clients.filter((item) => isToday(item.updatedAt)).length, Target], ['Revenu attribué EUR', `${revenue.EUR.toLocaleString('fr-FR')} EUR`, BadgeDollarSign], ['Revenu attribué USD', `${revenue.USD.toLocaleString('fr-FR')} USD`, BadgeDollarSign],
   ] as const;
   const priority = [...active].sort((a, b) => b.score - a.score).slice(0, 5);
   const recent = prospects.flatMap((prospect) => prospect.activities.map((event) => ({ ...event, prospect }))).sort((a, b) => b.occurredAt.localeCompare(a.occurredAt)).slice(0, 5);
@@ -37,7 +37,7 @@ export function DashboardView() {
       <Panel title="Prospects prioritaires"><div className="space-y-3">{priority.map((item) => <Link key={item.id} href={`/acquisition/prospects/${item.id}`} className="flex items-center gap-3 rounded-2xl bg-slate-50 p-3"><Score value={item.score} /><span className="min-w-0 flex-1"><span className="block truncate text-sm font-bold">{item.firstName} {item.lastName}</span><span className="block truncate text-xs text-slate-500">{item.jobTitle} · {item.market}</span></span><StatusBadge value={item.status} /></Link>)}</div></Panel>
       <Panel title="Campagnes actives"><div className="grid gap-3 sm:grid-cols-2">{campaigns.filter((campaign) => campaign.status === 'Active').map((campaign) => { const count = prospects.filter((p) => p.campaignId === campaign.id).length; return <div key={campaign.id} className="rounded-2xl border border-slate-100 p-4"><div className="flex items-center justify-between"><p className="font-bold">{campaign.name}</p><StatusBadge value={campaign.status} /></div><p className="mt-2 text-sm text-slate-500">{count} prospects · {campaign.product}</p></div>; })}</div></Panel>
       <Panel title="Activité récente"><div className="space-y-4">{recent.map((item) => <div key={item.id} className="flex gap-3"><span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#0683C9]" /><div><p className="text-sm font-bold">{item.label} · {item.prospect.firstName} {item.prospect.lastName}</p><p className="text-xs text-slate-500">{formatShortDate(item.occurredAt)}{item.detail ? ` · ${item.detail}` : ''}</p></div></div>)}</div></Panel>
-      <Panel title="Performance par marché" className="xl:col-span-2"><div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">{campaigns.map((campaign) => { const rows = prospects.filter((p) => p.market === campaign.name); const won = rows.filter((p) => p.status === 'Client').length; return <div key={campaign.id} className="rounded-2xl bg-slate-50 p-4"><p className="font-bold">{campaign.name}</p><p className="mt-3 font-heading text-2xl font-bold">{rows.length}</p><p className="text-xs text-slate-500">prospects · {won} vente(s)</p><div className="mt-4 h-1.5 overflow-hidden rounded-full bg-slate-200"><div className="h-full rounded-full bg-[#0683C9]" style={{ width: `${Math.max(12, rows.length ? won / rows.length * 100 : 0)}%` }} /></div></div>; })}</div></Panel>
+      <Panel title="Performance par marché" className="xl:col-span-2"><div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">{markets.map((market) => { const rows = prospects.filter((p) => p.marketId === market.id); const won = rows.filter((p) => p.status === 'Client').length; return <div key={market.id} className="rounded-2xl bg-slate-50 p-4"><p className="font-bold">{market.name}</p><p className="mt-3 font-heading text-2xl font-bold">{rows.length}</p><p className="text-xs text-slate-500">prospects · {won} vente(s)</p><div className="mt-4 h-1.5 overflow-hidden rounded-full bg-slate-200"><div className="h-full rounded-full bg-[#0683C9]" style={{ width: `${rows.length ? won / rows.length * 100 : 0}%` }} /></div></div>; })}</div></Panel>
     </div>
   </>;
 }

@@ -12,7 +12,7 @@ export const prospectStatuses = [
 ] as const;
 
 export type ProspectStatus = (typeof prospectStatuses)[number];
-export type Market = 'Canada FR' | 'Canada EN' | 'Belgique' | 'Suisse' | 'Luxembourg';
+export type Currency = 'EUR' | 'USD';
 export type Channel = 'LinkedIn' | 'Email' | 'WhatsApp';
 export type TaskStatus = 'À faire' | 'En cours' | 'Terminée' | 'Annulée';
 export type ActionType = 'Message LinkedIn' | 'Email' | 'WhatsApp' | 'Appel' | 'Relance' | 'Qualification' | 'Offre';
@@ -44,9 +44,23 @@ export type Prospect = {
   linkedinRelation: '1er niveau' | '2e niveau' | '3e niveau' | 'Hors réseau';
   score: number;
   segment: string;
-  market: Market;
+  market: string;
+  marketId: string;
   activeSearch: boolean;
   potentialProduct: string;
+  recommendedOfferId?: string;
+  recommendationReason?: string;
+  recommendationConfidence?: number;
+  profileType?: 'Professional' | 'Student' | 'Alternant' | 'Job seeker' | 'Career transition' | 'Entrepreneur' | 'Other';
+  yearsExperience?: number;
+  currentSituation?: string;
+  careerGoal?: string;
+  opportunityType?: string;
+  mainNeed?: string;
+  budgetRange?: string;
+  priority?: number;
+  suggestedScore?: number;
+  doNotContact?: boolean;
   tags: string[];
   status: ProspectStatus;
   lastAction: string;
@@ -66,12 +80,26 @@ export type Prospect = {
 
 export type Campaign = {
   id: string;
-  name: Market;
+  name: string;
+  marketId: string;
+  marketName: string;
+  language: 'FR' | 'EN';
+  catalogItemId?: string;
+  audience?: string;
   status: 'Active' | 'En pause' | 'Terminée';
   product: string;
   revenue: number;
-  currency: 'EUR' | 'CAD' | 'CHF';
+  currency: Currency;
+  startsAt?: string;
+  endsAt?: string;
+  targetCount?: number;
+  revenueTarget?: number;
 };
+
+export type MarketRecord = { id: string; name: string; country: string; countryCode: string; region?: string; language: 'FR' | 'EN'; defaultCurrency: Currency; timezone: string; active: boolean; notes?: string };
+export type CatalogItem = { id: string; name: string; slug: string; category: string; offerType: 'service' | 'digital_product' | 'bundle' | 'system'; audience: string; description: string; priceEur: number | null; priceUsd: number | null; active: boolean; salesEnabled: boolean; publicUrl?: string; eligibilityRules?: Record<string, unknown>; tags: string[] };
+export type Opportunity = { id: string; prospectId: string; catalogItemId: string; campaignId?: string; stage: string; quotedAmount: number | null; currency: Currency; status: string; recommendationSource: string; wonAt?: string; lostAt?: string; lostReason?: string };
+export type AutomationSettings = { timezone: string; followupAfterContactDays: number; followupAfterOfferDays: number; automationEnabled: boolean; defaultOwner: string };
 
 export type MessageTemplate = {
   id: string;
@@ -80,7 +108,7 @@ export type MessageTemplate = {
   language: 'FR' | 'EN';
   product: string;
   stage: string;
-  campaign: Market | 'Toutes';
+  campaign: string | 'Toutes';
   body: string;
   updatedAt: string;
   active?: boolean;
@@ -88,6 +116,11 @@ export type MessageTemplate = {
 
 export type AcquisitionState = {
   prospects: Prospect[];
+  markets: MarketRecord[];
   campaigns: Campaign[];
+  catalogItems: CatalogItem[];
+  opportunities: Opportunity[];
   templates: MessageTemplate[];
+  settings: AutomationSettings;
+  revenue: Record<Currency, number>;
 };
