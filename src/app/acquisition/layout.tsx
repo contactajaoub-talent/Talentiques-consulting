@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: 'Acquisition OS', robots: { index: fa
 export const dynamic = 'force-dynamic';
 
 export default async function AcquisitionLayout({ children }: { children: React.ReactNode }) {
-  await requireAdminSession();
+  await requireAdminSession('/acquisition');
   const initialState = await getAcquisitionState();
   return <AcquisitionProvider initialState={initialState}><AcquisitionShell><div className="mx-auto max-w-[1680px] px-4 py-8 sm:px-7 lg:px-10 lg:py-10">{children}</div></AcquisitionShell></AcquisitionProvider>;
 }
