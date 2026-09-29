@@ -4,10 +4,11 @@ import { Check, ChevronRight, Clipboard, Clock3, ExternalLink, Mail, MapPin, Pho
 import { useMemo, useState } from 'react';
 import { recordStatusChange, useAcquisition } from './AcquisitionProvider';
 import { Score, StatusBadge } from './ui';
+import { sortProspectingQueue } from '@/lib/acquisition/automation-engine';
 
 export function ProspectingView() {
   const { prospects, templates, updateProspect, saving, error } = useAcquisition();
-  const queue = useMemo(() => prospects.filter((item) => !['Client', 'Perdu'].includes(item.status)), [prospects]);
+  const queue = useMemo(() => sortProspectingQueue(prospects), [prospects]);
   const [index, setIndex] = useState(0); const [copied, setCopied] = useState(false);
   const prospect = queue[index % Math.max(queue.length, 1)];
   if (!prospect) return <div className="rounded-3xl border border-slate-200 bg-white p-10 text-center"><SearchCheck className="mx-auto text-[#0683C9]" /><h2 className="mt-4 font-heading text-2xl font-bold">File terminée</h2><p className="mt-2 text-slate-500">Tous les prospects actifs ont été traités.</p></div>;

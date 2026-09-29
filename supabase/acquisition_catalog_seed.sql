@@ -1,0 +1,10 @@
+-- Idempotent initial Acquisition catalog. Safe to run after Phase 2B.
+insert into acquisition.catalog_items(name,slug,category,offer_type,audience,description,price_eur,price_usd,active,sales_enabled,eligibility_rules,tags)
+values
+('Valorisation professionnelle complète','valorisation-professionnelle-complete','Career Services','service','Professionnels avec plus de 3 ans d’expérience','CV ATS Word/PDF, lettre personnalisée, LinkedIn, tracker, corrections et livraison 48–72h ouvrées.',45,null,true,true,'{"min_years_experience":3}'::jsonb,array['CV','LinkedIn','Professional']),
+('Pack Étudiant & Demandeur d’emploi','pack-etudiant-demandeur-emploi','Career Services','service','Étudiants, alternants et demandeurs d’emploi','CV ATS Word/PDF, lettre, LinkedIn, tracker, corrections et livraison 48–72h.',30,null,true,true,'{"eligibility_required":true}'::jsonb,array['Student','Job seeker']),
+('Kit Alternance en 90 jours — Talentiques','kit-alternance-90-jours','Career Search System','system','Profils en recherche d’alternance','Système complet de positionnement, candidature, prospection, suivi et entretiens.',null,null,true,false,'{}'::jsonb,array['Alternance']),
+('Career Branding Toolkit','career-branding-toolkit','Career Tools','digital_product','Profils souhaitant renforcer CV et LinkedIn','Outils de valorisation et de personal branding.',7.60,7.60,true,true,'{}'::jsonb,array['CV','LinkedIn']),
+('Opportunity Management System','opportunity-management-system','Career Tools','system','Profils souhaitant structurer leurs opportunités','Système d’organisation, de suivi et de relance.',9.60,9.60,true,true,'{}'::jsonb,array['Tracking']),
+('Career Search 360','career-search-360','Career Search System','bundle','Profils autonomes souhaitant structurer leur recherche','Système de recherche professionnelle structuré de bout en bout.',14.50,14.50,true,true,'{}'::jsonb,array['Job search'])
+on conflict(slug) do update set name=excluded.name,category=excluded.category,offer_type=excluded.offer_type,audience=excluded.audience,description=excluded.description,eligibility_rules=excluded.eligibility_rules,tags=excluded.tags,updated_at=now();

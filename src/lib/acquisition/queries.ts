@@ -1,6 +1,6 @@
 import 'server-only';
 import type { AcquisitionState, Prospect } from './types';
-import { mapCampaign, mapProspect, mapTemplate, normalizeEmail, normalizeLinkedIn, normalizePhone, type DbRow } from './mappers';
+import { mapCampaign, mapCatalogItem, mapMarket, mapOpportunity, mapProspect, mapSettings, mapTemplate, normalizeEmail, normalizeLinkedIn, normalizePhone, type DbRow } from './mappers';
 import type { DuplicateMatch } from './dedupe';
 import { selectAllRows, selectRows } from './repository';
 
@@ -15,13 +15,14 @@ async function hydrateProspects(prospectRows: DbRow[]): Promise<Prospect[]> {
   const prospectFilter = inFilter(prospectIds);
   const companyIds = [...new Set(prospectRows.map((row) => row.company_id).filter(Boolean).map(String))];
 
-  const [companies, contacts, activities, tasks, campaignLinks, prospectTags] = await Promise.all([
+  const [companies, contacts, activities, tasks, campaignLinks, prospectTags, markets] = await Promise.all([
     companyIds.length ? selectAllRows('companies', { id: inFilter(companyIds) }) : Promise.resolve([]),
     selectAllRows('contact_methods', { prospect_id: prospectFilter }),
     selectAllRows('activities', { prospect_id: prospectFilter, order: 'occurred_at.desc' }),
     selectAllRows('tasks', { prospect_id: prospectFilter, order: 'due_at.asc' }),
     selectAllRows('campaign_prospects', { prospect_id: prospectFilter }),
     selectAllRows('prospect_tags', { prospect_id: prospectFilter }),
+    selectAllRows('markets'),
   ]);
 
   const tagIds = [...new Set(prospectTags.map((row) => row.tag_id).filter(Boolean).map(String))];
@@ -29,13 +30,14 @@ async function hydrateProspects(prospectRows: DbRow[]): Promise<Prospect[]> {
   const companyMap = new Map(companies.map((row) => [String(row.id), row]));
   const tagMap = new Map(tags.map((row) => [String(row.id), String(row.name)]));
   const tagged = prospectTags.map((link) => ({ ...link, name: tagMap.get(String(link.tag_id)) ?? '' }));
-  const context = { companies: companyMap, contacts, activities, tasks, tags: tagged, campaignLinks };
+  const marketMap = new Map(markets.map((row) => [String(row.id), row]));
+  const context = { companies: companyMap, contacts, activities, tasks, tags: tagged, campaignLinks, markets: marketMap };
 
   return prospectRows.map((row) => mapProspect(row, context));
 }
 
 export async function getAcquisitionState(): Promise<AcquisitionState> {
-  const [prospectRows, companies, contacts, activities, tasks, campaigns, campaignLinks, templates, tags, prospectTags, orders] = await Promise.all([
+  const [prospectRows, companies, contacts, activities, tasks, campaigns, campaignLinks, templates, tags, prospectTags, orders, markets, catalogItems, opportunities, settingsRows] = await Promise.all([
     selectAllRows('prospects', { archived_at: 'is.null', order: 'updated_at.desc' }),
     selectAllRows('companies'),
     selectAllRows('contact_methods'),
@@ -47,25 +49,40 @@ export async function getAcquisitionState(): Promise<AcquisitionState> {
     selectAllRows('tags'),
     selectAllRows('prospect_tags'),
     selectAllRows('orders', { status: 'eq.paid' }),
+    selectAllRows('markets', { order: 'name.asc' }),
+    selectAllRows('catalog_items', { order: 'name.asc' }),
+    selectAllRows('opportunities', { order: 'updated_at.desc' }),
+    selectAllRows('acquisition_settings', { id: 'eq.default', limit: '1' }),
   ]);
 
   const companyMap = new Map(companies.map((row) => [String(row.id), row]));
   const tagMap = new Map(tags.map((row) => [String(row.id), String(row.name)]));
   const tagged = prospectTags.map((link) => ({ ...link, name: tagMap.get(String(link.tag_id)) ?? '' }));
-  const context = { companies: companyMap, contacts, activities, tasks, tags: tagged, campaignLinks };
+  const marketMap = new Map(markets.map((row) => [String(row.id), row]));
+  const catalogMap = new Map(catalogItems.map((row) => [String(row.id), row]));
+  const context = { companies: companyMap, contacts, activities, tasks, tags: tagged, campaignLinks, markets: marketMap };
   const prospects = prospectRows.map((row) => mapProspect(row, context));
   const campaignName = new Map(campaigns.map((row) => [String(row.id), String(row.name ?? row.market)]));
   const campaignRevenue = new Map<string, number>();
+  const revenue: AcquisitionState['revenue'] = { EUR: 0, USD: 0 };
 
   for (const order of orders) {
     const link = campaignLinks.find((item) => item.prospect_id === order.prospect_id && item.status !== 'removed');
+    const currency = order.currency === 'USD' ? 'USD' : order.currency === 'EUR' ? 'EUR' : null;
+    if (!currency) continue;
+    revenue[currency] += Number(order.amount ?? 0);
     if (link) campaignRevenue.set(String(link.campaign_id), (campaignRevenue.get(String(link.campaign_id)) ?? 0) + Number(order.amount ?? 0));
   }
 
   return {
     prospects,
-    campaigns: campaigns.map((row) => mapCampaign(row, campaignRevenue.get(String(row.id)) ?? 0)),
+    markets: markets.map(mapMarket),
+    campaigns: campaigns.map((row) => mapCampaign({ ...row, market_name: marketMap.get(String(row.market_id))?.name, catalog_name: catalogMap.get(String(row.catalog_item_id))?.name }, campaignRevenue.get(String(row.id)) ?? 0)),
+    catalogItems: catalogItems.map(mapCatalogItem),
+    opportunities: opportunities.map(mapOpportunity),
     templates: templates.map((row) => mapTemplate(row, campaignName.get(String(row.campaign_id)) ?? 'Toutes')),
+    settings: mapSettings(settingsRows[0]),
+    revenue,
   };
 }
 

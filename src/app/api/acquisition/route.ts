@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminSession } from '@/lib/affiliate/admin-auth';
-import { archiveProspect, completeTask, createProspect, deleteMessageTemplate, importProspects, saveCampaign, saveMessageTemplate, updateProspect } from '@/lib/acquisition/mutations';
+import { archiveProspect, completeTask, createProspect, deleteMessageTemplate, importProspects, saveCampaign, saveMarket, saveMessageTemplate, saveSettings, updateProspect } from '@/lib/acquisition/mutations';
 import { findDuplicates, getAcquisitionState } from '@/lib/acquisition/queries';
-import type { Activity, Campaign, MessageTemplate, Prospect } from '@/lib/acquisition/types';
+import type { Activity, AutomationSettings, Campaign, MarketRecord, MessageTemplate, Prospect } from '@/lib/acquisition/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,6 +26,8 @@ export async function POST(request: NextRequest) {
     if (action === 'complete_task') { await completeTask(String(body.id)); return NextResponse.json({ ok: true }); }
     if (action === 'find_duplicates') return NextResponse.json({ duplicates: await findDuplicates(object(body.input)) });
     if (action === 'save_campaign') { await saveCampaign(body.campaign as Campaign); return NextResponse.json({ ok: true }); }
+    if (action === 'save_market') { await saveMarket(body.market as MarketRecord); return NextResponse.json({ ok: true }); }
+    if (action === 'save_settings') { await saveSettings(body.settings as AutomationSettings); return NextResponse.json({ ok: true }); }
     if (action === 'save_template') { await saveMessageTemplate(body.template as MessageTemplate); return NextResponse.json({ ok: true }); }
     if (action === 'delete_template') { await deleteMessageTemplate(String(body.id)); return NextResponse.json({ ok: true }); }
     if (action === 'import_csv') return NextResponse.json(await importProspects(Array.isArray(body.rows) ? body.rows : [], body.forceDuplicates === true));

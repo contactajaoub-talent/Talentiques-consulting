@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Archive, ChevronLeft, ChevronRight, Download, Plus, Search, Upload, X } from 'lucide-react';
 import { useDeferredValue, useMemo, useState } from 'react';
 import { csvFields, mapCsvRows, parseCsv } from '@/lib/acquisition/csv';
-import { prospectStatuses, type Market, type Prospect } from '@/lib/acquisition/types';
+import { prospectStatuses, type Prospect } from '@/lib/acquisition/types';
 import type { DuplicateMatch } from '@/lib/acquisition/dedupe';
 import { useAcquisition } from './AcquisitionProvider';
 import { EmptyState, formatShortDate, Score, StatusBadge } from './ui';
@@ -13,7 +13,7 @@ const labels: Record<string, string> = { first_name: 'Prénom', last_name: 'Nom'
 
 export function ProspectsView() {
   const store = useAcquisition();
-  const { prospects, campaigns, addProspect, archiveProspect, importCsv, saving, error, clearError } = store;
+  const { prospects, markets, campaigns, addProspect, archiveProspect, importCsv, saving, error, clearError } = store;
   const [query, setQuery] = useState(''); const [status, setStatus] = useState(''); const [market, setMarket] = useState('');
   const [sort, setSort] = useState('updated'); const [page, setPage] = useState(1); const [creating, setCreating] = useState(false);
   const [pendingProspect, setPendingProspect] = useState<Prospect | null>(null); const [duplicates, setDuplicates] = useState<DuplicateMatch[]>([]);
@@ -24,8 +24,8 @@ export function ProspectsView() {
   const pageSize = 25; const pages = Math.max(1, Math.ceil(filtered.length / pageSize)); const shown = filtered.slice((Math.min(page, pages) - 1) * pageSize, Math.min(page, pages) * pageSize);
 
   async function submitProspect(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault(); clearError(); const form = new FormData(event.currentTarget); const now = new Date().toISOString(); const selectedMarket = String(form.get('market')) as Market; const campaign = campaigns.find((item) => item.name === selectedMarket);
-    const prospect: Prospect = { id: crypto.randomUUID(), firstName: String(form.get('firstName')).trim(), lastName: String(form.get('lastName')).trim(), country: String(form.get('country')).trim(), city: String(form.get('city')).trim(), language: String(form.get('language')) as 'FR' | 'EN', jobTitle: String(form.get('jobTitle')).trim(), company: String(form.get('company')).trim(), linkedinUrl: String(form.get('linkedinUrl')).trim(), email: String(form.get('email')).trim(), phone: String(form.get('phone')).trim(), whatsapp: '', verificationStatus: 'À vérifier', dataSource: 'Saisie manuelle', source: 'Manuel', linkedinRelation: 'Hors réseau', score: Number(form.get('score')) || 50, segment: 'À qualifier', market: selectedMarket, activeSearch: false, potentialProduct: String(form.get('product')).trim() || 'À définir', tags: [], status: 'Nouveau', lastAction: 'Prospect créé', nextAction: 'Qualifier le prospect', nextActionAt: now, nextActionType: 'Qualification', taskStatus: 'À faire', owner: 'Othmane', notes: '', campaignId: campaign?.id ?? '', createdAt: now, updatedAt: now, activities: [] };
+    event.preventDefault(); clearError(); const form = new FormData(event.currentTarget); const now = new Date().toISOString(); const selectedMarket = markets.find((item) => item.id === String(form.get('marketId'))) ?? markets.find((item) => item.name === String(form.get('market'))); if (!selectedMarket) return; const campaign = campaigns.find((item) => (item.id === String(form.get('campaignId')) || item.name === String(form.get('market'))) && item.marketId === selectedMarket.id);
+    const prospect: Prospect = { id: crypto.randomUUID(), firstName: String(form.get('firstName')).trim(), lastName: String(form.get('lastName')).trim(), country: String(form.get('country')).trim(), city: String(form.get('city')).trim(), language: String(form.get('language')) as 'FR' | 'EN', jobTitle: String(form.get('jobTitle')).trim(), company: String(form.get('company')).trim(), linkedinUrl: String(form.get('linkedinUrl')).trim(), email: String(form.get('email')).trim(), phone: String(form.get('phone')).trim(), whatsapp: '', verificationStatus: 'À vérifier', dataSource: 'Saisie manuelle', source: 'Manuel', linkedinRelation: 'Hors réseau', score: Number(form.get('score')) || 50, segment: 'À qualifier', marketId: selectedMarket.id, market: selectedMarket.name, activeSearch: false, potentialProduct: String(form.get('product')).trim() || 'À définir', tags: [], status: 'Nouveau', lastAction: 'Prospect créé', nextAction: 'Qualifier le prospect', nextActionAt: now, nextActionType: 'Qualification', taskStatus: 'À faire', owner: 'Othmane', notes: '', campaignId: campaign?.id ?? '', createdAt: now, updatedAt: now, activities: [] };
     const result = await addProspect(prospect).catch(() => null); if (!result) return;
     if (result.duplicate) { setPendingProspect(prospect); setDuplicates(result.duplicate); } else setCreating(false);
   }
@@ -39,7 +39,7 @@ export function ProspectsView() {
     <div className="mb-5 grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 lg:grid-cols-[1fr_170px_170px_150px_auto_auto_auto]">
       <label className="relative"><span className="sr-only">Rechercher</span><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input value={query} onChange={(event) => { setQuery(event.target.value); setPage(1); }} className="input pl-11" placeholder="Nom, entreprise, poste ou ville…" /></label>
       <select className="input" value={status} onChange={(event) => { setStatus(event.target.value); setPage(1); }} aria-label="Statut"><option value="">Tous statuts</option>{prospectStatuses.map((item) => <option key={item}>{item}</option>)}</select>
-      <select className="input" value={market} onChange={(event) => { setMarket(event.target.value); setPage(1); }} aria-label="Marché"><option value="">Tous marchés</option>{campaigns.map((item) => <option key={item.id}>{item.name}</option>)}</select>
+      <select className="input" value={market} onChange={(event) => { setMarket(event.target.value); setPage(1); }} aria-label="Marché"><option value="">Tous marchés</option>{markets.map((item) => <option key={item.id}>{item.name}</option>)}</select>
       <select className="input" value={sort} onChange={(event) => setSort(event.target.value)} aria-label="Tri"><option value="updated">Plus récents</option><option value="score">Score décroissant</option><option value="name">Nom</option><option value="next">Prochaine action</option></select>
       <button onClick={() => setCreating(true)} className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl bg-[#0683C9] px-4 text-sm font-bold text-white"><Plus size={17} />Ajouter</button>
       <label className="inline-flex min-h-14 cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-bold"><Upload size={17} />Importer<input type="file" accept=".csv,text/csv" className="sr-only" onChange={(event) => { const file = event.target.files?.[0]; if (file) void loadCsv(file); }} /></label>
