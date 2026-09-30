@@ -73,7 +73,7 @@ export const AccompanimentLeadForm = () => {
                   <Field label="Nom *"><input required name="lastName" className="input" /></Field>
                   <Field label="E-mail *"><input required type="email" name="email" className="input" /></Field>
                   <Field label="Téléphone"><input type="tel" name="phone" className="input" /></Field>
-                  <Field label="Pays de résidence *"><input required name="country" type="text" autoComplete="country-name" maxLength={100} placeholder="Ex. Maroc" className="input" /></Field>
+                  <Field label="Pays de résidence *"><input required name="country" type="text" autoComplete="country-name" maxLength={100} placeholder="Ex. Canada" className="input" /></Field>
                   <Field label="Profil LinkedIn"><input type="url" name="profilLinkedIn" className="input" placeholder="https://linkedin.com/in/..." /></Field>
                   <Field label="Statut actuel *"><select required name="statutActuel" className="input"><option value="">Sélectionner</option>{STATUS_OPTIONS.map(v => <option key={v}>{v}</option>)}</select></Field>
                   <Field label="Années d’expérience"><select name="anneesExperience" className="input"><option value="">Sélectionner</option>{experienceOptions.map(v => <option key={v}>{v}</option>)}</select></Field>

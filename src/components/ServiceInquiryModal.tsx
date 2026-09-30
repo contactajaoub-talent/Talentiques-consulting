@@ -413,7 +413,7 @@ export function ServiceInquiryModal({ offer, onClose }: Props) {
                   </div>
 
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <Field label={isFr ? 'Pays *' : 'Country *'}><input required name="country" type="text" autoComplete="country-name" maxLength={100} placeholder={isFr ? 'Ex. Maroc' : 'e.g. Morocco'} className="input" /></Field>
+                    <Field label={isFr ? 'Pays *' : 'Country *'}><input required name="country" type="text" autoComplete="country-name" maxLength={100} placeholder={isFr ? 'Ex. Canada' : 'e.g. Canada'} className="input" /></Field>
 
                     <Field label={isFr ? 'Statut actuel *' : 'Current status *'}>
                       <select required name="statutActuel" className="input" defaultValue="">

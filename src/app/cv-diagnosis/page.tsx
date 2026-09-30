@@ -144,7 +144,7 @@ export default function CVDiagnosisPage() {
               <Field label="Nom *"><input required name="lastName" autoComplete="family-name" className={fieldClass} /></Field>
               <Field label="E-mail *"><input required name="email" type="email" autoComplete="email" className={fieldClass} /></Field>
               <Field label="Téléphone — facultatif"><input name="phone" type="tel" autoComplete="tel" className={fieldClass} /></Field>
-              <Field label="Pays *"><input required name="country" type="text" autoComplete="country-name" maxLength={100} placeholder="Ex. Maroc" className={fieldClass} /></Field>
+              <Field label="Pays *"><input required name="country" type="text" autoComplete="country-name" maxLength={100} placeholder="Ex. Canada" className={fieldClass} /></Field>
               <Field label="Statut actuel *">
                 <select required name="currentStatus" value={currentStatus} onChange={(event) => setCurrentStatus(event.target.value)} className={fieldClass}>
                   <option value="" disabled>Sélectionnez votre statut</option>
