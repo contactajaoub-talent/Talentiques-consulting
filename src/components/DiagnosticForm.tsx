@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CheckCircle2, FileText, ShieldCheck, Upload, X } from 'lucide-react';
-import { COUNTRY_OPTIONS, STATUS_OPTIONS } from '@/lib/salesforce';
+import { STATUS_OPTIONS } from '@/lib/salesforce';
 
 interface DiagnosticFormProps {
   isOpen: boolean;
@@ -115,7 +115,7 @@ export const DiagnosticForm = ({ isOpen, onClose }: DiagnosticFormProps) => {
                         <Field label="Nom *"><input required name="lastName" className="input" /></Field>
                         <Field label="E-mail *"><input required type="email" name="email" className="input" /></Field>
                         <Field label="Téléphone"><input type="tel" name="phone" className="input" /></Field>
-                        <Field label="Pays de résidence *"><select required name="country" className="input"><option value="">Sélectionner</option>{COUNTRY_OPTIONS.map(([code,label]) => <option key={code} value={code}>{label}</option>)}</select></Field>
+                        <Field label="Pays de résidence *"><input required name="country" type="text" autoComplete="country-name" maxLength={100} placeholder="Ex. Maroc" className="input" /></Field>
                         <Field label="Statut actuel *"><select required name="statutActuel" className="input"><option value="">Sélectionner</option>{STATUS_OPTIONS.map(v => <option key={v}>{v}</option>)}</select></Field>
                       </div>
                     </div>

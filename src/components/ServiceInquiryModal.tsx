@@ -11,7 +11,7 @@ import {
   Upload,
   X,
 } from 'lucide-react';
-import { COUNTRY_OPTIONS, STATUS_OPTIONS } from '@/lib/salesforce';
+import { STATUS_OPTIONS } from '@/lib/salesforce';
 import {
   getServiceOffer,
   type ServiceId,
@@ -413,18 +413,7 @@ export function ServiceInquiryModal({ offer, onClose }: Props) {
                   </div>
 
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <Field label={isFr ? 'Pays *' : 'Country *'}>
-                      <select required name="country" className="input" defaultValue="">
-                        <option value="" disabled>
-                          {isFr ? 'Sélectionnez votre pays' : 'Select your country'}
-                        </option>
-                        {COUNTRY_OPTIONS.map(([code, label]) => (
-                          <option key={code} value={code}>
-                            {label}
-                          </option>
-                        ))}
-                      </select>
-                    </Field>
+                    <Field label={isFr ? 'Pays *' : 'Country *'}><input required name="country" type="text" autoComplete="country-name" maxLength={100} placeholder={isFr ? 'Ex. Maroc' : 'e.g. Morocco'} className="input" /></Field>
 
                     <Field label={isFr ? 'Statut actuel *' : 'Current status *'}>
                       <select required name="statutActuel" className="input" defaultValue="">

@@ -2,7 +2,7 @@
 
 import React, { useRef, useState } from 'react';
 import { CheckCircle2, FileText, Upload } from 'lucide-react';
-import { COUNTRY_OPTIONS, STATUS_OPTIONS } from '@/lib/salesforce';
+import { STATUS_OPTIONS } from '@/lib/salesforce';
 
 const experienceOptions = ['Moins de 2 ans', '2 à 5 ans', '5 à 10 ans', 'Plus de 10 ans'];
 const marketOptions = ['France', 'Belgique', 'Suisse', 'Canada', 'Luxembourg', 'France + International', 'Europe (plusieurs pays)', 'International', 'Autre'];
@@ -73,7 +73,7 @@ export const AccompanimentLeadForm = () => {
                   <Field label="Nom *"><input required name="lastName" className="input" /></Field>
                   <Field label="E-mail *"><input required type="email" name="email" className="input" /></Field>
                   <Field label="Téléphone"><input type="tel" name="phone" className="input" /></Field>
-                  <Field label="Pays de résidence *"><select required name="country" className="input"><option value="">Sélectionner</option>{COUNTRY_OPTIONS.map(([code,label]) => <option key={code} value={code}>{label}</option>)}</select></Field>
+                  <Field label="Pays de résidence *"><input required name="country" type="text" autoComplete="country-name" maxLength={100} placeholder="Ex. Maroc" className="input" /></Field>
                   <Field label="Profil LinkedIn"><input type="url" name="profilLinkedIn" className="input" placeholder="https://linkedin.com/in/..." /></Field>
                   <Field label="Statut actuel *"><select required name="statutActuel" className="input"><option value="">Sélectionner</option>{STATUS_OPTIONS.map(v => <option key={v}>{v}</option>)}</select></Field>
                   <Field label="Années d’expérience"><select name="anneesExperience" className="input"><option value="">Sélectionner</option>{experienceOptions.map(v => <option key={v}>{v}</option>)}</select></Field>

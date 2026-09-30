@@ -9,11 +9,10 @@ import {
 } from 'lucide-react';
 import { Footer } from '@/components/Footer';
 import { Navbar } from '@/components/Navbar';
-import { WhatsAppButton } from '@/components/WhatsAppButton';
 import { buildCvDiagnosisLeadForm, submitCvDiagnosisLead, type CvLeadContact } from '@/lib/cv-analysis/crm';
 import { DIFFICULTY_OPTIONS, recommendOffer } from '@/lib/cv-analysis/recommendation';
 import type { CvAnalysisResult } from '@/lib/cv-analysis/types';
-import { COUNTRY_OPTIONS, STATUS_OPTIONS } from '@/lib/salesforce';
+import { STATUS_OPTIONS } from '@/lib/salesforce';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const allowedExtensions = new Set(['pdf', 'doc', 'docx', 'txt']);
@@ -120,7 +119,6 @@ export default function CVDiagnosisPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-brand-50/30">
       <Navbar />
-      <WhatsAppButton />
 
       <section className="relative overflow-hidden px-4 pb-20 pt-32">
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-500/5 via-transparent to-blue-500/5" />
@@ -129,11 +127,9 @@ export default function CVDiagnosisPage() {
 
         <div className="container relative z-10 mx-auto max-w-4xl">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-12 text-center">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-brand-100 px-4 py-2 text-sm font-semibold text-brand-700">
-              <Sparkles size={16} /> Diagnostic CV ATS gratuit
-            </div>
+            <p className="mb-6 text-sm font-semibold text-brand-700">Diagnostic CV ATS gratuit</p>
             <h1 className="mb-6 bg-gradient-to-r from-brand-700 via-brand-600 to-blue-600 bg-clip-text font-heading text-5xl font-bold text-transparent md:text-6xl">
-              Diagnostic CV ATS
+              Analyse CV & compatibilité ATS
             </h1>
             <p className="mx-auto max-w-2xl text-xl leading-relaxed text-slate-600">
               Analysez la structure, la lisibilité et plusieurs éléments clés de votre CV. Obtenez immédiatement des recommandations pour identifier vos priorités d’amélioration.
@@ -148,12 +144,7 @@ export default function CVDiagnosisPage() {
               <Field label="Nom *"><input required name="lastName" autoComplete="family-name" className={fieldClass} /></Field>
               <Field label="E-mail *"><input required name="email" type="email" autoComplete="email" className={fieldClass} /></Field>
               <Field label="Téléphone — facultatif"><input name="phone" type="tel" autoComplete="tel" className={fieldClass} /></Field>
-              <Field label="Pays *">
-                <select required name="country" defaultValue="" className={fieldClass}>
-                  <option value="" disabled>Sélectionnez votre pays</option>
-                  {COUNTRY_OPTIONS.map(([code, label]) => <option key={code} value={code}>{label}</option>)}
-                </select>
-              </Field>
+              <Field label="Pays *"><input required name="country" type="text" autoComplete="country-name" maxLength={100} placeholder="Ex. Maroc" className={fieldClass} /></Field>
               <Field label="Statut actuel *">
                 <select required name="currentStatus" value={currentStatus} onChange={(event) => setCurrentStatus(event.target.value)} className={fieldClass}>
                   <option value="" disabled>Sélectionnez votre statut</option>
