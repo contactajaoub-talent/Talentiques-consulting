@@ -51,7 +51,8 @@ export function OptimizationFormModal({ offer, onClose }: Props) {
     setLoading(true); setError('');
     try {
       const data = new FormData(event.currentTarget);
-      data.set('typeDemande', 'Optimisation'); data.set('offreRessource', service.name);
+      data.set('typeDemande', 'Optimisation'); data.delete('offreRessource');
+      data.set('nomRessource', service.name);
       data.set('montantPrevu', service.amount); data.set('statutPaiement', 'Paiement en attente');
       addTracking(data);
       const response = await fetch('/api/salesforce-lead', { method: 'POST', body: data });

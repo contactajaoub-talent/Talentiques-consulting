@@ -1,7 +1,10 @@
 import { createHmac } from 'node:crypto';
 import { put } from '@vercel/blob';
 import { NextResponse } from 'next/server';
-import { SALESFORCE } from '@/lib/salesforce';
+import {
+  getSalesforceOfferFields,
+  SALESFORCE,
+} from '@/lib/salesforce';
 
 export const runtime = 'nodejs';
 
@@ -270,6 +273,27 @@ export async function POST(request: Request) {
 
     const f = SALESFORCE.fields;
 
+    const offerFields = getSalesforceOfferFields({
+      isCareerApplication,
+      typeDemande,
+      offreRessource: clean(
+        form.get('offreRessource')
+      ),
+      nomRessource: clean(
+        form.get('nomRessource')
+      ),
+      montantPrevu: clean(
+        form.get('montantPrevu')
+      ),
+      statutPaiement: clean(
+        form.get('statutPaiement')
+      ),
+    });
+
+    for (const [key, value] of Object.entries(offerFields)) {
+      add(p, key, value);
+    }
+
     /*
      * =====================================
      * FORMULAIRES COMMERCIAUX EXISTANTS
@@ -283,20 +307,6 @@ export async function POST(request: Request) {
      */
 
     if (!isCareerApplication) {
-      add(
-        p,
-        f.typeDemande,
-        typeDemande
-      );
-
-      add(
-        p,
-        f.offreRessource,
-        clean(
-          form.get('offreRessource')
-        )
-      );
-
       add(
         p,
         f.statutActuel,
@@ -335,30 +345,6 @@ export async function POST(request: Request) {
      * CHAMPS SÛRS / TEXTE
      * =====================================
      */
-
-    add(
-      p,
-      f.nomRessource,
-      clean(
-        form.get('nomRessource')
-      )
-    );
-
-    add(
-      p,
-      f.montantPrevu,
-      clean(
-        form.get('montantPrevu')
-      )
-    );
-
-    add(
-      p,
-      f.statutPaiement,
-      clean(
-        form.get('statutPaiement')
-      )
-    );
 
     add(
       p,

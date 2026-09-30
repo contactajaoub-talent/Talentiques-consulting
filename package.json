@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test:affiliate": "node --experimental-strip-types --test tests/affiliate.test.mjs",
+    "test:salesforce": "node --experimental-strip-types --test tests/salesforce.test.mjs",
     "test:services": "node --experimental-strip-types --test tests/services.test.mjs",
     "test:acquisition": "node --experimental-strip-types --test tests/acquisition.test.mjs"
   },

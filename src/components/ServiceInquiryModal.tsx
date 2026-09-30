@@ -140,7 +140,7 @@ export function ServiceInquiryModal({ offer, onClose }: Props) {
       data.delete('fullName');
 
       data.set('typeDemande', 'Optimisation');
-      data.set('offreRessource', service.name);
+      data.delete('offreRessource');
       data.set('nomRessource', service.name);
       data.set('montantPrevu', service.amount);
       data.set('statutPaiement', 'Paiement en attente');

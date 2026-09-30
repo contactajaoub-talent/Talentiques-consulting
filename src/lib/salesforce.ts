@@ -30,6 +30,60 @@ export const SALESFORCE = {
   },
 } as const;
 
+export const SAFE_OFFER_RESOURCE_VALUES = [
+  'Contact général',
+  'Diagnostic CV',
+  'Accompagnement Total',
+] as const;
+
+const safeOfferResourceValues = new Set<string>(
+  SAFE_OFFER_RESOURCE_VALUES,
+);
+
+type SalesforceOfferFieldsInput = {
+  isCareerApplication: boolean;
+  typeDemande: string;
+  offreRessource: string;
+  nomRessource: string;
+  montantPrevu: string;
+  statutPaiement: string;
+};
+
+export function getSalesforceOfferFields({
+  isCareerApplication,
+  typeDemande,
+  offreRessource,
+  nomRessource,
+  montantPrevu,
+  statutPaiement,
+}: SalesforceOfferFieldsInput) {
+  const fields: Record<string, string> = {};
+
+  if (!isCareerApplication) {
+    if (typeDemande) {
+      fields[SALESFORCE.fields.typeDemande] = typeDemande;
+    }
+
+    if (safeOfferResourceValues.has(offreRessource)) {
+      fields[SALESFORCE.fields.offreRessource] = offreRessource;
+    }
+  }
+
+  if (nomRessource) {
+    fields[SALESFORCE.fields.nomRessource] = nomRessource;
+  }
+
+  if (montantPrevu) {
+    fields[SALESFORCE.fields.montantPrevu] = montantPrevu;
+  }
+
+  if (statutPaiement) {
+    fields[SALESFORCE.fields.statutPaiement] = statutPaiement;
+  }
+
+  return fields;
+}
+
 export const COUNTRY_OPTIONS = [
   ['FR', 'France'],
   ['BE', 'Belgique'],
