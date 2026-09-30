@@ -3,8 +3,9 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 import { buildCvDiagnosisLeadForm, submitCvDiagnosisLead } from '../src/lib/cv-analysis/crm.ts';
+import { executeCvAnalysisRequest } from '../src/lib/cv-analysis/endpoint.ts';
 import { fetchEscoContext } from '../src/lib/cv-analysis/esco.ts';
-import { MAX_CV_FILE_SIZE, parseCvInput } from '../src/lib/cv-analysis/input.ts';
+import { MAX_CV_FILE_SIZE, MAX_JOB_OFFER_LENGTH, parseCvInput } from '../src/lib/cv-analysis/input.ts';
 import { calculateJobMatch } from '../src/lib/cv-analysis/job-match.ts';
 import { analyzeCvWithModels, MAX_OUTPUT_TOKENS } from '../src/lib/cv-analysis/openai.ts';
 import { recommendOffer } from '../src/lib/cv-analysis/recommendation.ts';
@@ -80,6 +81,52 @@ test('invalid Structured Output triggers at most one fallback', async () => {
   assert.equal(calls.length, 2);
 });
 
+test('a failing Sol fallback is never retried a third time', async () => {
+  const calls = [];
+  await assert.rejects(
+    withApiKey(() => analyzeCvWithModels(modelOptions(), mockOpenAi(calls, [{ invalid: true }, { invalid: true }]))),
+    (error) => error?.kind === 'invalid',
+  );
+  assert.deepEqual(calls.map((call) => call.model), ['gpt-6-luna', 'gpt-6-sol']);
+});
+
+test('poor extraction quality triggers one Sol fallback', async () => {
+  const calls = [];
+  const poorExtraction = observations({ document: { ...complete.document, extraction_quality: 'poor' } });
+  const result = await withApiKey(() => analyzeCvWithModels(modelOptions(), mockOpenAi(calls, [poorExtraction, complete])));
+  assert.equal(result.fallbackUsed, true);
+  assert.deepEqual(calls.map((call) => call.model), ['gpt-6-luna', 'gpt-6-sol']);
+});
+
+test('OpenAI 401 never triggers the Sol fallback', async () => {
+  const calls = [];
+  await assert.rejects(
+    withApiKey(() => analyzeCvWithModels(modelOptions(), mockOpenAiError(calls, 401, 'invalid_api_key'))),
+    (error) => error?.kind === 'authentication',
+  );
+  assert.deepEqual(calls.map((call) => call.model), ['gpt-6-luna']);
+});
+
+test('OpenAI quota and global rate-limit errors never trigger the Sol fallback', async () => {
+  for (const code of ['insufficient_quota', 'rate_limit_exceeded']) {
+    const calls = [];
+    await assert.rejects(
+      withApiKey(() => analyzeCvWithModels(modelOptions(), mockOpenAiError(calls, 429, code))),
+      (error) => error?.kind === (code === 'insufficient_quota' ? 'quota' : 'rate_limit'),
+    );
+    assert.deepEqual(calls.map((call) => call.model), ['gpt-6-luna']);
+  }
+});
+
+test('OpenAI invalid configuration never triggers the Sol fallback', async () => {
+  const calls = [];
+  await assert.rejects(
+    withApiKey(() => analyzeCvWithModels(modelOptions(), mockOpenAiError(calls, 400, 'invalid_request_error'))),
+    (error) => error?.kind === 'configuration',
+  );
+  assert.deepEqual(calls.map((call) => call.model), ['gpt-6-luna']);
+});
+
 test('is_cv=false does not trigger an unnecessary fallback', async () => {
   const calls = [];
   const notCv = observations({ is_cv: false, confidence: 0.2, document: { ...complete.document, extraction_quality: 'poor' } });
@@ -122,11 +169,70 @@ test('client source contains no OpenAI key and env exposes no public OpenAI key'
 });
 
 test('server logs only operational metadata, not resume contents or PII', async () => {
-  const route = await readFile(new URL('../src/app/api/analyze-cv/route.ts', import.meta.url), 'utf8');
-  const logBlock = route.slice(route.indexOf("console.info('CV analysis completed"), route.indexOf("return NextResponse.json({ success: true"));
+  const route = await readFile(new URL('../src/lib/cv-analysis/endpoint.ts', import.meta.url), 'utf8');
+  const logBlock = route.slice(route.indexOf("console.info('CV analysis completed"), route.indexOf('return {', route.indexOf("console.info('CV analysis completed")));
   assert.doesNotMatch(logBlock, /cvText|email|phone|firstName|lastName|jobOffer/);
   assert.match(logBlock, /model_used/);
   assert.match(logBlock, /total_tokens/);
+});
+
+test('BotID verification failure fails closed before ESCO and OpenAI', async () => {
+  const harness = endpointHarness();
+
+  harness.dependencies.checkBotId = async () => {
+    harness.calls.bot += 1;
+    throw new Error('BotID unavailable');
+  };
+
+  const response = await executeCvAnalysisRequest(validRequest(), harness.dependencies);
+
+  assert.equal(response.status, 503);
+  assert.deepEqual(harness.calls, { bot: 1, esco: 0, openai: 0 });
+});
+test('BotID rejection returns 403 before ESCO and OpenAI', async () => {
+  const harness = endpointHarness({ isBot: true });
+  const response = await executeCvAnalysisRequest(validRequest(), harness.dependencies);
+  assert.equal(response.status, 403);
+  assert.deepEqual(response.body, { error: 'Accès refusé.' });
+  assert.deepEqual(harness.calls, { bot: 1, esco: 0, openai: 0 });
+});
+
+test('unsupported file returns before ESCO and OpenAI', async () => {
+  const form = validForm();
+  form.delete('cvText');
+  form.set('cvFile', new File(['not a resume'], 'cv.exe', { type: 'application/octet-stream' }));
+  const harness = endpointHarness();
+  const response = await executeCvAnalysisRequest(formRequest(form), harness.dependencies);
+  assert.equal(response.status, 400);
+  assert.deepEqual(harness.calls, { bot: 1, esco: 0, openai: 0 });
+});
+
+test('file with an invalid signature returns before ESCO and OpenAI', async () => {
+  const form = validForm();
+  form.delete('cvText');
+  form.set('cvFile', new File(['not a pdf '.repeat(20)], 'cv.pdf', { type: 'application/pdf' }));
+  const harness = endpointHarness();
+  const response = await executeCvAnalysisRequest(formRequest(form), harness.dependencies);
+  assert.equal(response.status, 400);
+  assert.deepEqual(harness.calls, { bot: 1, esco: 0, openai: 0 });
+});
+
+test('short resume text returns before ESCO and OpenAI', async () => {
+  const form = validForm();
+  form.set('cvText', 'trop court');
+  const harness = endpointHarness();
+  const response = await executeCvAnalysisRequest(formRequest(form), harness.dependencies);
+  assert.equal(response.status, 400);
+  assert.deepEqual(harness.calls, { bot: 1, esco: 0, openai: 0 });
+});
+
+test('oversized job offer returns before ESCO and OpenAI', async () => {
+  const form = validForm();
+  form.set('jobOffer', 'x'.repeat(MAX_JOB_OFFER_LENGTH + 1));
+  const harness = endpointHarness();
+  const response = await executeCvAnalysisRequest(formRequest(form), harness.dependencies);
+  assert.equal(response.status, 400);
+  assert.deepEqual(harness.calls, { bot: 1, esco: 0, openai: 0 });
 });
 
 test('files over 5 MB and unsupported formats are refused', async () => {
@@ -234,6 +340,55 @@ function mockOpenAi(calls, outputs) {
     const output = outputs[Math.min(calls.length - 1, outputs.length - 1)];
     return new Response(JSON.stringify({ output_text: JSON.stringify(output), usage: { input_tokens: 100, output_tokens: 50, total_tokens: 150 } }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   };
+}
+
+function mockOpenAiError(calls, status, code) {
+  return async (_url, init) => {
+    calls.push(JSON.parse(init.body));
+    return new Response(JSON.stringify({ error: { code, type: code, message: code } }), {
+      status,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  };
+}
+
+function endpointHarness({ isBot = false, model = complete } = {}) {
+  const calls = { bot: 0, esco: 0, openai: 0 };
+  return {
+    calls,
+    dependencies: {
+      checkBotId: async () => { calls.bot += 1; return { isBot }; },
+      fetchEscoContext: async () => { calls.esco += 1; return { used: false, occupation: null, skills: [] }; },
+      analyzeCvWithModels: async () => {
+        calls.openai += 1;
+        return {
+          observations: model,
+          usage: { input_tokens: 100, output_tokens: 50, total_tokens: 150 },
+          modelUsed: 'gpt-6-luna',
+          fallbackUsed: false,
+        };
+      },
+    },
+  };
+}
+
+function validForm() {
+  const form = new FormData();
+  form.set('cvText', 'CV professionnel avec expériences, compétences et formation. '.repeat(4));
+  form.set('locale', 'fr');
+  form.set('targetRole', 'Business Developer');
+  form.set('jobOffer', '');
+  form.set('currentStatus', 'Salarié en poste');
+  form.set('website', '');
+  return form;
+}
+
+function formRequest(form) {
+  return new Request('http://localhost/api/analyze-cv', { method: 'POST', body: form });
+}
+
+function validRequest() {
+  return formRequest(validForm());
 }
 
 async function withApiKey(action) {

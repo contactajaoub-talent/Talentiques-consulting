@@ -19,6 +19,7 @@
     "@react-email/components": "^1.0.12",
     "@react-email/render": "^2.1.0",
     "@vercel/blob": "^2.8.0",
+    "botid": "^1.5.11",
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.26",
     "lucide-react": "^0.559.0",

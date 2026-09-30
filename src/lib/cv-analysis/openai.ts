@@ -6,6 +6,16 @@ export const MAX_OUTPUT_TOKENS = 3500;
 export const PRIMARY_MODEL = 'gpt-6-luna';
 export const FALLBACK_MODEL = 'gpt-6-sol';
 
+export type CvModelErrorKind =
+  | 'authentication'
+  | 'configuration'
+  | 'invalid'
+  | 'permission'
+  | 'quota'
+  | 'rate_limit'
+  | 'timeout'
+  | 'unavailable';
+
 type CvInput =
   | { kind: 'text'; text: string }
   | { kind: 'file'; filename: string; mimeType: string; bytes: Uint8Array };
@@ -23,9 +33,9 @@ type ModelResult = { observations: CvObservations; usage: OpenAiUsage };
 type FetchLike = typeof fetch;
 
 export class CvModelError extends Error {
-  readonly kind: 'unavailable' | 'timeout' | 'invalid';
+  readonly kind: CvModelErrorKind;
 
-  constructor(message: string, kind: 'unavailable' | 'timeout' | 'invalid') {
+  constructor(message: string, kind: CvModelErrorKind) {
     super(message);
     this.kind = kind;
   }
@@ -42,7 +52,7 @@ export async function analyzeCvWithModels(
   try {
     first = await requestModel(primaryModel, options, fetchImpl);
   } catch (error) {
-    if (!(error instanceof CvModelError)) throw error;
+    if (!(error instanceof CvModelError) || !allowsFallback(error.kind)) throw error;
     const fallback = await requestModel(fallbackModel, options, fetchImpl);
     return { ...fallback, modelUsed: fallbackModel, fallbackUsed: true };
   }
@@ -69,7 +79,7 @@ export async function analyzeCvWithModels(
 
 async function requestModel(model: string, options: AnalyzeOptions, fetchImpl: FetchLike): Promise<ModelResult> {
   const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) throw new CvModelError('OpenAI is not configured', 'unavailable');
+  if (!apiKey) throw new CvModelError('OpenAI is not configured', 'configuration');
   const reasoningEffort = process.env.CV_ANALYSIS_REASONING === 'low' ? 'low' : 'low';
 
   const controller = new AbortController();
@@ -115,7 +125,9 @@ async function requestModel(model: string, options: AnalyzeOptions, fetchImpl: F
       }),
     });
 
-    if (!response.ok) throw new CvModelError('OpenAI request failed', 'unavailable');
+    if (!response.ok) {
+      throw new CvModelError('OpenAI request failed', await classifyOpenAiError(response));
+    }
     const raw = await response.json() as Record<string, unknown>;
     const outputText = extractOutputText(raw);
     let parsed: unknown;
@@ -136,6 +148,39 @@ async function requestModel(model: string, options: AnalyzeOptions, fetchImpl: F
     throw new CvModelError('OpenAI unavailable', 'unavailable');
   } finally {
     clearTimeout(timeout);
+  }
+}
+
+function allowsFallback(kind: CvModelErrorKind) {
+  return kind === 'invalid';
+}
+
+async function classifyOpenAiError(response: Response): Promise<CvModelErrorKind> {
+  const status = response.status;
+  if (status === 401) return 'authentication';
+  if (status === 403) return 'permission';
+  if (status === 429) {
+    const errorCode = await openAiErrorCode(response);
+    return errorCode.includes('quota') || errorCode.includes('billing') || errorCode.includes('credit')
+      ? 'quota'
+      : 'rate_limit';
+  }
+  if (status >= 400 && status < 500) return 'configuration';
+  return status >= 500 && status < 600 ? 'unavailable' : 'configuration';
+}
+
+async function openAiErrorCode(response: Response) {
+  try {
+    const payload = await response.clone().json() as Record<string, unknown>;
+    const error = payload.error && typeof payload.error === 'object'
+      ? payload.error as Record<string, unknown>
+      : {};
+    return [error.type, error.code, error.message]
+      .filter((value): value is string => typeof value === 'string')
+      .join(' ')
+      .toLowerCase();
+  } catch {
+    return '';
   }
 }
 
