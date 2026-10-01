@@ -148,7 +148,7 @@ export default function ProductDetailPageFR({ productId, market = 'fr' }: { prod
               </div>
             </div>
 
-            <LaunchCountdown compact />
+            {!isBundle && <LaunchCountdown compact />}
           </div>
 
           <div className="lg:pl-2">

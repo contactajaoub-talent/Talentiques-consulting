@@ -31,15 +31,15 @@ export const STORE_PRODUCT_DETAILS_EN: Record<StoreProductId, StoreProductDetail
   bundle: {
     id: 'bundle',
     slug: 'bundle',
-    eyebrow: 'Recommended offer',
+    eyebrow: 'The complete system',
     headline: 'Career Search 360',
     subheadline: 'Everything you need to build a stronger profile, manage opportunities and stay in control of your job search.',
-    outcome: 'Instead of relying on disconnected resources, bring application tracking, ATS resumes, LinkedIn and practical execution guides into one system.',
+    outcome: 'Career Search 360 brings application tracking, ATS resumes, LinkedIn and practical execution guides together in one structured, reusable system.',
     includes: ['Opportunity Management System', 'All Tracker automations', '2 premium opportunity and follow-up guides', '7 professional ATS resume templates', 'Complete ATS resume guide', 'LinkedIn optimization guide', 'Immediate access after payment', 'Reusable for future searches'],
-    benefits: ['One system from opportunity targeting through interview follow-up', 'Less time lost between disconnected files and methods', 'A more consistent resume, LinkedIn profile and follow-up process', 'The Store’s strongest overall value'],
+    benefits: ['One system from opportunity targeting through interview follow-up', 'Less time lost between disconnected files and methods', 'A more consistent resume, LinkedIn profile and follow-up process', 'A structured system you can reuse for future opportunities'],
     idealFor: ['Anyone actively exploring opportunities', 'Students and interns', 'Recent graduates', 'Professionals in transition', 'International applicants'],
-    delivery: ['Complete one secure PayPal payment.', 'Your Bundle access is unlocked immediately after confirmation.', 'Both packs are also sent to you by email.', 'Keep the files and reuse them for future career opportunities.'],
-    note: '$14.50 instead of $17.20 when purchased separately. One-time payment, no subscription.',
+    delivery: ['Complete your secure PayPal payment.', 'Your Career Search 360 access is unlocked immediately after confirmation.', 'Your access links and resources are also sent by email.', 'Keep the system and reuse it for future career opportunities.'],
+    note: '$14.50 — one-time payment. Instant access to the complete Career Search 360 system, with no subscription.',
   },
 };
 
