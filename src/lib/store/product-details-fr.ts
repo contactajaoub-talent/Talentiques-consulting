@@ -98,12 +98,12 @@ export const STORE_PRODUCT_DETAILS_FR: Record<StoreProductId, StoreProductDetail
   bundle: {
     id: 'bundle',
     slug: 'bundle',
-    eyebrow: 'L’offre recommandée',
+    eyebrow: 'Le système complet',
     headline: 'Career Search 360',
     subheadline:
       'Tout ce qu’il vous faut pour renforcer votre profil, gérer vos opportunités et garder le contrôle de votre recherche.',
     outcome:
-      'Au lieu d’acheter des ressources isolées, vous réunissez le pilotage de votre recherche, le CV ATS, LinkedIn et les guides d’exécution dans un seul système.',
+      'Career Search 360 réunit le pilotage de votre recherche, le CV ATS, LinkedIn et les guides d’exécution dans un seul système structuré et réutilisable.',
     includes: [
       'Opportunity Management System FR + EN',
       'Toutes les automatisations du Tracker',
@@ -118,7 +118,7 @@ export const STORE_PRODUCT_DETAILS_FR: Record<StoreProductId, StoreProductDetail
       'Un seul système du ciblage jusqu’au suivi des entretiens',
       'Moins de temps perdu entre plusieurs fichiers et méthodes',
       'Une candidature plus cohérente entre CV, LinkedIn et suivi',
-      'Le meilleur rapport valeur/prix de la Store',
+      'Un système structuré que vous pouvez réutiliser pour vos futures opportunités',
     ],
     idealFor: [
       'Toute personne en recherche active',
@@ -128,12 +128,13 @@ export const STORE_PRODUCT_DETAILS_FR: Record<StoreProductId, StoreProductDetail
       'Candidatures FR et internationales',
     ],
     delivery: [
-      'Vous finalisez un seul paiement sécurisé PayPal.',
-      'Votre accès au Bundle est débloqué immédiatement après confirmation.',
-      'Vous recevez par e-mail les deux packs : Opportunity Management System + Career Branding Toolkit.',
-      'Vous pouvez conserver les fichiers et les réutiliser pour vos prochaines opportunités.',
+      'Vous finalisez votre paiement sécurisé PayPal.',
+      'Votre accès à Career Search 360 est débloqué immédiatement après confirmation.',
+      'Vous recevez également vos accès et ressources par e-mail.',
+      'Vous pouvez conserver le système et le réutiliser pour vos prochaines opportunités.',
     ],
-    note: '14,50 € au lieu de 17,20 € si les deux systèmes sont achetés séparément. Paiement unique, aucun abonnement.',
+    note:
+      '14,50 € — paiement unique. Accès immédiat à l’ensemble du système Career Search 360, sans abonnement.',
   },
 };
 
