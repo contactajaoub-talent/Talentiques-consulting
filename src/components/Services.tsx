@@ -47,7 +47,7 @@ export function Services({ locale = 'fr' }: { locale?: HomeLocale }) {
         aria-hidden="true"
       />
 
-      <div className="container relative mx-auto px-5 md:px-8">
+      <div className="container relative mx-auto px-6 md:px-8">
         <div className="mx-auto max-w-7xl">
           <motion.div
             initial={{ opacity: 0, y: 18 }}
@@ -60,13 +60,13 @@ export function Services({ locale = 'fr' }: { locale?: HomeLocale }) {
               aria-hidden="true"
             />
 
-            <div className="relative grid gap-10 lg:grid-cols-[1.08fr_.92fr] lg:items-center lg:gap-16">
+            <div className="relative grid gap-9 sm:gap-10 lg:grid-cols-[1.08fr_.92fr] lg:items-center lg:gap-16">
               <div>
                 <span className="text-xs font-bold uppercase tracking-[.22em] text-[#C96A08]">
                   {copy.eyebrow}
                 </span>
 
-                <h2 className="mt-5 max-w-3xl font-heading text-4xl font-bold leading-[1.08] tracking-[-.035em] text-[#0F3452] md:text-5xl">
+                <h2 className="mt-4 max-w-3xl font-heading text-[2rem] font-bold leading-[1.1] tracking-[-.035em] text-[#0F3452] min-[390px]:text-[2.125rem] sm:mt-5 sm:text-4xl lg:text-5xl lg:leading-[1.08]">
                   {locale === 'fr' ? (
                     <>
                       Optimisation complète de votre{' '}
@@ -80,7 +80,7 @@ export function Services({ locale = 'fr' }: { locale?: HomeLocale }) {
                   )}
                 </h2>
 
-                <p className="mt-6 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
+                <p className="mt-5 max-w-2xl text-base leading-7 text-slate-600 sm:mt-6 sm:text-lg sm:leading-8">
                   {locale === 'fr'
                     ? 'CV, LinkedIn, positionnement et cohérence de candidature : Talentiques vous aide à construire une image professionnelle plus claire, crédible et adaptée à votre objectif.'
                     : 'Resume, LinkedIn, positioning and application consistency: Talentiques helps you build a clearer, stronger professional image aligned with your goals.'}
@@ -88,24 +88,28 @@ export function Services({ locale = 'fr' }: { locale?: HomeLocale }) {
 
                 <Link
                   href={href}
-                  className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-[#0683C9] transition hover:text-[#056da8]"
+                  className="mt-7 inline-flex items-center gap-2.5 text-sm font-bold text-[#0683C9] transition hover:text-[#056da8] sm:mt-8"
                 >
                   {locale === 'fr' ? 'Découvrir nos offres' : 'Explore our services'}
-                  <ArrowRight size={16} />
+                  <ArrowRight
+                    size={16}
+                    aria-hidden="true"
+                    className="shrink-0"
+                  />
                 </Link>
               </div>
 
-              <div className="border-t border-sky-200/80 lg:border-l lg:border-t-0 lg:pl-10">
+              <div className="border-t border-sky-200/60 lg:border-l lg:border-t-0 lg:border-sky-200/80 lg:pl-10">
                 {showcaseItems.map(([title, description], index) => (
                   <div
                     key={title}
-                    className="grid grid-cols-[2.8rem_1fr] gap-4 border-b border-sky-200/80 py-5 last:border-b-0"
+                    className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-3.5 border-b border-sky-200/60 py-6 last:border-b-0 sm:py-5 lg:grid-cols-[2.8rem_1fr] lg:gap-4 lg:border-sky-200/80"
                   >
-                    <span className="font-heading text-xs font-bold tracking-[.16em] text-[#D97706]">
+                    <span className="pt-1 font-heading text-xs font-bold leading-6 tracking-[.16em] text-[#D97706] lg:pt-0">
                       0{index + 1}
                     </span>
                     <div>
-                      <h3 className="font-heading text-lg font-bold text-slate-950">
+                      <h3 className="font-heading text-lg font-bold leading-7 text-slate-950">
                         {title}
                       </h3>
                       <p className="mt-1.5 text-sm leading-6 text-slate-600">
