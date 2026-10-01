@@ -1,13 +1,9 @@
 import {
-  BarChart3,
   Check,
   Clock3,
   CreditCard,
-  FileCheck2,
-  Gift,
   Globe2,
   Infinity as InfinityIcon,
-  Linkedin,
   RefreshCw,
   ShieldCheck,
   Sparkles,
@@ -21,30 +17,10 @@ import Link from 'next/link';
 import RecentPurchaseToast from '@/components/store/RecentPurchaseToast';
 import StoreCTA from '@/components/store/StoreCTA';
 import StoreLanguageSwitcher from '@/components/store/StoreLanguageSwitcher';
-import {
-  AtsVisual,
-  BundleVisual,
-  TrackerVisual,
-} from '@/components/store/ProductVisuals';
+import { BundleVisual } from '@/components/store/ProductVisuals';
 import { STORE_EN_PRODUCTS, STORE_FR_PRODUCTS, type StoreMarket } from '@/lib/store/catalog';
 import { getStoreDetailHrefFR } from '@/lib/store/product-details-fr';
 import { getStoreDetailHrefEN } from '@/lib/store/product-details-en';
-
-const trackerFeatures = [
-  'Suivi des candidatures, statuts, relances et entretiens',
-  'Dashboard avec statistiques et priorités',
-  'Mini CRM recruteurs / contacts',
-  'Scoring des opportunités',
-  '2 guides premium inclus',
-];
-
-const atsFeatures = [
-  '7 modèles CV ATS professionnels et modifiables',
-  'Guide CV complet FR + EN',
-  'Méthode de personnalisation selon l’offre',
-  'Guide LinkedIn offert FR + EN',
-  'Réutilisable à chaque nouvelle candidature',
-];
 
 const bundleFeatures = [
   'Opportunity Management System',
@@ -62,14 +38,7 @@ const trustItems: ReadonlyArray<readonly [LucideIcon, string, string]> = [
   [Globe2, 'FR + EN inclus', 'Ressources bilingues'],
 ];
 
-const offerFeatures: Record<'tracker' | 'ats' | 'bundle', string[]> = {
-  tracker: [
-    'Suivi des candidatures et statuts',
-    'Tableau de bord clair et priorités',
-    'Relances automatiques (J+5)',
-    'Entretiens et contacts',
-    'Compatible Google Sheets',
-  ],
+const offerFeatures = {
   bundle: [
     'Opportunity Management System',
     'Modèles CV ATS professionnels',
@@ -77,18 +46,7 @@ const offerFeatures: Record<'tracker' | 'ats' | 'bundle', string[]> = {
     '2 guides pratiques',
     'Ressources FR + EN',
   ],
-  ats: [
-    '7 modèles CV ATS professionnels',
-    'Guide CV complet FR + EN',
-    'Méthode de personnalisation selon l’offre',
-    'Guide LinkedIn FR + EN',
-  ],
 };
-
-const offerVisuals = {
-  tracker: '/store/premium/tracker-fr.png',
-  ats: '/store/premium/ats-fr.png',
-} as const;
 
 const benefitItems: ReadonlyArray<readonly [LucideIcon, string, string]> = [
   [Clock3, 'Gagnez du temps', 'Vous partez d’un système déjà structuré au lieu de reconstruire votre méthode à chaque recherche.'],
@@ -97,13 +55,9 @@ const benefitItems: ReadonlyArray<readonly [LucideIcon, string, string]> = [
   [RefreshCw, 'Gardez-le dans le temps', 'Vous pouvez réutiliser les fichiers lorsque votre prochaine opportunité arrive.'],
 ];
 
-const englishTrackerFeatures = ['Application and status tracking', 'Clear dashboard and priorities', 'Recruiter and contact mini CRM', 'Opportunity scoring', '2 premium guides included'];
-const englishAtsFeatures = ['7 professional ATS resume templates', 'Complete ATS resume guide', 'Job-specific tailoring method', 'LinkedIn optimization guide', 'Reusable for every future application'];
 const englishBundleFeatures = ['Opportunity Management System', '2 practical guides', '7 professional ATS resume templates', 'Complete ATS resume guide', 'LinkedIn optimization guide', 'English resources'];
 const englishOfferFeatures = {
-  tracker: ['Application and status tracking', 'Clear dashboard and priorities', 'Automated follow-ups (D+5)', 'Interviews and contacts', 'Google Sheets compatible'],
   bundle: ['Opportunity Management System', 'Professional ATS resume templates', 'LinkedIn optimization', '2 practical guides', 'English resources'],
-  ats: ['7 professional ATS resume templates', 'Complete ATS resume guide', 'Job-specific tailoring method', 'LinkedIn optimization guide'],
 };
 const englishTrustItems: ReadonlyArray<readonly [LucideIcon, string, string]> = [
   [CreditCard, 'One-time payment', 'No subscription'], [Zap, 'Instant access', 'After payment'], [InfinityIcon, 'Reusable', 'For future searches'], [Globe2, 'English edition', 'English resources'],
@@ -115,31 +69,6 @@ const englishBenefitItems: ReadonlyArray<readonly [LucideIcon, string, string]> 
   [RefreshCw, 'USE IT AGAIN', 'Reuse the same resources when your next career opportunity comes up.'],
 ];
 
-function formatDelta(value: number) {
-  return `${value.toFixed(2).replace('.', ',')} €`;
-}
-
-function CheckItem({
-  children,
-  tone = 'sky',
-}: {
-  children: React.ReactNode;
-  tone?: 'sky' | 'violet';
-}) {
-  return (
-    <li className="flex items-start gap-3 text-sm leading-6 text-slate-600">
-      <span
-        className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full text-white ${
-          tone === 'sky' ? 'bg-sky-500' : 'bg-violet-500'
-        }`}
-      >
-        <Check className="h-3.5 w-3.5" />
-      </span>
-      <span>{children}</span>
-    </li>
-  );
-}
-
 function OfferCard({
   id,
   title,
@@ -148,20 +77,16 @@ function OfferCard({
   featured = false,
   compareAt,
   savings,
-  bonus,
-  bonusDetail,
   market,
   features,
 }: {
-  id: 'tracker' | 'ats' | 'bundle';
+  id: 'bundle';
   title: string;
   description: string;
   price: string;
   featured?: boolean;
   compareAt?: string;
   savings?: string;
-  bonus?: string;
-  bonusDetail?: string;
   market: StoreMarket;
   features: string[];
 }) {
@@ -189,13 +114,7 @@ function OfferCard({
               : 'bg-sky-400/10 text-sky-300'
           }`}
         >
-          {id === 'tracker' ? (
-            <BarChart3 className="h-5 w-5" />
-          ) : id === 'ats' ? (
-            <FileCheck2 className="h-5 w-5" />
-          ) : (
-            <Sparkles className="h-5 w-5" />
-          )}
+          <Sparkles className="h-5 w-5" />
         </div>
         <div>
           <h3 className="text-lg font-black leading-tight text-white">{title}</h3>
@@ -205,16 +124,10 @@ function OfferCard({
 
       <div className="mt-5 overflow-hidden rounded-2xl border border-sky-400/15 bg-[#020b1f]">
         <Image
-          src={
-            id === 'bundle'
-              ? market === 'fr'
-                ? '/store/premium/career-search-360-fr.png'
-                : '/store/premium/career-search-360-en.png'
-              : offerVisuals[id]
-          }
+          src={market === 'fr' ? '/store/premium/career-search-360-fr.png' : '/store/premium/career-search-360-en.png'}
           alt=""
-          width={id === 'bundle' ? 1672 : 1448}
-          height={id === 'bundle' ? 941 : 1086}
+          width={1672}
+          height={941}
           sizes="(max-width: 1023px) calc(100vw - 72px), 350px"
           className="aspect-[16/9] w-full object-cover"
         />
@@ -243,11 +156,7 @@ function OfferCard({
             : 'bg-white text-slate-950 hover:bg-sky-50'
         }`}
       >
-        {featured
-          ? market === 'fr' ? 'Obtenir le système complet' : 'Get the complete system'
-          : id === 'tracker'
-            ? market === 'fr' ? 'Organiser ma recherche' : 'Organize my search'
-            : market === 'fr' ? 'Renforcer ma candidature' : 'Strengthen my application'}
+        {market === 'fr' ? 'Obtenir Career Search 360' : 'Get Career Search 360'}
       </StoreCTA>
 
       <ul className="mt-6 space-y-2.5">
@@ -261,18 +170,6 @@ function OfferCard({
         ))}
       </ul>
 
-      {bonus && (
-        <div className="mt-auto pt-6">
-          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.035] p-3.5 text-xs font-black text-sky-100">
-            <Gift className="mr-2 inline h-4 w-4 text-sky-400" /> {bonus}
-            {bonusDetail && (
-              <span className="mt-1 block pl-6 text-[10px] font-medium leading-4 text-slate-400">
-                {bonusDetail}
-              </span>
-            )}
-          </div>
-        </div>
-      )}
     </article>
   );
 }
@@ -281,14 +178,10 @@ export default function StorePageFR({ market = 'fr' }: { market?: StoreMarket })
   const isFr = market === 'fr';
   const products = isFr ? STORE_FR_PRODUCTS : STORE_EN_PRODUCTS;
   const detailHref = isFr ? getStoreDetailHrefFR : getStoreDetailHrefEN;
-  const selectedTrackerFeatures = isFr ? trackerFeatures : englishTrackerFeatures;
-  const selectedAtsFeatures = isFr ? atsFeatures : englishAtsFeatures;
   const selectedBundleFeatures = isFr ? bundleFeatures : englishBundleFeatures;
   const selectedOfferFeatures = isFr ? offerFeatures : englishOfferFeatures;
   const selectedTrustItems = isFr ? trustItems : englishTrustItems;
   const selectedBenefitItems = isFr ? benefitItems : englishBenefitItems;
-  const trackerToBundleDelta = isFr ? formatDelta(Number(products.bundle.amount) - Number(products.tracker.amount)) : `$${(Number(products.bundle.amount) - Number(products.tracker.amount)).toFixed(2)}`;
-  const atsToBundleDelta = isFr ? formatDelta(Number(products.bundle.amount) - Number(products.ats.amount)) : `$${(Number(products.bundle.amount) - Number(products.ats.amount)).toFixed(2)}`;
   return (
     <main className="min-h-screen overflow-x-hidden bg-white pb-24 text-slate-950 md:pb-0">
       <section className="relative overflow-hidden bg-[#020b1f] text-white">
@@ -300,8 +193,7 @@ export default function StorePageFR({ market = 'fr' }: { market?: StoreMarket })
               TalentiQues
             </Link>
             <nav className="hidden items-center gap-7 text-sm font-semibold text-slate-300 md:flex">
-              <a href="#produits" className="transition hover:text-white">{isFr ? 'Produits' : 'Products'}</a>
-              <a href="#bundle" className="transition hover:text-white">Bundle</a>
+              <a href="#bundle" className="transition hover:text-white">Career Search 360</a>
               <a href="#faq" className="transition hover:text-white">FAQ</a>
             </nav>
             <div className="flex items-center gap-3">
@@ -310,7 +202,7 @@ export default function StorePageFR({ market = 'fr' }: { market?: StoreMarket })
               href="#offres"
               className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-sky-400 to-blue-600 px-4 py-2.5 text-xs font-black text-white shadow-[0_8px_30px_rgba(14,165,233,.28)] sm:px-5 sm:text-sm"
             >
-              {isFr ? 'Voir les offres' : 'View offers'} <Zap className="h-4 w-4" />
+              {isFr ? 'Voir l’offre' : 'View offer'} <Zap className="h-4 w-4" />
             </a>
             </div>
           </div>
@@ -319,7 +211,7 @@ export default function StorePageFR({ market = 'fr' }: { market?: StoreMarket })
         <div className="relative mx-auto max-w-7xl px-4 pb-14 text-center sm:px-8">
           <div className="mx-auto max-w-4xl pt-9 sm:pt-11">
             <h1 className="text-4xl font-black leading-[1.02] tracking-[-0.045em] text-white sm:text-5xl lg:text-6xl">
-              Career Search <span className="block text-sky-400 sm:inline">Bundle</span>
+              Career Search <span className="block text-sky-400 sm:inline">360</span>
             </h1>
             <p className="mx-auto mt-4 max-w-3xl text-[17px] font-bold leading-7 text-slate-100 sm:text-xl">
               {isFr ? 'Le système complet pour structurer votre recherche d’opportunités professionnelles.' : 'The complete system to structure your search for career opportunities.'}
@@ -353,18 +245,8 @@ export default function StorePageFR({ market = 'fr' }: { market?: StoreMarket })
 
           <div
             id="offres"
-            className="mx-auto grid max-w-6xl gap-5 text-left lg:grid-cols-3 lg:items-stretch"
+            className="mx-auto max-w-md text-left"
           >
-            <OfferCard
-              id="tracker"
-              title="Opportunity Management System"
-              description={isFr ? 'Centralisez vos candidatures, relances, entretiens et prochaines actions dans un seul système de suivi.' : 'Centralize your applications, follow-ups, interviews and next actions in one structured management system.'}
-              price={products.tracker.displayPrice}
-              bonus={isFr ? '2 guides premium inclus' : '2 premium guides included'}
-              bonusDetail={isFr ? 'Identifier, qualifier et suivre vos opportunités.' : 'Find, qualify and follow your career opportunities.'}
-              market={market}
-              features={selectedOfferFeatures.tracker}
-            />
             <OfferCard
               id="bundle"
               title="Career Search 360"
@@ -375,16 +257,6 @@ export default function StorePageFR({ market = 'fr' }: { market?: StoreMarket })
               savings={products.bundle.savings}
               market={market}
               features={selectedOfferFeatures.bundle}
-            />
-            <OfferCard
-              id="ats"
-              title="Career Branding Toolkit"
-              description={isFr ? 'Renforcez votre profil avec des modèles CV ATS, une méthode de personnalisation et un guide LinkedIn.' : 'Build a stronger professional profile with ATS resume templates, a tailoring method and a practical LinkedIn guide.'}
-              price={products.ats.displayPrice}
-              bonus={isFr ? 'Guide LinkedIn inclus' : 'LinkedIn Guide included'}
-              bonusDetail={isFr ? 'Une méthode claire pour renforcer votre profil professionnel.' : 'A practical method to strengthen your professional profile.'}
-              market={market}
-              features={selectedOfferFeatures.ats}
             />
           </div>
 
@@ -437,105 +309,6 @@ export default function StorePageFR({ market = 'fr' }: { market?: StoreMarket })
         </div>
       </section>
 
-      <section id="produits" className="bg-slate-50 px-5 py-14 sm:px-8 sm:py-16">
-        <div className="mx-auto max-w-6xl">
-          <div className="text-center">
-            <div className="text-xs font-black uppercase tracking-[0.16em] text-sky-600">
-              {isFr ? 'Choisissez votre point de départ' : 'CHOOSE YOUR STARTING POINT'}
-            </div>
-            <h2 className="mt-3 text-3xl font-black tracking-[-0.035em] sm:text-4xl">
-              {isFr ? 'Choisissez votre outil — ou passez au système complet.' : 'Choose your tool — or get the complete system.'}
-            </h2>
-          </div>
-
-          <div className="mt-9 grid gap-6 lg:grid-cols-2">
-            <article className="rounded-[34px] border border-sky-100 bg-gradient-to-b from-sky-50 to-white p-6 shadow-sm sm:p-8">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="inline-flex items-center gap-2 rounded-full bg-sky-500/10 px-3 py-1.5 text-xs font-black text-sky-700">
-                    <BarChart3 className="h-4 w-4" /> {isFr ? 'Pilotez votre recherche' : 'Take control of your search'}
-                  </div>
-                  <h3 className="mt-4 text-2xl font-black">Opportunity Management System</h3>
-                  <p className="mt-2 max-w-lg text-sm leading-6 text-slate-500">
-                    {isFr ? 'Votre centre de contrôle pour garder vos candidatures, vos relances et vos entretiens sous contrôle.' : 'Your control center for keeping applications, follow-ups and interviews organized.'}
-                  </p>
-                </div>
-                <div className="shrink-0 rounded-2xl bg-sky-600 px-4 py-2 text-lg font-black text-white shadow-lg">
-                  {products.tracker.displayPrice}
-                </div>
-              </div>
-
-              <div className="mt-6"><TrackerVisual /></div>
-              <ul className="mt-6 space-y-2.5">
-                {selectedTrackerFeatures.map((feature) => <CheckItem key={feature}>{feature}</CheckItem>)}
-              </ul>
-
-              <div className="mt-6 rounded-2xl border border-dashed border-sky-200 bg-white p-4">
-                <div className="flex items-center gap-2 font-black text-sky-800">
-                  <Gift className="h-5 w-5" /> {isFr ? '2 guides premium inclus' : '2 premium guides included'}
-                </div>
-                <p className="mt-1 text-xs leading-5 text-slate-500">
-                  {isFr ? 'Identifier & qualifier les opportunités + suivi, relances et entretiens.' : 'Find, qualify and follow your career opportunities.'}
-                </p>
-              </div>
-
-              <StoreCTA
-                href={detailHref('tracker')}
-                productId="tracker"
-                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full border border-sky-200 bg-white px-5 py-3.5 text-sm font-black text-sky-700 transition hover:bg-sky-50"
-              >
-                {isFr ? 'Voir le produit en détail' : 'Explore the Tracker'}
-              </StoreCTA>
-              <p className="mt-3 text-center text-xs font-semibold text-slate-500">
-                {isFr ? <>Pour seulement <span className="font-black text-slate-900">+{trackerToBundleDelta}</span>, passez au Bundle et ajoutez tout le système CV.</> : <>Add the complete resume system for only <span className="font-black text-slate-900">+{trackerToBundleDelta}</span>.</>}
-              </p>
-            </article>
-
-            <article className="rounded-[34px] border border-violet-100 bg-gradient-to-b from-violet-50 to-white p-6 shadow-sm sm:p-8">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="inline-flex items-center gap-2 rounded-full bg-violet-500/10 px-3 py-1.5 text-xs font-black text-violet-700">
-                    <FileCheck2 className="h-4 w-4" /> {isFr ? 'Renforcez votre candidature' : 'Strengthen your application'}
-                  </div>
-                  <h3 className="mt-4 text-2xl font-black">Career Branding Toolkit</h3>
-                  <p className="mt-2 max-w-lg text-sm leading-6 text-slate-500">
-                    {isFr ? 'Des modèles professionnels + une méthode complète pour construire et adapter votre candidature.' : 'Professional templates and a clear method to build and tailor stronger applications.'}
-                  </p>
-                </div>
-                <div className="shrink-0 rounded-2xl bg-violet-600 px-4 py-2 text-lg font-black text-white shadow-lg">
-                  {products.ats.displayPrice}
-                </div>
-              </div>
-
-              <div className="mt-6"><AtsVisual /></div>
-              <ul className="mt-6 space-y-2.5">
-                {selectedAtsFeatures.map((feature) => <CheckItem key={feature} tone="violet">{feature}</CheckItem>)}
-              </ul>
-
-              <div className="mt-6 rounded-2xl border border-dashed border-violet-200 bg-white p-4">
-                <div className="flex items-center gap-2 font-black text-violet-800">
-                  <Linkedin className="h-5 w-5" /> {isFr ? 'Guide LinkedIn offert' : 'LinkedIn Guide included'}
-                </div>
-                <p className="mt-1 text-xs leading-5 text-slate-500">
-                  {isFr ? 'Un guide dédié pour renforcer le profil qui accompagne vos candidatures.' : 'A practical method to strengthen your professional profile.'}
-                </p>
-              </div>
-
-              <StoreCTA
-                href={detailHref('ats')}
-                productId="ats"
-                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full border border-violet-200 bg-white px-5 py-3.5 text-sm font-black text-violet-700 transition hover:bg-violet-50"
-              >
-                {isFr ? 'Voir le produit en détail' : 'Explore the ATS system'}
-              </StoreCTA>
-              <p className="mt-3 text-center text-xs font-semibold text-slate-500">
-                {isFr ? <>Pour seulement <span className="font-black text-slate-900">+{atsToBundleDelta}</span>, passez au Bundle et ajoutez le Tracker + ses guides.</> : <>Add the Opportunity Management System and its guides for only <span className="font-black text-slate-900">+{atsToBundleDelta}</span>.</>}
-              </p>
-            </article>
-          </div>
-        </div>
-      </section>
-
       <section id="bundle" className="bg-white px-5 py-14 sm:px-8 sm:py-16">
         <div className="mx-auto max-w-6xl">
           <div className="rounded-[40px] border border-sky-200 bg-[#020b1f] p-4 shadow-[0_35px_100px_rgba(37,99,235,.18)] sm:p-6 lg:p-8">
@@ -571,7 +344,7 @@ export default function StorePageFR({ market = 'fr' }: { market?: StoreMarket })
                   productId="bundle"
                   className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-sky-400 to-blue-600 px-6 py-4 text-sm font-black text-white shadow-[0_15px_45px_rgba(14,165,233,.35)]"
                 >
-                  {isFr ? 'Voir le Bundle en détail' : 'Get the complete system'}
+                  {isFr ? 'Voir Career Search 360 en détail' : 'Get Career Search 360'}
                 </StoreCTA>
               </div>
             </div>
@@ -590,7 +363,7 @@ export default function StorePageFR({ market = 'fr' }: { market?: StoreMarket })
               ['Est-ce un abonnement ?', 'Non. Chaque achat est un paiement unique.'],
               ['Comment vais-je recevoir les fichiers ?', 'Après confirmation du paiement, une page d’accès est débloquée et les accès sont aussi envoyés par e-mail.'],
               ['Puis-je réutiliser les outils ?', 'Oui. Les fichiers sont conçus pour être conservés et adaptés à vos futures recherches.'],
-              ['Le Bundle est-il obligatoire ?', 'Non. Les deux produits peuvent être achetés séparément. Le Bundle réunit simplement les deux à un prix plus avantageux.'],
+              ['Que contient Career Search 360 ?', 'Le système réunit le suivi des opportunités, les modèles CV ATS et les guides CV et LinkedIn dans une seule offre.'],
             ] : [
               ['Is this a subscription?', 'No. Every purchase is a one-time payment with no recurring fee.'],
               ['How does access work?', 'Payment confirmation unlocks a secure access page, and your resources are also sent by email.'],
@@ -617,7 +390,7 @@ export default function StorePageFR({ market = 'fr' }: { market?: StoreMarket })
             <span className="text-sky-400">{isFr ? 'Réutilisez le système à chaque nouvelle opportunité.' : 'Reuse your system for every new career opportunity.'}</span>
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-slate-300">
-            {isFr ? 'Commencez avec l’outil dont vous avez besoin ou choisissez le Bundle pour réunir toute votre recherche dans un seul système.' : 'Start with the tool you need today, or choose the Bundle to bring your entire search process into one system.'}
+            {isFr ? 'Career Search 360 réunit toute votre recherche dans un seul système.' : 'Career Search 360 brings your entire search process into one system.'}
           </p>
           <StoreCTA
             href={detailHref('bundle')}

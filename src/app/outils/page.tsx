@@ -2,12 +2,12 @@ import type { Metadata } from 'next';
 import StorePageFR from '@/components/store/StorePageFR';
 
 export const metadata: Metadata = {
-  title: 'Outils carrière : Tracker, CV ATS & Bundle',
+  title: 'Career Search 360 | TalentiQues',
   description:
-    'Opportunity Management System, Career Branding Toolkit et Career Search 360 : des outils réutilisables pour structurer votre recherche, renforcer vos candidatures et suivre vos opportunités.',
+    'Career Search 360 : le système complet et réutilisable pour structurer votre recherche, renforcer vos candidatures et suivre vos opportunités.',
   alternates: { canonical: '/outils', languages: { 'fr-FR': '/outils', en: '/en/tools' } },
   openGraph: {
-    title: 'TalentiQues Store | Outils carrière',
+    title: 'Career Search 360 | TalentiQues Store',
     description:
       'Tracker de candidatures, modèles CV ATS, guides CV et LinkedIn. Paiement unique, accès immédiat.',
     url: 'https://talentiques.com/outils',
