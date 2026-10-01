@@ -162,7 +162,7 @@ export default function CVDiagnosisPage() {
             </Field>
 
             <div className="mb-7 mt-7 flex justify-center gap-3">
-              <MethodButton active={uploadMethod === 'file'} onClick={() => setUploadMethod('file')} icon={<Upload size={18} />} label="Importer un fichier" />
+              <MethodButton active={uploadMethod === 'file'} onClick={() => setUploadMethod('file')} icon={<Upload size={18} />} label="Importer votre CV" />
             </div>
 
             {uploadMethod === 'paste' ? (
