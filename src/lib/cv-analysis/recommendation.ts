@@ -38,7 +38,7 @@ export function recommendOffer(input: RecommendationInput): Recommendation {
   return result(
     offer.id,
     offer.name,
-    '/outils/bundle',
+    '/outils',
     reasons[difficulty] || genericReason,
     'Découvrir Career Search 360',
   );

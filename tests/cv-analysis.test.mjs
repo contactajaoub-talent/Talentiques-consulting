@@ -167,7 +167,7 @@ test('recommendation engine always recommends Career Search 360 and personalizes
   for (const [difficulty, reason] of expectedReasons) {
     const recommendation = recommendOffer({ ...base, difficulty });
     assert.equal(recommendation.offerName, 'Career Search 360');
-    assert.equal(recommendation.href, '/outils/bundle');
+    assert.equal(recommendation.href, '/outils');
     assert.equal(recommendation.cta, 'Découvrir Career Search 360');
     assert.equal(recommendation.reason, reason);
   }
@@ -425,5 +425,5 @@ function contact(marketing) {
 }
 
 function analysisResult(jobMatch) {
-  return { atsReadiness: { total: 82, breakdown: calculateAtsReadiness(complete).breakdown }, jobMatch, strengths: [], priorities: complete.issues, removeOrReduce: [], addOrStrengthen: [], rewrites: complete.issues, esco: { used: false, occupation: null, skills: [] }, recommendation: { offerId: 'bundle', offerName: 'Career Search 360', href: '/outils/bundle', reason: 'Base correcte.', cta: 'Découvrir Career Search 360' }, profile: { experienceLevel: 'senior', currentStatus: 'Salarié en poste' }, layoutAssessed: true, modelUsed: 'gpt-6-luna', fallbackUsed: false };
+  return { atsReadiness: { total: 82, breakdown: calculateAtsReadiness(complete).breakdown }, jobMatch, strengths: [], priorities: complete.issues, removeOrReduce: [], addOrStrengthen: [], rewrites: complete.issues, esco: { used: false, occupation: null, skills: [] }, recommendation: { offerId: 'bundle', offerName: 'Career Search 360', href: '/outils', reason: 'Base correcte.', cta: 'Découvrir Career Search 360' }, profile: { experienceLevel: 'senior', currentStatus: 'Salarié en poste' }, layoutAssessed: true, modelUsed: 'gpt-6-luna', fallbackUsed: false };
 }
