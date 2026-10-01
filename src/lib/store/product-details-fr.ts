@@ -55,6 +55,7 @@ export const STORE_PRODUCT_DETAILS_FR: Record<StoreProductId, StoreProductDetail
     ],
     note: 'Paiement unique. Aucun abonnement. Les fichiers restent à votre disposition pour vos futures recherches.',
   },
+
   ats: {
     id: 'ats',
     slug: 'cv-ats',
@@ -95,6 +96,7 @@ export const STORE_PRODUCT_DETAILS_FR: Record<StoreProductId, StoreProductDetail
     ],
     note: 'Paiement unique. Aucun abonnement. Les modèles et guides sont réutilisables pour vos futures candidatures.',
   },
+
   bundle: {
     id: 'bundle',
     slug: 'bundle',
