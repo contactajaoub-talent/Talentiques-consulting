@@ -97,7 +97,7 @@ export const content = {
         'Corrections illimitées jusqu’à satisfaction',
       ],
       icon: GraduationCap,
-      price: '30 €',
+      price: '35 €',
       delay: 'Livraison sous 48–72h ouvrées · justificatif requis',
       cta: 'Renforcer ma candidature',
     },

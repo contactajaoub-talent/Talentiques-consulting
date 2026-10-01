@@ -21,8 +21,8 @@ const SERVICES: Record<ServiceMarket, Record<ServiceId, ServiceOffer>> = {
     },
     'student-jobseeker': {
       id: 'student-jobseeker', market: 'fr',
-      name: 'Pack Étudiant & Demandeur d’emploi', amount: '30.00',
-      currency: 'EUR', displayPrice: '30 €',
+      name: 'Pack Étudiant & Demandeur d’emploi', amount: '35.00',
+      currency: 'EUR', displayPrice: '35 €',
       paypalDescription: 'Pack Étudiant et Demandeur d’emploi - TalentiQues',
     },
   },
@@ -35,8 +35,8 @@ const SERVICES: Record<ServiceMarket, Record<ServiceId, ServiceOffer>> = {
     },
     'student-jobseeker': {
       id: 'student-jobseeker', market: 'en',
-      name: 'Student & Job Seeker Pack', amount: '30.00',
-      currency: 'USD', displayPrice: '$30',
+      name: 'Student & Job Seeker Pack', amount: '35.00',
+      currency: 'USD', displayPrice: '$35',
       paypalDescription: 'Student and Job Seeker Pack - TalentiQues',
     },
   },
