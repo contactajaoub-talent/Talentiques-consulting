@@ -4,7 +4,7 @@ import { useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  AlertCircle, ArrowRight, CheckCircle, FileText, ShieldCheck,
+  AlertCircle, ArrowRight, CheckCircle, ShieldCheck,
   Sparkles, Target, TrendingUp, Upload,
 } from 'lucide-react';
 import { Footer } from '@/components/Footer';
@@ -19,7 +19,7 @@ const allowedExtensions = new Set(['pdf', 'doc', 'docx', 'txt']);
 const fieldClass = 'w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-900 outline-none transition focus:border-transparent focus:ring-2 focus:ring-brand-500';
 
 export default function CVDiagnosisPage() {
-  const [uploadMethod, setUploadMethod] = useState<'paste' | 'file'>('paste');
+  const [uploadMethod, setUploadMethod] = useState<'paste' | 'file'>('file');
   const [cvText, setCvText] = useState('');
   const [cvFile, setCvFile] = useState<File | null>(null);
   const [targetRole, setTargetRole] = useState('');
@@ -162,7 +162,6 @@ export default function CVDiagnosisPage() {
             </Field>
 
             <div className="mb-7 mt-7 flex justify-center gap-3">
-              <MethodButton active={uploadMethod === 'paste'} onClick={() => setUploadMethod('paste')} icon={<FileText size={18} />} label="Coller le texte" />
               <MethodButton active={uploadMethod === 'file'} onClick={() => setUploadMethod('file')} icon={<Upload size={18} />} label="Importer un fichier" />
             </div>
 
