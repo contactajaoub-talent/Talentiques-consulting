@@ -1,18 +1,13 @@
 import {
   Check,
   Clock3,
-  CreditCard,
-  Globe2,
-  Infinity as InfinityIcon,
   RefreshCw,
   ShieldCheck,
-  Sparkles,
   Target,
   TrendingUp,
   Zap,
   type LucideIcon,
 } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import RecentPurchaseToast from '@/components/store/RecentPurchaseToast';
 import StoreCTA from '@/components/store/StoreCTA';
@@ -31,23 +26,6 @@ const bundleFeatures = [
   'Versions FR + EN incluses',
 ];
 
-const trustItems: ReadonlyArray<readonly [LucideIcon, string, string]> = [
-  [CreditCard, 'Paiement unique', 'Aucun abonnement'],
-  [Zap, 'Accès immédiat', 'Après paiement'],
-  [InfinityIcon, 'Réutilisable', 'À vie, sur vos propres recherches'],
-  [Globe2, 'FR + EN inclus', 'Ressources bilingues'],
-];
-
-const offerFeatures = {
-  bundle: [
-    'Opportunity Management System',
-    'Modèles CV ATS professionnels',
-    'Optimisation LinkedIn',
-    '2 guides pratiques',
-    'Ressources FR + EN',
-  ],
-};
-
 const benefitItems: ReadonlyArray<readonly [LucideIcon, string, string]> = [
   [Clock3, 'Gagnez du temps', 'Vous partez d’un système déjà structuré au lieu de reconstruire votre méthode à chaque recherche.'],
   [Target, 'Restez organisé', 'Candidatures, relances et prochaines actions restent au même endroit.'],
@@ -56,12 +34,6 @@ const benefitItems: ReadonlyArray<readonly [LucideIcon, string, string]> = [
 ];
 
 const englishBundleFeatures = ['Opportunity Management System', '2 practical guides', '7 professional ATS resume templates', 'Complete ATS resume guide', 'LinkedIn optimization guide', 'English resources'];
-const englishOfferFeatures = {
-  bundle: ['Opportunity Management System', 'Professional ATS resume templates', 'LinkedIn optimization', '2 practical guides', 'English resources'],
-};
-const englishTrustItems: ReadonlyArray<readonly [LucideIcon, string, string]> = [
-  [CreditCard, 'One-time payment', 'No subscription'], [Zap, 'Instant access', 'After payment'], [InfinityIcon, 'Reusable', 'For future searches'], [Globe2, 'English edition', 'English resources'],
-];
 const englishBenefitItems: ReadonlyArray<readonly [LucideIcon, string, string]> = [
   [Clock3, 'SAVE TIME', 'Start with a structured system instead of rebuilding your process for every new search.'],
   [Target, 'STAY ORGANIZED', 'Keep applications, follow-ups and next actions in one place.'],
@@ -69,118 +41,11 @@ const englishBenefitItems: ReadonlyArray<readonly [LucideIcon, string, string]> 
   [RefreshCw, 'USE IT AGAIN', 'Reuse the same resources when your next career opportunity comes up.'],
 ];
 
-function OfferCard({
-  id,
-  title,
-  description,
-  price,
-  featured = false,
-  compareAt,
-  savings,
-  market,
-  features,
-}: {
-  id: 'bundle';
-  title: string;
-  description: string;
-  price: string;
-  featured?: boolean;
-  compareAt?: string;
-  savings?: string;
-  market: StoreMarket;
-  features: string[];
-}) {
-  const href = market === 'fr' ? getStoreDetailHrefFR(id) : getStoreDetailHrefEN(id);
-
-  return (
-    <article
-      className={`relative flex h-full flex-col rounded-[26px] border p-5 text-left transition sm:p-6 ${
-        featured
-          ? 'z-10 border-sky-400 bg-gradient-to-b from-sky-500/15 to-[#06142d] shadow-[0_0_0_1px_rgba(56,189,248,.28),0_25px_80px_rgba(14,165,233,.30)] lg:-translate-y-3'
-          : 'border-white/10 bg-[#07152d] shadow-[0_18px_50px_rgba(0,0,0,.22)]'
-      }`}
-    >
-      {featured && (
-        <div className="absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-sky-400 to-blue-500 px-4 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-white shadow-lg">
-          ★ {market === 'fr' ? 'Offre recommandée' : 'Recommended offer'}
-        </div>
-      )}
-
-      <div className="flex items-start gap-3">
-        <div
-          className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${
-            featured
-              ? 'bg-violet-500/20 text-violet-200'
-              : 'bg-sky-400/10 text-sky-300'
-          }`}
-        >
-          <Sparkles className="h-5 w-5" />
-        </div>
-        <div>
-          <h3 className="text-lg font-black leading-tight text-white">{title}</h3>
-          <p className="mt-2 text-xs leading-5 text-slate-400">{description}</p>
-        </div>
-      </div>
-
-      <div className="mt-5 overflow-hidden rounded-2xl border border-sky-400/15 bg-[#020b1f]">
-        <Image
-          src={market === 'fr' ? '/store/premium/career-search-360-fr.png' : '/store/premium/career-search-360-en.png'}
-          alt=""
-          width={1672}
-          height={941}
-          sizes="(max-width: 1023px) calc(100vw - 72px), 350px"
-          className="aspect-[16/9] w-full object-cover"
-        />
-      </div>
-
-      <div className="mt-6">
-        <div className="text-4xl font-black tracking-[-0.04em] text-white">
-          {price}
-        </div>
-        {compareAt && (
-          <div className="mt-1 text-xs text-slate-500 line-through">{compareAt}</div>
-        )}
-        {savings && (
-          <div className="mt-2 inline-flex rounded-full bg-sky-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-sky-200">
-            {savings}
-          </div>
-        )}
-      </div>
-
-      <StoreCTA
-        href={href}
-        productId={id}
-        className={`mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3.5 text-sm font-black transition ${
-          featured
-            ? 'bg-gradient-to-r from-sky-400 to-blue-600 text-white shadow-[0_12px_35px_rgba(14,165,233,.34)] hover:-translate-y-0.5'
-            : 'bg-white text-slate-950 hover:bg-sky-50'
-        }`}
-      >
-        {market === 'fr' ? 'Obtenir Career Search 360' : 'Get Career Search 360'}
-      </StoreCTA>
-
-      <ul className="mt-6 space-y-2.5">
-        {features.map((feature) => (
-          <li key={feature} className="flex items-start gap-2.5 text-xs leading-5 text-slate-300 sm:text-sm">
-            <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-sky-500 text-white">
-              <Check className="h-3 w-3" strokeWidth={3} />
-            </span>
-            {feature}
-          </li>
-        ))}
-      </ul>
-
-    </article>
-  );
-}
-
 export default function StorePageFR({ market = 'fr' }: { market?: StoreMarket }) {
   const isFr = market === 'fr';
   const products = isFr ? STORE_FR_PRODUCTS : STORE_EN_PRODUCTS;
   const detailHref = isFr ? getStoreDetailHrefFR : getStoreDetailHrefEN;
   const selectedBundleFeatures = isFr ? bundleFeatures : englishBundleFeatures;
-  const selectedOfferFeatures = isFr ? offerFeatures : englishOfferFeatures;
-  const selectedTrustItems = isFr ? trustItems : englishTrustItems;
   const selectedBenefitItems = isFr ? benefitItems : englishBenefitItems;
   return (
     <main className="min-h-screen overflow-x-hidden bg-white pb-24 text-slate-950 md:pb-0">
@@ -199,7 +64,7 @@ export default function StorePageFR({ market = 'fr' }: { market?: StoreMarket })
             <div className="flex items-center gap-3">
               <StoreLanguageSwitcher market={market} />
             <a
-              href="#offres"
+              href="#bundle"
               className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-sky-400 to-blue-600 px-4 py-2.5 text-xs font-black text-white shadow-[0_8px_30px_rgba(14,165,233,.28)] sm:px-5 sm:text-sm"
             >
               {isFr ? 'Voir l’offre' : 'View offer'} <Zap className="h-4 w-4" />
@@ -243,37 +108,6 @@ export default function StorePageFR({ market = 'fr' }: { market?: StoreMarket })
 
           <div className="mx-auto mt-6 h-4 max-w-6xl bg-gradient-to-b from-transparent to-[#020b1f] sm:h-6" />
 
-          <div
-            id="offres"
-            className="mx-auto max-w-md text-left"
-          >
-            <OfferCard
-              id="bundle"
-              title="Career Search 360"
-              description={isFr ? 'Tout ce qu’il vous faut pour renforcer votre profil, gérer vos opportunités et garder le contrôle de votre recherche.' : 'Everything you need to build a stronger profile, manage opportunities and stay in control of your job search.'}
-              price={products.bundle.displayPrice}
-              featured
-              compareAt={products.bundle.compareAt}
-              savings={products.bundle.savings}
-              market={market}
-              features={selectedOfferFeatures.bundle}
-            />
-          </div>
-
-          <div className="mx-auto mt-7 grid max-w-6xl grid-cols-2 gap-3 text-left lg:grid-cols-4">
-            {selectedTrustItems.map(([Icon, title, detail]) => (
-              <div
-                key={title}
-                className="flex items-start gap-3 rounded-2xl border border-white/[0.07] bg-[#07152d] p-3.5"
-              >
-                <Icon className="mt-0.5 h-5 w-5 shrink-0 text-sky-300" />
-                <div>
-                  <div className="text-xs font-black text-white sm:text-sm">{title}</div>
-                  <div className="mt-0.5 text-[10px] text-slate-500 sm:text-[11px]">{detail}</div>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
       <RecentPurchaseToast hasMobileStickyCta market={market} />
