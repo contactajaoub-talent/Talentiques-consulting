@@ -1,4 +1,3 @@
-import { getServiceOffer } from '../services/catalog.ts';
 import { getStoreProduct } from '../store/catalog.ts';
 import type { ExperienceLevel, Recommendation } from './types.ts';
 
@@ -20,44 +19,29 @@ type RecommendationInput = {
 
 export function recommendOffer(input: RecommendationInput): Recommendation {
   const difficulty = input.difficulty || '';
-  const status = (input.currentStatus || '').toLocaleLowerCase('fr');
-  const earlyCareer = input.experienceLevel === 'student' || input.experienceLevel === 'junior' ||
-    status.includes('étudiant') || status.includes('stage') || status.includes('alternance') ||
-    status.includes('recherche d’emploi') || status.includes("recherche d'emploi");
+  const reasons: Record<string, string> = {
+    'Je candidate sans obtenir de réponses':
+      'Structurez votre recherche, renforcez vos candidatures et suivez chaque opportunité avec un système complet et réutilisable.',
+    'Mon CV / LinkedIn ne me valorise pas':
+      'Renforcez votre CV, votre profil LinkedIn et la cohérence de votre candidature tout en structurant votre recherche d’opportunités.',
+    'Je ne sais pas quelles opportunités cibler':
+      'Identifiez, priorisez et suivez les opportunités les plus pertinentes grâce à un système structuré de recherche et de pilotage.',
+    'Je manque d’organisation dans ma recherche':
+      'Centralisez vos candidatures, relances, entretiens et prochaines actions dans un seul système de recherche structuré.',
+    'Je bloque aux entretiens':
+      'Structurez votre recherche jusqu’au suivi des entretiens avec des outils et guides conçus pour mieux préparer chaque étape.',
+  };
+  const genericReason =
+    'Un système complet pour structurer votre recherche, renforcer votre profil et garder chaque opportunité sous contrôle.';
+  const offer = getStoreProduct('bundle', 'fr');
 
-  if (difficulty === 'Je manque d’organisation dans ma recherche') {
-    const offer = getStoreProduct('tracker', 'fr');
-    return result(offer.id, offer.name, '/outils/opportunity-tracker',
-      'Cet outil vous aide à centraliser vos candidatures, relances et prochaines actions.',
-      'Découvrir l’outil');
-  }
-
-  if (difficulty === 'Je ne sais pas quelles opportunités cibler' ||
-      (difficulty === 'Je candidate sans obtenir de réponses' && input.atsScore >= 55)) {
-    const offer = getStoreProduct('bundle', 'fr');
-    return result(offer.id, offer.name, '/outils/bundle',
-      'Votre besoin concerne plusieurs étapes de la recherche : ciblage, candidature et suivi.',
-      'Découvrir le système');
-  }
-
-  if (input.atsScore < 55 && earlyCareer) {
-    const offer = getServiceOffer('student-jobseeker', 'fr');
-    return result(offer.id, offer.name, '/services',
-      'Votre profil gagnerait à être restructuré et mieux valorisé pour vos prochaines candidatures.',
-      'Découvrir l’accompagnement');
-  }
-
-  if (input.atsScore < 55 && ['intermediate', 'senior', 'executive'].includes(input.experienceLevel)) {
-    const offer = getServiceOffer('professional-profile', 'fr');
-    return result(offer.id, offer.name, '/services',
-      'Votre expérience est présente, mais sa structure et sa valorisation peuvent être renforcées.',
-      'Faire optimiser mon profil');
-  }
-
-  const offer = getStoreProduct('ats', 'fr');
-  return result(offer.id, offer.name, '/outils/cv-ats',
-    'Votre CV possède une base exploitable ; des modèles et une méthode de personnalisation peuvent vous aider à l’améliorer en autonomie.',
-    'Découvrir l’outil');
+  return result(
+    offer.id,
+    offer.name,
+    '/outils/bundle',
+    reasons[difficulty] || genericReason,
+    'Découvrir Career Search 360',
+  );
 }
 
 function result(offerId: string, offerName: string, href: string, reason: string, cta: string) {

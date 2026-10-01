@@ -152,11 +152,25 @@ test('Job Match is absent without observations and distinct from ATS readiness',
   assert.notEqual(job.total, calculateAtsReadiness(complete).total);
 });
 
-test('recommendation engine is deterministic and organization product needs an organization signal', () => {
+test('recommendation engine always recommends Career Search 360 and personalizes only its reason', () => {
   const base = { atsScore: 72, experienceLevel: 'senior', currentStatus: 'Salarié en poste' };
-  assert.equal(recommendOffer(base).offerName, 'Career Branding Toolkit');
-  assert.notEqual(recommendOffer(base).offerName, 'Opportunity Management System');
-  assert.equal(recommendOffer({ ...base, difficulty: 'Je manque d’organisation dans ma recherche' }).offerName, 'Opportunity Management System');
+  const expectedReasons = new Map([
+    ['', 'Un système complet pour structurer votre recherche, renforcer votre profil et garder chaque opportunité sous contrôle.'],
+    ['Je candidate sans obtenir de réponses', 'Structurez votre recherche, renforcez vos candidatures et suivez chaque opportunité avec un système complet et réutilisable.'],
+    ['Mon CV / LinkedIn ne me valorise pas', 'Renforcez votre CV, votre profil LinkedIn et la cohérence de votre candidature tout en structurant votre recherche d’opportunités.'],
+    ['Je ne sais pas quelles opportunités cibler', 'Identifiez, priorisez et suivez les opportunités les plus pertinentes grâce à un système structuré de recherche et de pilotage.'],
+    ['Je manque d’organisation dans ma recherche', 'Centralisez vos candidatures, relances, entretiens et prochaines actions dans un seul système de recherche structuré.'],
+    ['Je bloque aux entretiens', 'Structurez votre recherche jusqu’au suivi des entretiens avec des outils et guides conçus pour mieux préparer chaque étape.'],
+    ['Autre', 'Un système complet pour structurer votre recherche, renforcer votre profil et garder chaque opportunité sous contrôle.'],
+  ]);
+
+  for (const [difficulty, reason] of expectedReasons) {
+    const recommendation = recommendOffer({ ...base, difficulty });
+    assert.equal(recommendation.offerName, 'Career Search 360');
+    assert.equal(recommendation.href, '/outils/bundle');
+    assert.equal(recommendation.cta, 'Découvrir Career Search 360');
+    assert.equal(recommendation.reason, reason);
+  }
 });
 
 test('client source contains no OpenAI key and env exposes no public OpenAI key', async () => {
@@ -271,7 +285,7 @@ test('CRM summary includes Job Match only when it exists and includes recommenda
   const withJob = String(buildCvDiagnosisLeadForm(contact(false), analysisResult({ total: 64, breakdown: {} })).get('informationsComplementaires'));
   assert.doesNotMatch(without, /Job Match/);
   assert.match(withJob, /Job Match : 64\/100/);
-  assert.match(withJob, /Career Branding Toolkit/);
+  assert.match(withJob, /Career Search 360/);
 });
 
 test('marketing consent, UTM and privacy remain separate in CRM payload', () => {
@@ -411,5 +425,5 @@ function contact(marketing) {
 }
 
 function analysisResult(jobMatch) {
-  return { atsReadiness: { total: 82, breakdown: calculateAtsReadiness(complete).breakdown }, jobMatch, strengths: [], priorities: complete.issues, removeOrReduce: [], addOrStrengthen: [], rewrites: complete.issues, esco: { used: false, occupation: null, skills: [] }, recommendation: { offerId: 'ats', offerName: 'Career Branding Toolkit', href: '/outils/cv-ats', reason: 'Base correcte.', cta: 'Découvrir' }, profile: { experienceLevel: 'senior', currentStatus: 'Salarié en poste' }, layoutAssessed: true, modelUsed: 'gpt-6-luna', fallbackUsed: false };
+  return { atsReadiness: { total: 82, breakdown: calculateAtsReadiness(complete).breakdown }, jobMatch, strengths: [], priorities: complete.issues, removeOrReduce: [], addOrStrengthen: [], rewrites: complete.issues, esco: { used: false, occupation: null, skills: [] }, recommendation: { offerId: 'bundle', offerName: 'Career Search 360', href: '/outils/bundle', reason: 'Base correcte.', cta: 'Découvrir Career Search 360' }, profile: { experienceLevel: 'senior', currentStatus: 'Salarié en poste' }, layoutAssessed: true, modelUsed: 'gpt-6-luna', fallbackUsed: false };
 }
