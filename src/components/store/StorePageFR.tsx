@@ -151,13 +151,13 @@ export default function StorePageFR({ market = 'fr' }: { market?: StoreMarket })
             <div className="mt-7 grid gap-6 text-white lg:grid-cols-[1fr_340px] lg:items-center">
               <div>
                 <div className="text-xs font-black uppercase tracking-[0.16em] text-sky-300">
-                  {isFr ? 'Offre recommandée' : 'RECOMMENDED'}
+                  {isFr ? 'Système complet' : 'RECOMMENDED'}
                 </div>
                 <h2 className="mt-3 text-3xl font-black tracking-[-0.04em] sm:text-4xl">
-                  {isFr ? 'Tout votre système de recherche. Une seule offre.' : 'Your complete career-search system. One offer.'}
+                  {isFr ? 'Tout votre système de recherche, au même endroit.' : 'Your complete career-search system. One offer.'}
                 </h2>
                 <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
-                  {isFr ? 'Le Tracker, les modèles CV ATS et les guides fonctionnent ensemble : vous structurez la recherche, améliorez la candidature et suivez les opportunités sans multiplier les outils.' : 'Connect your application, tracking, LinkedIn profile and follow-up process in one reusable system.'}
+                  {isFr ? 'Le Tracker, les modèles CV ATS et les guides fonctionnent ensemble pour vous aider à structurer votre recherche, renforcer vos candidatures et suivre chaque opportunité plus efficacement.' : 'Connect your application, tracking, LinkedIn profile and follow-up process in one reusable system.'}
                 </p>
                 <div className="mt-5 grid gap-2 sm:grid-cols-2">
                   {selectedBundleFeatures.map((item) => (
