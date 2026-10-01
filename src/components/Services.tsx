@@ -53,7 +53,7 @@ export function Services({ locale = 'fr' }: { locale?: HomeLocale }) {
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="relative overflow-hidden border-y border-l-2 border-sky-200 border-l-[#E7A33A] bg-sky-50/55 px-0 py-10 sm:px-8 lg:px-10 lg:py-12"
+            className="relative overflow-hidden border-y border-l-0 sm:border-l-2 border-sky-200 border-l-[#E7A33A] bg-sky-50/55 px-0 py-10 sm:px-8 lg:px-10 lg:py-12"
           >
             <div
               className="pointer-events-none absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-white/75 to-transparent"
@@ -108,10 +108,12 @@ export function Services({ locale = 'fr' }: { locale?: HomeLocale }) {
                     <span className="pt-1 font-heading text-xs font-bold leading-6 tracking-[.16em] text-[#D97706] lg:pt-0">
                       0{index + 1}
                     </span>
+
                     <div>
                       <h3 className="font-heading text-lg font-bold leading-7 text-slate-950">
                         {title}
                       </h3>
+
                       <p className="mt-1.5 text-sm leading-6 text-slate-600">
                         {description}
                       </p>
