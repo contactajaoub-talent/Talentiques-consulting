@@ -37,6 +37,7 @@ export function ServicesOffersPage({ locale }: { locale: HomeLocale }) {
   const offers: Array<{
     id: ServiceId;
     audience: string;
+    title?: string;
     intro: string;
     cta: string;
     eligibility?: string;
@@ -52,9 +53,10 @@ export function ServicesOffersPage({ locale }: { locale: HomeLocale }) {
         {
           id: 'student-jobseeker',
           audience: 'ÉTUDIANTS · ALTERNANTS · SANS EMPLOI',
+          title: 'Tarif Étudiant & Jeune actif',
           intro:
             'Pour les étudiants, alternants et personnes actuellement en recherche d’emploi.',
-          cta: 'Renforcer ma candidature',
+          cta: 'Démarrer mon accompagnement',
           eligibility: 'Tarif réservé aux profils éligibles — justificatif requis.',
         },
       ]
@@ -150,7 +152,7 @@ export function ServicesOffersPage({ locale }: { locale: HomeLocale }) {
                     </span>
 
                     <h2 className="mt-5 font-heading text-3xl font-bold leading-tight tracking-[-.03em] text-slate-950">
-                      {service.name}
+                      {offer.title ?? service.name}
                     </h2>
 
                     <p className="mt-4 max-w-xl leading-7 text-slate-600">
