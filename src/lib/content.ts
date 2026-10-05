@@ -84,7 +84,7 @@ export const content = {
       popular: true,
     },
     {
-      title: "Pack Étudiant & Demandeur d’emploi",
+      title: "Tarif Étudiant & Jeune actif",
       audience:
         "Étudiant · alternant · demandeur d'emploi · personne sans emploi",
       description:

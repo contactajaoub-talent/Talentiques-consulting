@@ -51,7 +51,7 @@ export function ServicesOffersPage({ locale }: { locale: HomeLocale }) {
         },
         {
           id: 'student-jobseeker',
-          audience: 'ÉTUDIANTS · ALTERNANTS · DEMANDEURS D’EMPLOI',
+          audience: 'ÉTUDIANTS · ALTERNANTS · SANS EMPLOI',
           intro:
             'Pour les étudiants, alternants et personnes actuellement en recherche d’emploi.',
           cta: 'Renforcer ma candidature',
