@@ -477,3 +477,47 @@
   .companyGroup[aria-hidden="true"], .testimonialGroup[aria-hidden="true"] { display: none; }
   .companyViewport { mask-image: none; }
 }
+
+/* Career Search 360 — desktop testimonial marquee edge refinement */
+@media (min-width: 768px) {
+  .testimonialViewport {
+    overflow-x: hidden;
+    margin-inline: -24px;
+    padding-inline: 24px;
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      transparent 0,
+      #000 24px,
+      #000 calc(100% - 24px),
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      90deg,
+      transparent 0,
+      #000 24px,
+      #000 calc(100% - 24px),
+      transparent 100%
+    );
+  }
+}
+/* Career Search 360 — testimonial rail desktop bleed */
+@media (min-width: 768px) {
+  .testimonialViewport {
+    width: calc(50vw + 50%);
+    max-width: none;
+    overflow-x: hidden;
+    padding-right: 32px;
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      #000 0,
+      #000 calc(100% - 42px),
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      90deg,
+      #000 0,
+      #000 calc(100% - 42px),
+      transparent 100%
+    );
+  }
+}
