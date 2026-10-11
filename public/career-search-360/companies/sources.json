@@ -1,0 +1,100 @@
+[
+  {
+    "name": "capgemini",
+    "file": "capgemini.svg",
+    "source": "https://www.capgemini.com/wp-content/themes/capgemini2025/assets/images/footer-logo-new.svg",
+    "bytes": 6563,
+    "viewBox": "0 0 285 65"
+  },
+  {
+    "name": "desjardins",
+    "file": "desjardins.svg",
+    "source": "https://www.desjardins.com/ressources/images/logo-n1-desjardins-desktop.svg",
+    "bytes": 3263,
+    "viewBox": "0 0 151.47 30.84"
+  },
+  {
+    "name": "cibc",
+    "file": "cibc.svg",
+    "source": "https://www.cibc.com/content/dam/global-assets/logos/cibc-logos/no-tagline/cibc-logo-colour-142x36.svg",
+    "bytes": 3986,
+    "viewBox": "0 0 142 36"
+  },
+  {
+    "name": "deloitte",
+    "file": "deloitte.svg",
+    "source": "https://www.deloitte.com/content/dam/assets-shared/logos/svg/a-d/deloitte.svg",
+    "bytes": 2783,
+    "viewBox": "0 0 182 34"
+  },
+  {
+    "name": "acolad",
+    "file": "acolad.svg",
+    "source": "https://www.acolad.com/hubfs/_dam/branded/acolad-logo-header.svg",
+    "bytes": 15705,
+    "viewBox": "0 0 116 30"
+  },
+  {
+    "name": "societe-generale",
+    "file": "societe-generale.svg",
+    "source": "https://www.societegenerale.com/sites/default/files/image/logo/soc103-1.svg",
+    "bytes": 5325,
+    "viewBox": "0 0 145.6601933 29.7636881"
+  },
+  {
+    "name": "orica",
+    "file": "orica.svg",
+    "source": "https://companieslogo.com/img/orig/ORI.AX_BIG-303d5b51.svg?t=1720244493&download=true",
+    "bytes": 2248,
+    "viewBox": "0 0 1525 487"
+  },
+  {
+    "name": "agco",
+    "file": "agco.png",
+    "source": "https://www.agcocorp.com/",
+    "download": "https://s7d9.scene7.com/is/image/agco/AGCO-Red-Black?fmt=png-alpha&wid=900",
+    "dimensions": [
+      900,
+      334
+    ],
+    "bytes": 58963
+  },
+  {
+    "name": "hermes",
+    "file": "hermes.svg",
+    "source": "https://www.hermes.com/fr/fr/",
+    "note": "Official inline SVG symbol ng__hermes-logo, exported unchanged."
+  },
+  {
+    "name": "emirates",
+    "file": "emirates.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Emirates_Logo.svg",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/1/1d/Emirates_Logo.svg",
+    "bytes": 9142,
+    "viewBox": "0 0 254.0354 175.30339"
+  },
+  {
+    "name": "schneider-electric",
+    "file": "schneider-electric.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Schneider_Electric_2007.svg",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/9/95/Schneider_Electric_2007.svg",
+    "bytes": 11924,
+    "viewBox": null
+  },
+  {
+    "name": "rolex",
+    "file": "rolex.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Rolex_wordmark_logo.svg",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/1/1c/Rolex_wordmark_logo.svg",
+    "bytes": 3949,
+    "viewBox": "0 0 101.5 18.4"
+  },
+  {
+    "name": "fedex",
+    "file": "fedex.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:FedEx_Wordmark.svg",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/3/33/FedEx_Wordmark.svg",
+    "bytes": 2453,
+    "viewBox": "0 0 178.953 49.578"
+  }
+]
