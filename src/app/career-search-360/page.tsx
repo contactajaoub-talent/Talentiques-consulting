@@ -3,7 +3,6 @@ import { ArrowDown, ArrowRight, Check, Compass, Film, Plus, Zap } from 'lucide-r
 import Methodology from './Methodology';
 import Comparison from './Comparison';
 import Checkout from './Checkout';
-import StickyPurchase from './StickyPurchase';
 import LandingFooter from './LandingFooter';
 import { companies, countryCodes, platformVideo, testimonials, type Locale } from './content';
 import s from './career-search.module.css';
@@ -118,6 +117,5 @@ export default async function CareerSearchPage({ searchParams }: { searchParams:
       <section className={s.finalSection} aria-labelledby="final-title"><div className={s.container}><p className={s.finalEyebrow}><span className={s.statusDot} />Career Search 360</p><h2 id="final-title">{t('Votre prochaine opportunité mérite plus qu’une ', 'Your next opportunity deserves more than a ')}<span>{t('recherche dispersée.', 'scattered search.')}</span></h2><p>{t('Une direction claire. Un système pour avancer.', 'A clear direction. A system to move forward.')}</p><Purchase light /></div></section>
     </main>
     <LandingFooter locale={locale} />
-    <StickyPurchase locale={locale} />
   </div>;
 }
