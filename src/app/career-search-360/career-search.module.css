@@ -225,6 +225,7 @@
 .checkoutHeader h3 { font-size: 23px; font-weight: 650; line-height: 1.2; letter-spacing: -.6px; }
 .checkoutHeader p { font-size: 13px; color: var(--muted); line-height: 1.6; margin-top: 7px; }
 .formField { margin-top: 18px; }
+.customerFields { min-width: 0; padding: 0; border: 0; margin: 0; }
 .formField > label, .paymentOptions legend, .transferPanel legend { display: block; font-size: 14px; font-weight: 700; line-height: 1.6; margin-bottom: 7px; }
 .formField input, .formField select { display: block; width: 100%; min-height: 52px; padding: 13px; border: 1px solid #adbfcb; border-radius: 6px; color: var(--ink); background: #fff; font-size: 16px; line-height: 1.5; outline: none; transition: border-color .2s, box-shadow .2s; }
 .formField select { padding-right: 28px; }
@@ -250,6 +251,10 @@
 .paypalContinue { margin-top: 18px; }
 .paypalContinue .purchase { width: 100%; font-size: 13px; }
 .paypalContinue > p { color: var(--muted); font-size: 12px; line-height: 1.7; margin-top: 10px; }
+.paymentSuccess { padding: 17px; border: 1px solid #c3dfcf; border-radius: 7px; background: var(--mint-light); color: var(--mint); }
+.paymentSuccess strong { display: block; font-size: 16px; }
+.paymentSuccess p { font-size: 13px; line-height: 1.7; margin-top: 8px; }
+.paymentSuccess a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 13px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 .transferPanel { margin-top: 23px; }
 .bankChoices { display: flex; flex-direction: column; gap: 8px; }
 .bankChoices label { display: flex; align-items: center; gap: 11px; border: 1px solid #c3d1d9; padding: 13px; min-height: 49px; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 600; }

@@ -4,6 +4,7 @@ declare global {
   type StoreAnalyticsParameters = Record<string, unknown>;
 
   type PayPalButtonsOptions = {
+    fundingSource?: string;
     style?: {
       layout?: 'vertical' | 'horizontal';
       shape?: 'pill' | 'rect';
@@ -18,8 +19,11 @@ declare global {
 
   interface Window {
     paypal?: {
+      FUNDING: { PAYPAL: string; CARD: string };
       Buttons: (options: PayPalButtonsOptions) => {
+        isEligible: () => boolean;
         render: (selector: string) => Promise<void>;
+        close: () => Promise<void>;
       };
     };
     fbq?: (
