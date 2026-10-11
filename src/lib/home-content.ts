@@ -12,11 +12,11 @@ export function getHomeContent(locale: HomeLocale) {
     switchLabel: fr ? 'EN' : 'FR',
     nav: fr
       ? [
-          ['Outils', '/outils'], ['Services', '/services'],
+          ['Notre système', '/career-search-360'], ['Services', '/services'],
           ['Alternance', 'https://alternance.talentiques.com/'], ['Blog', '/blog'], ['Contact', '/#contact'],
         ]
       : [
-          ['Tools', '/en/tools'], ['Services', '/en/services'],
+          ['Our system', '/career-search-360?lang=en'], ['Services', '/en/services'],
           ['Work-study', 'https://alternance.talentiques.com/'], ['Blog', '/blog'], ['Contact', '/en#contact'],
         ],
     diagnosticCta: fr ? 'Diagnostic CV ATS gratuit' : 'Free ATS Resume Check',
