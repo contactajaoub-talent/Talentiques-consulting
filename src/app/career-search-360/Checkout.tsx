@@ -21,14 +21,16 @@ export default function Checkout({ locale, countries }: { locale: Locale; countr
   const statusRef = useRef<Status>('idle');
   const createPending = useRef(false);
   const capturePending = useRef(false);
-  const gate = useRef({ ready: false, method });
+  const gate = useRef({ ready: false, method, customer, locale });
+  const [confirmationEmail, setConfirmationEmail] = useState('');
+  const [emailSent, setEmailSent] = useState(false);
   const [buttons, setButtons] = useState<Record<'paypal' | 'card', ButtonState>>({ paypal: 'loading', card: 'loading' });
   const nameValid = customer.name.trim().length >= 2 && customer.name.trim().length <= 120;
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer.email.trim()) && customer.email.length <= 254;
   const countryValid = countries.some(country => country.code === customer.country);
   const ready = nameValid && emailValid && countryValid;
   const locked = status === 'processing' || status === 'success';
-  useEffect(() => { gate.current = { ready, method }; }, [ready, method]);
+  useEffect(() => { gate.current = { ready, method, customer, locale }; }, [ready, method, customer, locale]);
   useEffect(() => {
     if (!sdkReady) return;
     const paypal = window.paypal;
@@ -52,9 +54,14 @@ export default function Checkout({ locale, countries }: { locale: Locale; countr
             throw new Error('invalid_request');
           }
           transition('processing');
-          const response = await fetch('/api/career-search/paypal/create-order', { method: 'POST', cache: 'no-store' });
+          const identity = { name: gate.current.customer.name.trim(), email: gate.current.customer.email.trim().toLowerCase(), locale: gate.current.locale };
+          const response = await fetch('/api/career-search/paypal/create-order', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(identity), cache: 'no-store',
+          });
           const payload = await response.json();
           if (!response.ok || typeof payload?.id !== 'string' || !/^[A-Z0-9-]{6,64}$/i.test(payload.id)) throw new Error('checkout_unavailable');
+          setConfirmationEmail(identity.email);
           return payload.id;
         } catch {
           transition('error');
@@ -75,6 +82,7 @@ export default function Checkout({ locale, countries }: { locale: Locale; countr
           });
           const payload = await response.json();
           if (!response.ok || payload?.ok !== true) throw new Error('payment_failed');
+          setEmailSent(payload.emailSent === true);
           transition('success');
         } catch {
           transition('error');
@@ -172,7 +180,15 @@ export default function Checkout({ locale, countries }: { locale: Locale; countr
           </div>}
         </div>}
       </div>
-      {status === 'success' && <div className={s.paymentSuccess} role="status"><strong>{t('Paiement confirmé.', 'Payment confirmed.')}</strong><p>{t('Votre accès Career Search 360 est en cours d’activation. Consultez votre e-mail pour finaliser votre accès.', 'Your Career Search 360 access is being activated. Check your email to finalize your access.')}</p><a href="https://app.talentiques.com">{t('Accéder à Career Search 360', 'Open Career Search 360')}<ArrowRight size={16} aria-hidden="true" /></a></div>}
+      {status === 'success' && <div className={s.paymentSuccess} role="status">
+        <strong>{t('Paiement confirmé.', 'Payment confirmed.')}</strong>
+        <p>{t('Votre accès Career Search 360 est en cours d’activation.', 'Your Career Search 360 access is being activated.')}</p>
+        <p>{emailSent ? t('Nous venons d’envoyer les informations d’accès à :', 'We have just sent your access information to:') : t('Les informations d’accès par e-mail peuvent être retardées. Adresse de votre compte :', 'Your access email may be delayed. Your account email:')}<br /><b className={s.confirmationEmail}>{confirmationEmail}</b></p>
+        <p>{t('Consultez votre boîte de réception pour accéder à votre espace. Pour un nouveau compte, utilisez le lien d’invitation pour définir votre mot de passe.', 'Check your inbox to access your workspace. For a new account, use the invitation link to set your password.')}</p>
+        <a href="https://app.talentiques.com/fr/acces">{t('Accéder à Career Search 360', 'Access Career Search 360')}<ArrowRight size={16} aria-hidden="true" /></a>
+        <p>{t('Vous n’avez rien reçu ? Vérifiez vos spams ou contactez-nous sur WhatsApp.', 'Nothing in your inbox? Check your spam folder or contact us on WhatsApp.')}</p>
+        <a href="https://wa.me/212610778015" target="_blank" rel="noopener noreferrer"><MessageCircle size={16} aria-hidden="true" />WhatsApp</a>
+      </div>}
       </div>
     </form>
     <div className={s.checkoutTotal}><span>{t('Total · paiement unique', 'Total · one-time payment')}</span><strong>{t('19,90 €', '€19.90')}</strong></div>

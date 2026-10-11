@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     if (!response.ok || payload?.ok !== true) {
       return Response.json({ error: 'payment_failed' }, { status: 502, headers });
     }
-    return Response.json({ ok: true }, { headers });
+    return Response.json({ ok: true, emailSent: payload.emailSent === true }, { headers });
   } catch {
     return Response.json({ error: 'payment_failed' }, { status: 502, headers });
   }

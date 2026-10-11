@@ -253,6 +253,7 @@
 .paypalContinue > p { color: var(--muted); font-size: 12px; line-height: 1.7; margin-top: 10px; }
 .paymentSuccess { padding: 17px; border: 1px solid #c3dfcf; border-radius: 7px; background: var(--mint-light); color: var(--mint); }
 .paymentSuccess strong { display: block; font-size: 16px; }
+.confirmationEmail { overflow-wrap: anywhere; }
 .paymentSuccess p { font-size: 13px; line-height: 1.7; margin-top: 8px; }
 .paymentSuccess a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 13px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 .transferPanel { margin-top: 23px; }
