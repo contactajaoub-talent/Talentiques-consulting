@@ -1,6 +1,6 @@
 // Replace these entries only with approved assets and real customer feedback.
 export const checkoutUrl = 'https://app.talentiques.com/api/payments/career-search/start';
-export const platformVideo: { src: string | null; poster?: string } = { src: 'https://8zdp0brbtny6jmht.public.blob.vercel-storage.com/career-search-360.mp4' };
+export const platformVideo: { src: string | null; poster?: string } = { src: 'https://8zdp0brbtny6jmht.public.blob.vercel-storage.com/career-search-360.mp4', poster: '/career-search-360/tableau_de_bord_career_search_360.png' };
 // Company destinations supplied by the user. Asset provenance: public/career-search-360/companies/sources.json.
 export const companies: { name: string; logo: string; height: number; originalColor?: boolean; darkBackground?: boolean }[] = [
   { name: 'Capgemini', logo: '/career-search-360/companies/capgemini.svg', height: 28 },
