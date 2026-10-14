@@ -1,3 +1,5 @@
+import { content } from '@/lib/content';
+
 // Replace these entries only with approved assets and real customer feedback.
 export const checkoutUrl = 'https://app.talentiques.com/api/payments/career-search/start';
 export const platformVideo: { src: string | null; poster?: string } = { src: 'https://8zdp0brbtny6jmht.public.blob.vercel-storage.com/career-search-360.mp4', poster: '/career-search-360/tableau_de_bord_career_search_360.png' };
@@ -200,7 +202,7 @@ export const moroccanBanks: {
   { id: 'populaire', name: 'Banque Populaire / Chaabi', details: null },
   { id: 'other', name: 'Autre banque', details: null },
 ];
-export const transferContactUrl = 'https://wa.me/212610778015';
+export const transferContactUrl = `https://wa.me/${content.contact.whatsapp.replace(/[^0-9]/g, '')}`;
 
 export function getTransferWhatsAppUrl(bankId: string) {
   const bankNames: Record<string, string> = { cih: 'CIH Bank', attijari: 'Attijariwafa Bank', populaire: 'Banque Populaire' };

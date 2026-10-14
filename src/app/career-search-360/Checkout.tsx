@@ -3,7 +3,8 @@
 import Script from 'next/script';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { ArrowRight, Check, CreditCard, Landmark, LockKeyhole, MessageCircle } from 'lucide-react';
-import { getTransferWhatsAppUrl, moroccanBanks, type Locale } from './content';
+import { content } from '@/lib/content';
+import { getTransferWhatsAppUrl, moroccanBanks, transferContactUrl, type Locale } from './content';
 import s from './career-search.module.css';
 
 type Field = 'name' | 'email' | 'country';
@@ -169,7 +170,7 @@ export default function Checkout({ locale, countries }: { locale: Locale; countr
           <fieldset><legend>{t('Choisissez votre banque', 'Choose your bank')}</legend><div className={s.bankChoices}>{moroccanBanks.map(item => <label key={item.id} className={bankId === item.id ? s.bankSelected : ''}><input type="radio" name="bank" value={item.id} checked={bankId === item.id} onChange={() => setBankId(item.id)} />{item.id === 'other' ? t('Autre banque', 'Other bank') : item.name}</label>)}</div></fieldset>
           {bank && <div className={s.bankDetails}>
             {bank.details ? <><p className={s.bankName}>{bank.name}</p><dl><dt>{t('Bénéficiaire', 'Beneficiary')}</dt><dd>{bank.details.beneficiary}</dd><dt>RIB</dt><dd>{bank.details.rib}</dd>{bank.details.iban && <><dt>IBAN</dt><dd>{bank.details.iban}</dd></>}</dl>{bank.details.instructions && <p>{bank.details.instructions}</p>}<p>{t('Après le virement, envoyez votre justificatif sur WhatsApp.', 'After transferring, send your payment proof on WhatsApp.')}</p></> : <p>{t('Contactez notre équipe pour obtenir les coordonnées bancaires vérifiées avant tout virement.', 'Contact our team for verified bank details before making a transfer.')}</p>}
-            <a className={s.whatsappLink} href={getTransferWhatsAppUrl(bank.id)} target="_blank" rel="noopener noreferrer"><MessageCircle size={18} aria-hidden="true" />{t('Recevoir les coordonnées sur WhatsApp', 'Receive bank details on WhatsApp')}<ArrowRight size={16} aria-hidden="true" /></a><span className={s.contactNumber}>+212 610 778 015</span>
+            <a className={s.whatsappLink} href={getTransferWhatsAppUrl(bank.id)} target="_blank" rel="noopener noreferrer"><MessageCircle size={18} aria-hidden="true" />{t('Recevoir les coordonnées sur WhatsApp', 'Receive bank details on WhatsApp')}<ArrowRight size={16} aria-hidden="true" /></a><span className={s.contactNumber}>{content.contact.whatsapp}</span>
             <ol className={s.transferSteps}>
               <li>{t('Recevez les coordonnées bancaires.', 'Receive the bank details.')}</li>
               <li>{t('Effectuez le virement.', 'Make the bank transfer.')}</li>
@@ -187,7 +188,7 @@ export default function Checkout({ locale, countries }: { locale: Locale; countr
         <p>{t('Consultez votre boîte de réception pour accéder à votre espace. Pour un nouveau compte, utilisez le lien d’invitation pour définir votre mot de passe.', 'Check your inbox to access your workspace. For a new account, use the invitation link to set your password.')}</p>
         <a href="https://app.talentiques.com/fr/acces">{t('Accéder à Career Search 360', 'Access Career Search 360')}<ArrowRight size={16} aria-hidden="true" /></a>
         <p>{t('Vous n’avez rien reçu ? Vérifiez vos spams ou contactez-nous sur WhatsApp.', 'Nothing in your inbox? Check your spam folder or contact us on WhatsApp.')}</p>
-        <a href="https://wa.me/212610778015" target="_blank" rel="noopener noreferrer"><MessageCircle size={16} aria-hidden="true" />WhatsApp</a>
+        <a href={transferContactUrl} target="_blank" rel="noopener noreferrer"><MessageCircle size={16} aria-hidden="true" />WhatsApp</a>
       </div>}
       </div>
     </form>

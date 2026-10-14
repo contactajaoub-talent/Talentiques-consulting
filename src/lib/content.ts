@@ -282,8 +282,8 @@ export const content = {
 
   contact: {
     email: 'talentiques@gmail.com',
-    phone: '+212 610 778 015',
-    whatsapp: '+212 610 778 015',
+    phone: '+212 675 331 630',
+    whatsapp: '+212 675 331 630',
     address:
       'France · Belgique · Suisse · Luxembourg · Canada francophone',
 
