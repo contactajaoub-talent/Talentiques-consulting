@@ -26,12 +26,25 @@ export async function POST(request: Request) {
           cache: "no-store",
         },
       );
-      const result = await response.json();
-      if (!response.ok || !result.access_token)
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !result.access_token) {
+        const code = String(result?.code || result?.error_code || result?.error || "").toLowerCase();
+        const detail = String(result?.message || result?.msg || "").toLowerCase();
+
+        if (detail.includes("api key") || code.includes("api_key"))
+          throw new CrmError("Configuration Supabase : cle API refusee.", 503);
+
+        if (code === "invalid_credentials" || detail.includes("invalid login credentials"))
+          throw new CrmError("Email ou mot de passe incorrect.", 401);
+
+        if (code === "email_not_confirmed" || detail.includes("email not confirmed"))
+          throw new CrmError("Adresse email Supabase non confirmee.", 401);
+
         throw new CrmError(
-          "Identifiants invalides ou accès non approuvé.",
-          401,
+          `Supabase Auth : HTTP ${response.status}, code ${/^[a-z0-9_]+$/.test(code) ? code : "indisponible"}.`,
+          502,
         );
+      }
       token = result.access_token;
     }
     const user = await backend("/auth/v1/user", {}, token);
