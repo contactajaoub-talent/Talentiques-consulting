@@ -29,7 +29,7 @@ export function Process({ locale = 'fr' }: { locale?: HomeLocale }) {
               {locale === 'fr' ? (
                 <>Une méthode claire pour passer <span className="text-[#0683C9]">de l’objectif à l’action.</span></>
               ) : (
-                <>A clear method to move <span className="text-[#0683C9]">from objective to action.</span></>
+                <>A clear method to turn <span className="text-[#0683C9]">goals into action.</span></>
               )}
             </h2>
             </div>

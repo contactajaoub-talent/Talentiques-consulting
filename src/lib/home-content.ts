@@ -12,11 +12,11 @@ export function getHomeContent(locale: HomeLocale) {
     switchLabel: fr ? 'EN' : 'FR',
     nav: fr
       ? [
-          ['Notre système', '/career-search-360'], ['Services', '/services'],
+          ['Career Search 360', '/career-search-360'], ['Services', '/services'],
           ['Alternance', 'https://alternance.talentiques.com/'], ['Blog', '/blog'], ['Contact', '/#contact'],
         ]
       : [
-          ['Our system', '/career-search-360?lang=en'], ['Services', '/en/services'],
+          ['Career Search 360', '/career-search-360?lang=en'], ['Services', '/en/services'],
           ['Work-study', 'https://alternance.talentiques.com/'], ['Blog', '/blog'], ['Contact', '/en#contact'],
         ],
     diagnosticCta: fr ? 'Diagnostic CV ATS gratuit' : 'Free ATS Resume Check',
@@ -28,7 +28,7 @@ export function getHomeContent(locale: HomeLocale) {
         ? 'Talentiques réunit des services, des outils et des parcours spécialisés pour vous aider à mieux vous positionner, structurer votre recherche et avancer vers la bonne opportunité.'
         : 'Talentiques brings together services, tools and specialized programs to help you position yourself more effectively, structure your search and move toward the right opportunity.',
       servicesCta: fr ? 'Découvrir nos services' : 'Explore our services',
-      toolsCta: fr ? 'Découvrir nos outils' : 'Explore our tools',
+      toolsCta: fr ? 'Outils en préparation' : 'Tools coming soon',
       visualLabel: fr ? 'UNE DÉMARCHE COHÉRENTE' : 'ONE COHERENT APPROACH',
       visualItems: fr
         ? [
@@ -47,7 +47,7 @@ export function getHomeContent(locale: HomeLocale) {
       title: fr ? 'Une approche structurée pour avancer vers la bonne opportunité.' : 'A structured approach to move toward the right opportunity.',
       description: fr
         ? 'Talentiques relie positionnement, organisation et passage à l’action dans une même démarche.'
-        : 'Talentiques connects positioning, organization and action within one coherent approach.',
+        : 'Talentiques brings together professional positioning, organization and action in a single approach.',
       items: fr
         ? [
             ['Se positionner', 'Clarifier son profil, son image professionnelle et sa valeur.'],
@@ -139,7 +139,7 @@ export function getHomeContent(locale: HomeLocale) {
     },
     process: {
       eyebrow: fr ? 'MÉTHODE TALENTIQUES' : 'THE TALENTIQUES METHOD',
-      title: fr ? 'Une méthode claire pour passer de l’objectif à l’action.' : 'A clear method to move from objective to action.',
+      title: fr ? 'Une méthode claire pour passer de l’objectif à l’action.' : 'A clear method to turn goals into action.',
       description: fr
         ? 'Cinq étapes reliées pour construire une démarche cohérente et la faire avancer.'
         : 'Five connected steps to build a coherent approach and move it forward.',

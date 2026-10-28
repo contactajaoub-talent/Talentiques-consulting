@@ -24,7 +24,7 @@ export function HomePage({ locale }: { locale: HomeLocale }) {
         <AlternanceFeature locale={locale}/>
         <Services locale={locale}/>
         <Process locale={locale}/>
-        <Testimonials/>
+        <Testimonials locale={locale}/>
         <Contact locale={locale}/>
       </main>
       <Footer locale={locale}/>

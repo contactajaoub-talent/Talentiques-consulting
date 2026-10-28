@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -19,12 +19,36 @@ import { submitIntake } from "@/lib/crm/intake-client";
 const inputStyle =
   "block w-full min-h-[50px] rounded-xl border border-[#dbe5ee] bg-white px-4 py-3 text-[15px] text-[#153752] outline-none transition-colors duration-150 placeholder:text-[#94a7b8] hover:border-[#a9cde7] focus:border-[#0783c7] focus:ring-[3px] focus:ring-[#0783c7]/10 disabled:opacity-60";
 
-export function DiagnosticIntake() {
+export function DiagnosticIntake({ children }: { children?: React.ReactNode }) {
   const [busy, setBusy] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
   const [promise, setPromise] = useState<number | null>(null);
   const [fileName, setFileName] = useState("");
+  const confirmationRef = useRef<HTMLDivElement>(null);
+  const confirmationTitleId = useId();
+
+  useEffect(() => {
+    if (!success) return;
+    // Wait for the shorter confirmation and its container to finish rendering.
+    const frame = requestAnimationFrame(() => {
+      const confirmation = confirmationRef.current;
+      if (!confirmation) return;
+      confirmation.focus({ preventScroll: true });
+      const dialog = confirmation.closest("dialog");
+      if (dialog) {
+        // Keep the background page still when the intake lives in a dialog.
+        dialog.scrollTo({ top: 0, behavior: "instant" });
+      } else {
+        const card = confirmation.closest("[data-diagnostic-card]") ?? confirmation;
+        window.scrollTo({
+          top: Math.max(0, window.scrollY + card.getBoundingClientRect().top - 92),
+          behavior: "instant",
+        });
+      }
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [success]);
 
   useEffect(() => {
     fetch("/api/crm/intake")
@@ -50,32 +74,38 @@ export function DiagnosticIntake() {
     }
   }
 
-  // L'écran de confirmation sera traité séparément à l'étape 3.
   if (success)
     return (
-      <div className="py-10 text-center" role="status">
-        <CheckCircle2 size={44} className="mx-auto mb-6 text-emerald-600" />
-        <h2 className="font-heading text-3xl font-semibold text-[#133960]">
-          Votre demande a bien été reçue !
+      <div ref={confirmationRef} tabIndex={-1} role="region" aria-labelledby={confirmationTitleId} className="text-[#133960] focus:outline-none">
+        <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.12em] text-[#0683C9]">
+          <CheckCircle2 size={18} className="shrink-0 text-emerald-600" aria-hidden="true" />
+          Demande enregistrée
+        </p>
+        <h2 id={confirmationTitleId} className="mt-3 font-heading text-2xl font-semibold leading-tight tracking-tight sm:text-[28px]">
+          Votre demande est confirmée.
         </h2>
-        <p className="mt-5 leading-7 text-slate-600">
-          Notre équipe va examiner votre CV, analyser sa compatibilité ATS et
-          évaluer son adéquation avec votre objectif professionnel.
+        <p className="mt-3 text-sm leading-6 text-[#51667b] sm:text-[15px]">
+          Nous avons bien reçu votre demande et votre CV.
         </p>
-        <p className="mt-3 leading-7 text-slate-600">
-          Vous recevrez par email un rapport détaillé accompagné de
-          recommandations personnalisées
-          {promise
-            ? ` sous ${promise} heures ouvrées.`
-            : ". Notre équipe vous précisera le délai de traitement."}
+        <div className="mt-5 rounded-xl border border-[#dcecf8] border-l-[3px] border-l-[#0dd7ea] bg-[#f2f9ff] p-4">
+          <h3 className="text-sm font-semibold">La suite, par e-mail</h3>
+          <p className="mt-1.5 text-sm leading-6 text-[#51667b]">
+            Notre équipe examinera votre profil et vous transmettra les prochaines étapes par e-mail.
+            {promise ? ` Retour prévu sous ${promise} heures ouvrées.` : ""}
+          </p>
+        </div>
+        <p className="mt-4 text-xs leading-5 text-[#64748b]">
+          Pensez à consulter vos courriers indésirables.
         </p>
-        <p className="mt-5 text-sm text-slate-500">
-          Pensez à vérifier vos courriers indésirables.
-        </p>
+        <Link href="/" className="mt-4 inline-block rounded text-sm font-medium text-[#0683C9] underline underline-offset-4 hover:text-[#133960] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0683C9]">
+          Retour à l’accueil
+        </Link>
       </div>
     );
 
   return (
+    <>
+    {children}
     <form onSubmit={submit} className="space-y-7">
       <input
         name="website"
@@ -255,7 +285,7 @@ export function DiagnosticIntake() {
           type="submit"
           className="group flex min-h-[54px] w-full items-center justify-center gap-3 rounded-xl bg-[#087fc2] px-6 py-3.5 text-[15px] font-semibold text-white shadow-[0_8px_22px_-10px_rgba(8,127,194,.65)] transition-colors hover:bg-[#056ca7] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0783c7] disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {busy ? "Enregistrement sécurisé…" : "Recevoir mon diagnostic"}
+          {busy ? "Enregistrement en cours…" : "Demander mon diagnostic"}
           {!busy && <ArrowRight size={17} className="transition-transform group-hover:translate-x-1" aria-hidden="true" />}
         </button>
         <p className="text-center text-xs leading-5 text-[#7890a5]">
@@ -265,6 +295,7 @@ export function DiagnosticIntake() {
         </p>
       </div>
     </form>
+    </>
   );
 }
 

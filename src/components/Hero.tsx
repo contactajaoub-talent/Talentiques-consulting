@@ -77,13 +77,12 @@ export function Hero({ locale = 'fr' }: { locale?: HomeLocale }) {
               <ArrowRight size={18} />
             </Link>
 
-            <Link
-              href={locale === 'fr' ? '/outils' : '/en/tools'}
-              className="inline-flex min-h-12 w-full max-w-sm items-center justify-center gap-2 rounded-full border border-slate-300 sm:w-auto bg-white/90 px-7 py-3.5 font-bold text-slate-800 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#0683C9] hover:text-[#0683C9]"
+            <span
+              className="inline-flex min-h-12 w-full max-w-sm items-center justify-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-7 py-3.5 text-center font-medium text-slate-500 sm:w-auto"
             >
+              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-slate-400" aria-hidden="true" />
               {copy.hero.toolsCta}
-              <ArrowRight size={18} />
-            </Link>
+            </span>
 
             <Link
               href="/diagnostic-cv-ats"

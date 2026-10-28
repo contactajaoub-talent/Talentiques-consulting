@@ -4,8 +4,10 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Star } from 'lucide-react';
 import { content } from '@/lib/content';
+import type { HomeLocale } from '@/lib/home-content';
 
-export const Testimonials = () => {
+export const Testimonials = ({ locale = 'fr' }: { locale?: HomeLocale }) => {
+    const fr = locale === 'fr';
     return (
         <section id="testimonials" className="py-14 lg:py-16 bg-slate-50 relative overflow-hidden">
             {/* Decorative background elements */}
@@ -19,8 +21,8 @@ export const Testimonials = () => {
                     viewport={{ once: true }}
                     className="text-center mb-10"
                 >
-                    <h2 className="text-3xl md:text-5xl font-bold mb-4 text-slate-900">Ce Que Disent Nos Talents</h2>
-                    <p className="text-slate-600">Ne nous croyez pas sur parole, écoutez-les.</p>
+                    <h2 className="text-3xl md:text-5xl font-bold mb-4 text-slate-900">{fr ? 'Ce que disent nos talents' : 'What our clients say'}</h2>
+                    <p className="text-slate-600">{fr ? 'Ne nous croyez pas sur parole, écoutez-les.' : 'Feedback from our clients, shared in French.'}</p>
                 </motion.div>
 
                 <div className="relative w-full overflow-hidden">
@@ -29,6 +31,7 @@ export const Testimonials = () => {
                         {[...content.testimonials, ...content.testimonials].map((testimonial, index) => (
                             <div
                                 key={index}
+                                lang="fr"
                                 className="w-[270px] sm:w-[350px] md:w-[400px] mx-2 sm:mx-4 p-5 sm:p-8 rounded-2xl bg-white border border-slate-200 shadow-sm relative hover:shadow-lg transition-shadow flex-shrink-0"
                             >
                                 <div className="flex gap-1 mb-4">

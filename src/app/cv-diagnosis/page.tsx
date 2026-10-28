@@ -55,8 +55,9 @@ export default function CVDiagnosisPage() {
             </div>
           </div>
 
-          <div className="mx-auto mt-8 max-w-[760px] overflow-hidden rounded-[22px] border border-[#e3ebf3] bg-white shadow-[0_24px_75px_-44px_rgba(19,57,96,0.32)] sm:mt-9">
-            <div className="border-b border-[#edf1f6] px-5 py-5 sm:px-9 sm:py-6">
+          <div data-diagnostic-card className="mx-auto mt-8 max-w-[760px] overflow-hidden rounded-[22px] border border-[#e3ebf3] bg-white px-5 py-6 shadow-[0_24px_75px_-44px_rgba(19,57,96,0.32)] [overflow-anchor:none] sm:mt-9 sm:px-9 sm:py-7">
+            <DiagnosticIntake>
+            <div className="mb-6 border-b border-[#edf1f6] pb-5 sm:pb-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#0783c7]">
@@ -71,9 +72,7 @@ export default function CVDiagnosisPage() {
                 </span>
               </div>
             </div>
-            <div className="px-5 py-6 sm:px-9 sm:py-7">
-              <DiagnosticIntake />
-            </div>
+            </DiagnosticIntake>
           </div>
         </div>
       </section>

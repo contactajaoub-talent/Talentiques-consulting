@@ -26,7 +26,8 @@ export function DiagnosticForm({
     <dialog
       ref={ref}
       onClose={onClose}
-      className="relative m-auto max-h-[90dvh] w-[calc(100%-32px)] max-w-2xl overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 backdrop:bg-slate-950/50 sm:p-9"
+      aria-label="Diagnostic professionnel offert"
+      className="fixed inset-0 m-auto max-h-[90dvh] w-[calc(100%-32px)] max-w-2xl overflow-y-auto overscroll-contain rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 [overflow-anchor:none] backdrop:bg-slate-950/50 sm:p-9"
     >
       <button
         aria-label="Fermer"
@@ -35,10 +36,13 @@ export function DiagnosticForm({
       >
         <X size={18} />
       </button>
-      <h2 className="mb-6 pr-10 font-heading text-2xl font-semibold text-[#133960]">
-        Diagnostic du profil professionnel offert
-      </h2>
-      {isOpen && <DiagnosticIntake />}
+      {isOpen && (
+        <DiagnosticIntake>
+          <h2 className="mb-6 pr-10 font-heading text-2xl font-semibold text-[#133960]">
+            Diagnostic du profil professionnel offert
+          </h2>
+        </DiagnosticIntake>
+      )}
     </dialog>
   );
 }
