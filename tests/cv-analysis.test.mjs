@@ -305,22 +305,24 @@ test('Salesforce outage resolves false and cannot fail or rerun OpenAI', async (
   assert.equal(crmCalls, 1);
 });
 
-test('frontend guards CRM submission against rerenders and preserves restricted picklist value', async () => {
+test('public diagnostic requests human review and never invokes the preserved AI engine', async () => {
   const page = await readFile(new URL('../src/app/cv-diagnosis/page.tsx', import.meta.url), 'utf8');
-  assert.match(page, /if \(!crmSent\.current\)/);
-  assert.match(page, /crmSent\.current = true/);
+  const form = await readFile(new URL('../src/components/crm/DiagnosticIntake.tsx', import.meta.url), 'utf8');
+  assert.match(page, /DiagnosticIntake/);
+  assert.doesNotMatch(page + form, /analyze-cv|submitCvDiagnosisLead|setAnalysis/);
+  assert.match(form, /await submitIntake/);
   const crm = await readFile(new URL('../src/lib/cv-analysis/crm.ts', import.meta.url), 'utf8');
   assert.match(crm, /offreRessource', 'Diagnostic CV'/);
   assert.doesNotMatch(crm, /offreRessource', contact\./);
 });
 
-test('failed diagnosis cannot reach the CRM submission branch', async () => {
-  const page = await readFile(new URL('../src/app/cv-diagnosis/page.tsx', import.meta.url), 'utf8');
-  const failureGuard = page.indexOf('if (!response.ok || !payload.success)');
-  const resultStored = page.indexOf('setAnalysis(result)');
-  const crmSubmission = page.lastIndexOf('submitCvDiagnosisLead');
-  assert.ok(failureGuard >= 0 && failureGuard < resultStored);
-  assert.ok(resultStored >= 0 && resultStored < crmSubmission);
+test('public diagnostic confirms success only after the validated private upload is committed', async () => {
+  const form = await readFile(new URL('../src/components/crm/DiagnosticIntake.tsx', import.meta.url), 'utf8');
+  const client = await readFile(new URL('../src/lib/crm/intake-client.ts', import.meta.url), 'utf8');
+  assert.ok(form.indexOf('await submitIntake') < form.indexOf('setSuccess(true)'));
+  assert.match(client, /if \(!upload.ok\)\s*throw/);
+  assert.match(client, /method:\s*["']PUT["']/);
+  assert.doesNotMatch(client, /analyze-cv|openai|salesforce-lead/);
 });
 
 function observations(overrides = {}) {

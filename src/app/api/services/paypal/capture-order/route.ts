@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getServiceOffer, isServiceId, isServiceMarket, serviceMoneyMatches } from '@/lib/services/catalog';
 import { findServiceOrderById, updateServiceOrder } from '@/lib/services/supabase-rest';
 import { paypalFetch } from '@/lib/store/paypal';
+import { confirmPayment } from '@/lib/crm/payments';
+import { failure, sameOrigin, rateLimit } from '@/lib/crm/http';
 
 export const runtime = 'nodejs';
 
@@ -20,6 +22,7 @@ function captureFrom(order: PayPalOrder) {
 
 export async function POST(request: Request) {
   try {
+    sameOrigin(request); await rateLimit(request, 'payment-capture', 30);
     const body = (await request.json()) as { orderId?: unknown };
     const paypalOrderId = typeof body.orderId === 'string' ? body.orderId.trim() : '';
     if (!paypalOrderId) return NextResponse.json({ error: 'Commande PayPal manquante' }, { status: 400 });
@@ -31,6 +34,10 @@ export async function POST(request: Request) {
     if (!internalOrderId) return NextResponse.json({ error: 'Référence de commande invalide' }, { status: 400 });
     const stored = await findServiceOrderById(internalOrderId);
     if (!stored || stored.paypal_order_id !== paypalOrderId) return NextResponse.json({ error: 'Commande non reconnue' }, { status: 400 });
+    if (stored.crm_request_id) {
+      if (order.status !== 'COMPLETED') await paypalFetch(`/v2/checkout/orders/${encodeURIComponent(paypalOrderId)}/capture`, { method: 'POST', headers: { 'PayPal-Request-Id': `service-capture-${paypalOrderId}` }, body: '{}' });
+      return NextResponse.json(await confirmPayment(paypalOrderId));
+    }
     if (stored.status === 'paid') return NextResponse.json({ ok: true, status: 'COMPLETED', replay: true });
     if (!isServiceId(stored.service_id) || !isServiceMarket(stored.market)) return NextResponse.json({ error: 'Configuration service invalide' }, { status: 500 });
     const expected = getServiceOffer(stored.service_id, stored.market);
@@ -58,7 +65,6 @@ export async function POST(request: Request) {
     await updateServiceOrder(internalOrderId, { status: 'paid', paypal_capture_id: capture.id, paid_at: new Date().toISOString() });
     return NextResponse.json({ ok: true, status: order.status, amount: expected.amount, currency: expected.currency });
   } catch (error) {
-    console.error('Service PayPal capture-order error', error);
-    return NextResponse.json({ error: 'Impossible de confirmer le paiement' }, { status: 500 });
+    return failure(error);
   }
 }

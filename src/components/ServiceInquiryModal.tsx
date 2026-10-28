@@ -18,6 +18,8 @@ import {
   type ServiceMarket,
 } from '@/lib/services/catalog';
 import type { HomeLocale } from '@/lib/home-content';
+import { submitIntake } from '@/lib/crm/intake-client';
+import { MARKETS } from '@/lib/crm/core';
 
 export type ServiceInquiryOffer = {
   title: string;
@@ -31,6 +33,8 @@ type Props = {
 };
 
 type Customer = {
+  internalOrderId: string;
+  checkoutToken: string;
   name: string;
   email: string;
   phone: string;
@@ -147,23 +151,12 @@ export function ServiceInquiryModal({ offer, onClose }: Props) {
 
       addTracking(data);
 
-      const response = await fetch('/api/salesforce-lead', {
-        method: 'POST',
-        body: data,
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          result.error ||
-            (isFr
-              ? 'Impossible d’envoyer votre demande.'
-              : 'Unable to submit your request.'),
-        );
-      }
+      const result = await submitIntake(data, { id: service.id, market: service.market });
+      if (!result.orderId) throw new Error(isFr ? 'Commande non enregistrée.' : 'Order not registered.');
 
       customerRef.current = {
+        internalOrderId: result.orderId,
+        checkoutToken: result.checkoutToken,
         name: fullName,
         email: String(data.get('email') || ''),
         phone: String(data.get('phone') || ''),
@@ -207,9 +200,8 @@ export function ServiceInquiryModal({ offer, onClose }: Props) {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                serviceId: service.id,
-                market: service.market,
-                customer: customerRef.current,
+                internalOrderId: customerRef.current?.internalOrderId,
+                checkoutToken: customerRef.current?.checkoutToken,
               }),
             });
 
@@ -454,6 +446,7 @@ export function ServiceInquiryModal({ offer, onClose }: Props) {
                     </select>
                   </Field>
 
+                  <fieldset className="rounded-xl border border-slate-200 p-4"><legend className="px-2 text-sm font-semibold">{isFr ? 'Marché(s) ciblé(s) *' : 'Target market(s) *'}</legend><div className="grid grid-cols-2 gap-3 text-sm">{MARKETS.map(m => <label key={m} className="flex items-center gap-2"><input type="checkbox" name="markets" value={m}/>{m}</label>)}</div></fieldset>
                   <Field label="LinkedIn">
                     <input
                       type="url"
@@ -473,7 +466,7 @@ export function ServiceInquiryModal({ offer, onClose }: Props) {
                         ref={fileRef}
                         type="file"
                         name="cv"
-                        accept=".pdf,.doc,.docx"
+                        accept=".pdf,.docx"
                         className="sr-only"
                         onChange={(event) => setFileName(event.target.files?.[0]?.name || '')}
                       />
@@ -482,8 +475,8 @@ export function ServiceInquiryModal({ offer, onClose }: Props) {
                         {fileName ? <FileText size={20} /> : <Upload size={20} />}
                         {fileName ||
                           (isFr
-                            ? 'Sélectionner un fichier · 4 Mo max.'
-                            : 'Choose a file · 4 MB max.')}
+                            ? 'Sélectionner un fichier · 5 Mo max.'
+                            : 'Choose a file · 5 MB max.')}
                       </span>
                     </button>
                   </Field>
@@ -568,7 +561,7 @@ export function ServiceInquiryModal({ offer, onClose }: Props) {
                             clientId,
                           )}&currency=${service.currency}&intent=capture&components=buttons`}
                           strategy="afterInteractive"
-                          onLoad={renderPayPal}
+                          onReady={() => { void renderPayPal(); }}
                           onError={() =>
                             setError(
                               isFr

@@ -18,9 +18,9 @@ test('service catalog keeps trusted server-side prices for both markets', () => 
     ].map(({ id, market, amount, currency }) => ({ id, market, amount, currency })),
     [
       { id: 'professional-profile', market: 'fr', amount: '45.00', currency: 'EUR' },
-      { id: 'student-jobseeker', market: 'fr', amount: '30.00', currency: 'EUR' },
+      { id: 'student-jobseeker', market: 'fr', amount: '35.00', currency: 'EUR' },
       { id: 'professional-profile', market: 'en', amount: '45.00', currency: 'USD' },
-      { id: 'student-jobseeker', market: 'en', amount: '30.00', currency: 'USD' },
+      { id: 'student-jobseeker', market: 'en', amount: '35.00', currency: 'USD' },
     ],
   );
 });

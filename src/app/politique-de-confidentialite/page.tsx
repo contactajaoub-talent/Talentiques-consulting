@@ -37,6 +37,7 @@ export default function PrivacyPolicyPage() {
                     </p>
 
                     <div className="space-y-16">
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6"><h2 className="mb-3 text-xl font-bold text-slate-900">Diagnostics CV et accompagnements</h2><p className="leading-7 text-slate-600">Les CV, rapports et livrables sont conservés dans un stockage Supabase privé. L’accès est limité aux membres autorisés de l’équipe et utilise des liens temporaires. Le diagnostic demandé sur ce formulaire est examiné humainement et ne lance aucune analyse IA automatique. Les messages nécessaires au traitement du dossier sont distincts des actualités marketing, dont le consentement est facultatif et révocable.</p><p className="mt-3 leading-7 text-slate-600">Les documents des dossiers clôturés sont supprimés après la durée configurée par l’équipe, fixée initialement à 90 jours, lors du passage du traitement de conservation. Les dossiers actifs sont conservés pendant leur traitement. Les coordonnées, preuves de consentement et références de transaction sont conservées séparément pour le suivi de la relation et les obligations applicables. Vous pouvez demander l’accès, la rectification ou l’effacement de vos données en contactant TALENTIQUES.</p></div>
                         {/* Section 1 */}
                         <div className="group">
                             <div className="flex items-center gap-4 mb-6">

@@ -7,6 +7,11 @@ export function RouteAwarePreloader() {
   const pathname = usePathname();
 
   if (
+    pathname === '/crm' ||
+    pathname.startsWith('/crm/') ||
+    pathname === '/paiement-service' ||
+    pathname === '/completer-dossier' ||
+    pathname === '/career-search-360' ||
     pathname === '/outils' ||
     pathname.startsWith('/outils/') ||
     pathname === '/en/tools' ||

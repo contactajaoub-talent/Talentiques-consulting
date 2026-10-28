@@ -55,3 +55,15 @@ Lire avant déploiement :
 
 ### Référence visuelle Store
 La maquette validée utilisée comme référence d'intégration est conservée dans `docs/STORE-VISUAL-REFERENCE.png`.
+
+## CRM TALENTIQUES
+
+L’espace interne est intégré sous `/crm`, avec Supabase Auth, RLS, documents privés,
+rapports humains, propositions, commandes, production et outbox transactionnelle.
+
+Avant toute activation ou migration : lire [la livraison et la checklist](docs/CRM-V1-LIVRAISON.md)
+et [les résultats de validation](docs/CRM-V1-VALIDATION.md). Les intégrations distantes
+et la mise en production nécessitent encore une configuration et une validation explicites.
+
+Tests métier indépendants : `npm run test:crm`. La validation PostgreSQL isolée est
+documentée séparément et ne nécessite aucun accès à la production.
