@@ -41,8 +41,8 @@ export function EmployerLogoMarquee({ locale = 'fr' }: { locale?: HomeLocale }) 
         </div>
       </div>
       <small>{fr
-        ? 'Ces logos indiquent les entreprises d’accueil des talents accompagnés, sans partenariat commercial, affiliation ni soutien de ces entreprises.'
-        : 'These logos identify companies where supported talent secured opportunities. No commercial partnership, affiliation or endorsement is implied.'}</small>
+        ? 'Les entreprises présentées correspondent à des opportunités obtenues par des talents accompagnés par TALENTIQUES. Leur présence n’implique aucun partenariat commercial, affiliation ou soutien de leur part.'
+        : 'The companies featured reflect opportunities secured by talent supported by TALENTIQUES. Their inclusion does not imply any commercial partnership, affiliation or endorsement.'}</small>
     </section>
   );
 }
