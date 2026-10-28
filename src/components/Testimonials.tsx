@@ -12,7 +12,7 @@ export const Testimonials = () => {
             <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-blue-500/5 blur-[100px] rounded-full pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-purple-500/5 blur-[100px] rounded-full pointer-events-none" />
 
-            <div className="container mx-auto px-4 md:px-6 relative z-10">
+            <div className="container mx-auto px-5 md:px-8 relative z-10">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -24,12 +24,12 @@ export const Testimonials = () => {
                 </motion.div>
 
                 <div className="relative w-full overflow-hidden">
-                    <div className="flex w-max animate-marquee hover:[animation-play-state:paused]">
+                    <div className="flex w-max animate-marquee motion-reduce:animate-none hover:[animation-play-state:paused]">
                         {/* Render twice for seamless loop */}
                         {[...content.testimonials, ...content.testimonials].map((testimonial, index) => (
                             <div
                                 key={index}
-                                className="w-[300px] md:w-[400px] mx-4 p-8 rounded-2xl bg-white border border-slate-200 shadow-sm relative hover:shadow-lg transition-shadow flex-shrink-0"
+                                className="w-[270px] sm:w-[350px] md:w-[400px] mx-2 sm:mx-4 p-5 sm:p-8 rounded-2xl bg-white border border-slate-200 shadow-sm relative hover:shadow-lg transition-shadow flex-shrink-0"
                             >
                                 <div className="flex gap-1 mb-4">
                                     {[...Array(testimonial.rating)].map((_, i) => (

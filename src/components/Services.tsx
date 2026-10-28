@@ -47,7 +47,7 @@ export function Services({ locale = 'fr' }: { locale?: HomeLocale }) {
         aria-hidden="true"
       />
 
-      <div className="container relative mx-auto px-6 md:px-8">
+      <div className="container relative mx-auto px-5 md:px-8">
         <div className="mx-auto max-w-7xl">
           <motion.div
             initial={{ opacity: 0, y: 18 }}

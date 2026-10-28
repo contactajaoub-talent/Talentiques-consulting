@@ -61,7 +61,7 @@ export function Process({ locale = 'fr' }: { locale?: HomeLocale }) {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.07 }}
-                  className="group relative grid gap-5 py-8 pl-8 sm:pl-10 md:grid-cols-[5rem_minmax(0,0.8fr)_minmax(0,1.2fr)] md:items-start md:gap-8 lg:py-9"
+                  className="group relative grid gap-5 py-8 pl-8 sm:pl-10 lg:grid-cols-[5rem_minmax(0,0.8fr)_minmax(0,1.2fr)] lg:items-start lg:gap-8 lg:py-9"
                 >
                   <span
                     className="absolute left-0 top-[2.45rem] h-3.5 w-3.5 rounded-full border-[3px] border-slate-50 bg-[#0683C9] shadow-[0_0_0_1px_rgba(6,131,201,.22)] transition-transform duration-300 group-hover:scale-110"
@@ -72,7 +72,7 @@ export function Process({ locale = 'fr' }: { locale?: HomeLocale }) {
                     <span className="font-heading text-xs font-bold tracking-[.18em] text-[#0683C9]">
                       {step}
                     </span>
-                    <span className="h-px w-7 bg-sky-200 md:mt-4 md:block md:w-8" aria-hidden="true" />
+                    <span className="h-px w-7 bg-sky-200 lg:mt-4 lg:block lg:w-8" aria-hidden="true" />
                   </div>
 
                   <h3 className="font-heading text-2xl font-bold tracking-[-.02em] text-slate-950 md:text-[1.7rem]">

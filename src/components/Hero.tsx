@@ -46,7 +46,7 @@ export function Hero({ locale = 'fr' }: { locale?: HomeLocale }) {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.08 }}
-            className="font-heading text-[2.35rem] font-bold leading-[1.06] tracking-[-.04em] text-slate-950 sm:text-[3.45rem] lg:text-[4.2rem] xl:text-[4.55rem]"
+            className="font-heading text-[clamp(2rem,8.5vw,2.35rem)] break-words font-bold leading-[1.06] tracking-[-.04em] text-slate-950 sm:text-[3.45rem] lg:text-[4.2rem] xl:text-[4.55rem]"
           >
             {copy.hero.titleStart}{' '}
             <span className="bg-gradient-to-r from-[#0683C9] via-[#0A9DDB] to-[#2457C5] bg-clip-text text-transparent">
@@ -67,11 +67,11 @@ export function Hero({ locale = 'fr' }: { locale?: HomeLocale }) {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.24 }}
-            className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap"
+            className="mt-7 flex w-full flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap"
           >
             <Link
               href={`${prefix}/#services`}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#0683C9] px-7 py-3.5 font-bold text-white shadow-[0_12px_30px_-16px_rgba(6,131,201,.9)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#056da8]"
+              className="inline-flex min-h-12 w-full max-w-sm items-center justify-center gap-2 rounded-full bg-[#0683C9] sm:w-auto px-7 py-3.5 font-bold text-white shadow-[0_12px_30px_-16px_rgba(6,131,201,.9)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#056da8]"
             >
               {copy.hero.servicesCta}
               <ArrowRight size={18} />
@@ -79,7 +79,7 @@ export function Hero({ locale = 'fr' }: { locale?: HomeLocale }) {
 
             <Link
               href={locale === 'fr' ? '/outils' : '/en/tools'}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-slate-300 bg-white/90 px-7 py-3.5 font-bold text-slate-800 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#0683C9] hover:text-[#0683C9]"
+              className="inline-flex min-h-12 w-full max-w-sm items-center justify-center gap-2 rounded-full border border-slate-300 sm:w-auto bg-white/90 px-7 py-3.5 font-bold text-slate-800 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#0683C9] hover:text-[#0683C9]"
             >
               {copy.hero.toolsCta}
               <ArrowRight size={18} />
@@ -87,7 +87,7 @@ export function Hero({ locale = 'fr' }: { locale?: HomeLocale }) {
 
             <Link
               href="/diagnostic-cv-ats"
-              className="inline-flex min-h-12 items-center justify-center px-4 py-3.5 text-sm font-bold text-[#0683C9] underline decoration-sky-200 underline-offset-4 transition hover:decoration-[#0683C9]"
+              className="inline-flex min-h-12 w-full max-w-sm items-center justify-center px-4 py-3.5 text-center text-sm sm:w-auto font-bold text-[#0683C9] underline decoration-sky-200 underline-offset-4 transition hover:decoration-[#0683C9]"
             >
               {copy.diagnosticCta}
             </Link>

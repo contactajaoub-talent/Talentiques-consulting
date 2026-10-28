@@ -159,8 +159,8 @@ export function ServicesOffersPage({ locale }: { locale: HomeLocale }) {
                       {offer.intro}
                     </p>
 
-                    <div className="mt-7 flex items-end gap-3">
-                      <span className="font-heading text-5xl font-bold tracking-[-.04em] text-[#0F3452]">
+                    <div className="mt-7 flex flex-wrap items-end gap-3">
+                      <span className="font-heading text-4xl font-bold tracking-[-.04em] text-[#0F3452] sm:text-5xl">
                         {service.displayPrice}
                       </span>
                       <span className="mb-1.5 text-sm text-slate-500">
@@ -203,7 +203,7 @@ export function ServicesOffersPage({ locale }: { locale: HomeLocale }) {
                           market: locale,
                         })
                       }
-                      className="mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#0683C9] px-7 py-3.5 font-bold text-white shadow-[0_12px_28px_-16px_rgba(6,131,201,.85)] transition-all hover:-translate-y-0.5 hover:bg-[#056da8]"
+                      className="mt-8 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#0683C9] text-center sm:w-auto px-7 py-3.5 font-bold text-white shadow-[0_12px_28px_-16px_rgba(6,131,201,.85)] transition-all hover:-translate-y-0.5 hover:bg-[#056da8]"
                     >
                       {offer.cta}
                       <ArrowRight size={17} />

@@ -319,7 +319,7 @@ export function ServiceInquiryModal({ offer, onClose }: Props) {
             <X size={20} />
           </button>
 
-          <div className="max-h-[91vh] overflow-y-auto">
+          <div className="max-h-[calc(100dvh-24px)] overflow-y-auto overscroll-contain">
             <div className="border-b border-slate-200 bg-gradient-to-r from-sky-50 via-white to-orange-50/50 px-5 py-6 sm:px-9 md:px-11">
               <div className="pr-12">
                 <span className="inline-flex rounded-full border border-sky-200 bg-white px-4 py-2 text-xs font-bold uppercase tracking-[.08em] text-[#0683C9]">
@@ -344,7 +344,7 @@ export function ServiceInquiryModal({ offer, onClose }: Props) {
                 </h2>
               </div>
 
-              <div className="mt-5 grid grid-cols-3 gap-2 text-[11px] font-bold uppercase tracking-[.08em]">
+              <div className="mt-5 grid grid-cols-3 gap-1.5 text-[10px] font-bold uppercase tracking-[.02em] sm:gap-2 sm:text-[11px] sm:tracking-[.08em]">
                 {[
                   isFr ? 'Demande' : 'Request',
                   isFr ? 'Paiement' : 'Payment',
