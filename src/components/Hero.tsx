@@ -11,7 +11,7 @@ export function Hero({ locale = 'fr' }: { locale?: HomeLocale }) {
   const prefix = locale === 'fr' ? '' : '/en';
 
   return (
-    <section className="relative flex items-center overflow-hidden bg-white pb-16 pt-28 sm:pb-20 sm:pt-32 lg:pb-24 lg:pt-36">
+    <section className="relative flex items-center overflow-hidden bg-white pb-8 pt-28 sm:pb-10 sm:pt-32 lg:pb-12 lg:pt-36">
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#0683c90a_1px,transparent_1px),linear-gradient(to_bottom,#0683c90a_1px,transparent_1px)] bg-[size:28px_28px] [mask-image:radial-gradient(ellipse_72%_62%_at_50%_5%,#000_62%,transparent_100%)]" />
         <HeroAnimation />

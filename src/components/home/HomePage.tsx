@@ -3,6 +3,7 @@
 import { MotionConfig } from 'framer-motion';
 import { Navbar } from '@/components/Navbar';
 import { Hero } from '@/components/Hero';
+import { EmployerLogoMarquee } from '@/components/EmployerLogoMarquee';
 import { WhyUs } from '@/components/WhyUs';
 import { Credibility } from '@/components/Credibility';
 import { AlternanceFeature } from '@/components/AlternanceFeature';
@@ -19,6 +20,7 @@ export function HomePage({ locale }: { locale: HomeLocale }) {
       <Navbar locale={locale}/>
       <main>
         <Hero locale={locale}/>
+        <EmployerLogoMarquee locale={locale}/>
         <WhyUs locale={locale}/>
         <Credibility locale={locale}/>
         <AlternanceFeature locale={locale}/>
