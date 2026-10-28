@@ -13,10 +13,11 @@ import { Testimonials } from '@/components/Testimonials';
 import { Contact } from '@/components/Contact';
 import { Footer } from '@/components/Footer';
 import type { HomeLocale } from '@/lib/home-content';
+import laptop from '@/components/PublicLaptop.module.css';
 
 export function HomePage({ locale }: { locale: HomeLocale }) {
   return <MotionConfig reducedMotion="user">
-    <div className="min-h-screen overflow-x-hidden bg-white text-slate-900">
+    <div className={`${laptop.page} min-h-screen overflow-x-hidden bg-white text-slate-900`}>
       <Navbar locale={locale}/>
       <main>
         <Hero locale={locale}/>

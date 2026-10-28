@@ -12,6 +12,7 @@ import {
 } from '@/components/ServiceInquiryModal';
 import { getServiceOffer, type ServiceId } from '@/lib/services/catalog';
 import type { HomeLocale } from '@/lib/home-content';
+import laptop from '@/components/PublicLaptop.module.css';
 
 const FEATURES: Record<HomeLocale, string[]> = {
   fr: [
@@ -79,7 +80,7 @@ export function ServicesOffersPage({ locale }: { locale: HomeLocale }) {
       ];
 
   return (
-    <div className="min-h-screen bg-white text-slate-900">
+    <div className={`${laptop.page} min-h-screen bg-white text-slate-900`}>
       <Navbar locale={locale} />
 
       <main className="pb-14 pt-28 sm:pt-32 lg:pb-16">

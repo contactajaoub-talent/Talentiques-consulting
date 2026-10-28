@@ -1,0 +1,37 @@
+/* Opt-in public pages only. Existing mobile, tablet and wide-screen styles stay authoritative. */
+@media (min-width: 1025px) and (max-width: 1599px) {
+  /* Type: only reduce the existing large utilities; leave captions and rails alone. */
+  .page main h1 { font-size: clamp(56px, 4.1vw, 60px); }
+  .page main h2:is([class~="text-4xl"], [class~="md:text-5xl"], [class~="sm:text-5xl"], [class~="lg:text-5xl"], [class~="lg:text-6xl"]) { font-size: 40px; }
+  .page main h2[class~="text-3xl"] { font-size: 26px; }
+  .page main h3[class~="text-2xl"], .page :global(#contact) p[class~="text-2xl"] { font-size: 22px; }
+  .page main p:is([class~="text-lg"], [class~="sm:text-lg"]) { font-size: 16px; line-height: 1.75; }
+  .page main span[class~="text-4xl"][class~="sm:text-5xl"] { font-size: 40px; }
+  .page nav a[class~="text-[15px]"] { font-size: 14px; }
+
+  /* Keep grid proportions, with a little more space at the edges. */
+  .page main > section > [class~="container"],
+  .page main > section[class~="container"],
+  .page footer > [class~="container"] { max-width: min(calc(100% - 32px), 1200px); }
+  .page nav > div { max-width: 1280px; }
+  .page main > section[class~="py-12"] { padding-block: 48px; }
+  .page main > section[class~="pt-28"] { padding-top: 124px; padding-bottom: 36px; }
+  .page > main[class~="pt-28"] { padding-top: 112px; padding-bottom: 48px; }
+  .page main [class~="lg:gap-14"] { gap: 40px; }
+  .page main [class~="lg:gap-12"] { gap: 32px; }
+  .page main [class~="lg:gap-8"] { gap: 24px; }
+  .page main [class~="lg:py-8"], .page main [class~="md:py-8"] { padding-block: 24px; }
+  .page main [class~="lg:py-9"] { padding-block: 28px; }
+  .page main [class~="lg:py-11"] { padding-block: 32px; }
+
+  /* Large marketing margins only; no overrides inside forms or the two animated rails. */
+  .page main > section:not(:global(#testimonials)):not([aria-label]) :is([class~="mt-5"], [class~="mt-6"]):not(form *) { margin-top: 16px; }
+  .page main > section:not(:global(#testimonials)):not([aria-label]) :is([class~="mt-7"], [class~="mt-8"]):not(form *) { margin-top: 24px; }
+  .page main > section:not(:global(#testimonials)):not([aria-label]) :is([class~="mt-9"], [class~="mt-10"]):not(form *) { margin-top: 32px; }
+
+  /* Retain at least 44px for each existing prominent action. */
+  .page main :is(a, button, span)[class~="min-h-12"]:not(form *, dialog *),
+  .page nav a[href="/diagnostic-cv-ats"] { min-height: 44px; padding: 10px 20px; font-size: 14px; line-height: 24px; }
+  .page footer { padding-top: 48px; padding-bottom: 28px; }
+  .page footer [class~="lg:gap-10"] { gap: 32px; margin-bottom: 32px; }
+}
