@@ -8,7 +8,7 @@ export function config() {
   const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key || !service)
     throw new CrmError(
-      "Le CRM nécessite la configuration Supabase et sa migration.",
+      "Le CRM nÃ©cessite la configuration Supabase et sa migration.",
       503,
     );
   return { url: url.replace(/\/$/, ""), key, service };
@@ -37,15 +37,16 @@ export async function backend(
       typeof body.message === "string" && body.message.startsWith("CRM:")
         ? body.message.slice(4)
         : response.status === 401 || response.status === 403
-          ? "Accès refusé."
-          : "Opération indisponible. Vérifiez la configuration et les migrations.";
+          ? "AccÃ¨s refusÃ©."
+          : "OpÃ©ration indisponible. VÃ©rifiez la configuration et les migrations.";
     throw new CrmError(
       safe,
       response.status === 401 ? 401 : response.status === 403 ? 403 : 409,
     );
   }
   if (response.status === 204) return null;
-  return response.json();
+  const payload = await response.text();
+  return payload.trim() ? JSON.parse(payload) : null;
 }
 export function rpc(
   name: string,
