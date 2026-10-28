@@ -33,7 +33,7 @@ export function Hero({ locale = 'fr' }: { locale?: HomeLocale }) {
       </div>
 
       <div className="container relative z-10 mx-auto px-5 md:px-8">
-        <div className="mx-auto max-w-4xl text-center">
+        <div className="mx-auto max-w-6xl text-center">
           <motion.span
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
@@ -49,7 +49,7 @@ export function Hero({ locale = 'fr' }: { locale?: HomeLocale }) {
             className="font-heading text-[clamp(2rem,8.5vw,2.35rem)] break-words font-bold leading-[1.06] tracking-[-.04em] text-slate-950 sm:text-[3.45rem] lg:text-[4.2rem] xl:text-[4.55rem]"
           >
             {copy.hero.titleStart}{' '}
-            <span className="bg-gradient-to-r from-[#0683C9] via-[#0A9DDB] to-[#2457C5] bg-clip-text text-transparent">
+            <span className="block min-[1025px]:whitespace-nowrap bg-gradient-to-r from-[#0683C9] via-[#0A9DDB] to-[#2457C5] bg-clip-text text-transparent">
               {copy.hero.titleHighlight}
             </span>
           </motion.h1>

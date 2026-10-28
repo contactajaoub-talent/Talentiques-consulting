@@ -23,7 +23,7 @@ export function getHomeContent(locale: HomeLocale) {
     hero: {
       eyebrow: fr ? 'L’ÉCOSYSTÈME TALENTIQUES' : 'THE TALENTIQUES ECOSYSTEM',
       titleStart: fr ? 'Accédez à de meilleures' : 'Access better',
-      titleHighlight: fr ? 'opportunités professionnelles.' : 'professional opportunities.',
+      titleHighlight: fr ? 'opportunités professionnelles' : 'professional opportunities',
       description: fr
         ? 'Talentiques réunit des services, des outils et des parcours spécialisés pour vous aider à mieux vous positionner, structurer votre recherche et avancer vers la bonne opportunité.'
         : 'Talentiques brings together services, tools and specialized programs to help you position yourself more effectively, structure your search and move toward the right opportunity.',
