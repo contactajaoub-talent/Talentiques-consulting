@@ -8,7 +8,7 @@ export function AlternanceFeature({ locale = 'fr' }: { locale?: HomeLocale }) {
   const copy = getHomeContent(locale).alternance;
 
   return (
-    <section id="alternance" className="relative overflow-hidden bg-white py-14 lg:py-20">
+    <section id="alternance" className="relative overflow-hidden bg-white py-12 lg:py-16">
       <div
         className="pointer-events-none absolute -right-32 top-10 h-80 w-80 rounded-full bg-orange-100/45 blur-[120px]"
         aria-hidden="true"
@@ -23,9 +23,9 @@ export function AlternanceFeature({ locale = 'fr' }: { locale?: HomeLocale }) {
           initial={{ opacity: 0, y: 18 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mx-auto max-w-7xl border-y border-slate-200 py-9 sm:py-11 lg:py-12"
+          className="mx-auto max-w-7xl border-y border-slate-200 py-7 sm:py-8 lg:py-9"
         >
-          <div className="grid items-center gap-12 lg:grid-cols-[1.06fr_.94fr] lg:gap-20">
+          <div className="grid items-center gap-8 lg:grid-cols-[1.06fr_.94fr] lg:gap-12">
             <div>
               <div className="mb-5 flex items-center gap-3">
                 <span className="h-2.5 w-2.5 rounded-full bg-[#F59E0B]" aria-hidden="true" />
@@ -55,7 +55,7 @@ export function AlternanceFeature({ locale = 'fr' }: { locale?: HomeLocale }) {
             <div className="relative pl-7 sm:pl-9">
               <div className="absolute bottom-2 left-[7px] top-2 w-px bg-gradient-to-b from-[#F59E0B] via-orange-200 to-sky-200" aria-hidden="true" />
 
-              <div className="space-y-8">
+              <div className="space-y-6">
                 {copy.items.map((item, index) => (
                   <motion.div
                     key={item}

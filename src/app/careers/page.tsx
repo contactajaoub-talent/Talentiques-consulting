@@ -14,14 +14,14 @@ export default function CareersPage() {
             <Navbar />
 
             {/* --- HERO SECTION --- */}
-            <section className="pt-40 pb-20 px-4 md:px-6 relative overflow-hidden">
+            <section className="pt-28 pb-12 px-4 sm:pt-32 sm:pb-14 md:px-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-200/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
                 <div className="container mx-auto max-w-4xl text-center relative z-10">
                     <motion.h1
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-4xl md:text-6xl font-bold mb-6 font-heading tracking-tight text-slate-900"
+                        className="text-4xl md:text-5xl font-bold mb-5 font-heading tracking-tight text-slate-900"
                     >
                         {content.careers.title}
                     </motion.h1>
@@ -37,7 +37,7 @@ export default function CareersPage() {
             </section>
 
             {/* --- JOBS GRID --- */}
-            <section className="container mx-auto px-4 md:px-6 pb-32 max-w-5xl">
+            <section className="container mx-auto px-4 md:px-6 pb-16 lg:pb-20 max-w-5xl">
                 <div className="grid gap-6">
                     {content.careers.jobs.map((job, index) => (
                         <motion.div

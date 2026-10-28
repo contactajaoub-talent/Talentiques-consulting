@@ -25,7 +25,7 @@ export default function BlogPage() {
             <Navbar />
 
             {/* --- HERO SECTION --- */}
-            <section className="relative pt-40 pb-20 px-4 md:px-6 overflow-hidden">
+            <section className="relative pt-28 pb-12 px-4 sm:pt-32 sm:pb-14 md:px-6 overflow-hidden">
                 {/* Background Decor */}
                 <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-brand-200/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
                 <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-200/20 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2 pointer-events-none" />
@@ -34,7 +34,7 @@ export default function BlogPage() {
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200 text-brand-600 font-bold text-sm mb-8 shadow-sm"
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200 text-brand-600 font-bold text-sm mb-5 shadow-sm"
                     >
                         <Sparkles size={14} />
                         <span>Blog & Ressources</span>
@@ -44,7 +44,7 @@ export default function BlogPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="text-5xl md:text-7xl font-bold mb-6 font-heading tracking-tight text-slate-900"
+                        className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-5 font-heading tracking-tight text-slate-900"
                     >
                         {content.blog.title}
                     </motion.h1>
@@ -53,7 +53,7 @@ export default function BlogPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="text-xl text-slate-600 max-w-2xl mx-auto mb-12 font-light"
+                        className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto mb-8 font-light"
                     >
                         {content.blog.subtitle}
                     </motion.p>
@@ -104,7 +104,7 @@ export default function BlogPage() {
             </section>
 
             {/* --- POSTS GRID --- */}
-            <section className="container mx-auto px-4 md:px-6 pb-32">
+            <section className="container mx-auto px-4 md:px-6 pb-16 lg:pb-20">
                 {filteredPosts.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {filteredPosts.map((post, index) => (

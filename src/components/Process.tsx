@@ -7,7 +7,7 @@ export function Process({ locale = 'fr' }: { locale?: HomeLocale }) {
   const copy = getHomeContent(locale).process;
 
   return (
-    <section id="process" className="relative overflow-hidden bg-slate-50/80 py-16 lg:py-24">
+    <section id="process" className="relative overflow-hidden bg-slate-50/80 py-12 lg:py-16">
       <div
         className="pointer-events-none absolute left-1/2 top-0 h-72 w-[54rem] -translate-x-1/2 rounded-full bg-white blur-[110px]"
         aria-hidden="true"
@@ -19,7 +19,7 @@ export function Process({ locale = 'fr' }: { locale?: HomeLocale }) {
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="grid gap-7 border-b border-slate-200 pb-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-end lg:gap-16 lg:pb-12"
+            className="grid gap-7 border-b border-slate-200 pb-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end lg:gap-12 lg:pb-10"
           >
             <div>
               <span className="text-xs font-bold uppercase tracking-[.22em] text-[#0683C9]">
@@ -39,7 +39,7 @@ export function Process({ locale = 'fr' }: { locale?: HomeLocale }) {
             </p>
           </motion.header>
 
-          <div className="relative mt-12 lg:mt-14">
+          <div className="relative mt-8 lg:mt-10">
             <div
               className="absolute bottom-0 left-[0.43rem] top-0 w-px bg-slate-200 sm:left-[0.47rem]"
               aria-hidden="true"

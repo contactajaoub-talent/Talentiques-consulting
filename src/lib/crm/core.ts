@@ -7,6 +7,27 @@ export const MARKETS = [
   "Allemagne",
   "International / Autre",
 ] as const;
+/** Canonical FR values are retained when the same UI is displayed in English. */
+export const MARKET_OPTIONS = [
+  // Main TALENTIQUES markets, in priority order.
+  { value: "Marché français", fr: "Marché français", en: "French market", group: "primary", keywords: "france french" },
+  { value: "Marché suisse", fr: "Marché suisse", en: "Swiss market", group: "primary", keywords: "suisse swiss switzerland" },
+  { value: "Marché canadien", fr: "Marché canadien", en: "Canadian market", group: "primary", keywords: "canada canadian québec quebec" },
+  { value: "Marché belge", fr: "Marché belge", en: "Belgian market", group: "primary", keywords: "belgique belgium" },
+  { value: "Marché luxembourgeois", fr: "Marché luxembourgeois", en: "Luxembourg market", group: "primary", keywords: "luxembourg" },
+  // Africa is an expandable group, not a value submitted to the CRM.
+  { value: "Marché marocain", fr: "Marché marocain", en: "Moroccan market", group: "africa", keywords: "maroc morocco" },
+  { value: "Marché tunisien", fr: "Marché tunisien", en: "Tunisian market", group: "africa", keywords: "tunisie tunisia" },
+  { value: "Marché ivoirien", fr: "Marché ivoirien", en: "Ivorian market", group: "africa", keywords: "côte d'ivoire cote d ivoire ivory coast" },
+  { value: "Marché sénégalais", fr: "Marché sénégalais", en: "Senegalese market", group: "africa", keywords: "sénégal senegal" },
+  { value: "Marché malgache", fr: "Marché malgache", en: "Madagascar market", group: "africa", keywords: "madagascar" },
+  { value: "Marché camerounais", fr: "Marché camerounais", en: "Cameroonian market", group: "africa", keywords: "cameroun cameroon" },
+  // Broad markets are selectable themselves.
+  { value: "Moyen-Orient", fr: "Moyen-Orient", en: "Middle East", group: "regional", keywords: "middle east golfe gulf dubai uae emirats émirats" },
+  { value: "International francophone", fr: "International francophone", en: "International French-speaking markets", group: "regional", keywords: "international french speaking francophone" },
+  { value: "International anglophone", fr: "International anglophone", en: "International English-speaking markets", group: "regional", keywords: "international english speaking anglophone" },
+] as const;
+
 export const STATUSES = [
   "Étudiant",
   "Alternant",
@@ -127,11 +148,33 @@ export function validateIntake(input: Record<string, unknown>) {
     email = text(input.email, 254).toLowerCase();
   const status = text(input.current_status, 100),
     objective = text(input.objective, 1000);
-  const markets = Array.isArray(input.markets)
-    ? [...new Set(input.markets)].filter((v) =>
-        MARKETS.includes(v as (typeof MARKETS)[number]),
-      )
-    : [];
+  // Accept the existing country values and any user-specified market.
+  // Never silently discard an unknown market: the candidate can target any country.
+  if (
+    !Array.isArray(input.markets) ||
+    input.markets.length > 12 ||
+    input.markets.some((item) => typeof item !== "string")
+  )
+    throw new CrmError("Sélection de marchés invalide.");
+  const markets = [
+    ...new Map(
+      (input.markets as string[]).map((item) => {
+        const clean = item.trim().replace(/\s+/g, " ");
+        return [clean.normalize("NFKC").toLocaleLowerCase("fr"), clean] as const;
+      }),
+    ).values(),
+  ];
+  if (
+    markets.length > 8 ||
+    markets.some(
+      (item) =>
+        item.length < 2 ||
+        item.length > 80 ||
+        /[<>{}\u0000-\u001f\u007f]/.test(item) ||
+        !/\p{L}/u.test(item),
+    )
+  )
+    throw new CrmError("Choisissez jusqu’à 8 marchés valides (80 caractères maximum chacun).");
   if (
     name.length < 2 ||
     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||

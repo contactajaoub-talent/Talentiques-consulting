@@ -41,7 +41,7 @@ export function Services({ locale = 'fr' }: { locale?: HomeLocale }) {
         ];
 
   return (
-    <section id="services" className="relative overflow-hidden bg-white py-16 lg:py-24">
+    <section id="services" className="relative overflow-hidden bg-white py-12 lg:py-16">
       <div
         className="pointer-events-none absolute -left-28 top-20 h-72 w-72 rounded-full bg-sky-100/45 blur-[110px]"
         aria-hidden="true"
@@ -53,14 +53,14 @@ export function Services({ locale = 'fr' }: { locale?: HomeLocale }) {
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="relative overflow-hidden border-y border-l-0 sm:border-l-2 border-sky-200 border-l-[#E7A33A] bg-sky-50/55 px-0 py-10 sm:px-8 lg:px-10 lg:py-12"
+            className="relative overflow-hidden border-y border-l-0 sm:border-l-2 border-sky-200 border-l-[#E7A33A] bg-sky-50/55 px-0 py-8 sm:px-8 lg:px-10 lg:py-9"
           >
             <div
               className="pointer-events-none absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-white/75 to-transparent"
               aria-hidden="true"
             />
 
-            <div className="relative grid gap-9 sm:gap-10 lg:grid-cols-[1.08fr_.92fr] lg:items-center lg:gap-16">
+            <div className="relative grid gap-7 sm:gap-8 lg:grid-cols-[1.08fr_.92fr] lg:items-center lg:gap-12">
               <div>
                 <span className="text-xs font-bold uppercase tracking-[.22em] text-[#C96A08]">
                   {copy.eyebrow}

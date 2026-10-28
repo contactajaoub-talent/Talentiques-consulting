@@ -7,9 +7,9 @@ export function WhyUs({ locale = 'fr' }: { locale?: HomeLocale }) {
   const copy = getHomeContent(locale).approach;
 
   return (
-    <section id="why-us" className="overflow-hidden bg-white py-16 lg:py-24">
+    <section id="why-us" className="overflow-hidden bg-white py-12 lg:py-16">
       <div className="container mx-auto px-5 md:px-8">
-        <div className="mx-auto grid max-w-7xl gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-24">
+        <div className="mx-auto grid max-w-7xl gap-9 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14">
           <motion.header
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -35,7 +35,7 @@ export function WhyUs({ locale = 'fr' }: { locale?: HomeLocale }) {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.07 }}
-                className="group grid gap-4 border-b border-slate-200 py-8 sm:grid-cols-[4rem_1fr] sm:gap-6 lg:py-10"
+                className="group grid gap-4 border-b border-slate-200 py-7 sm:grid-cols-[4rem_1fr] sm:gap-6 lg:py-8"
               >
                 <span className="pt-1 font-heading text-sm font-bold tracking-[.16em] text-[#0683C9]">
                   0{index + 1}

@@ -50,7 +50,7 @@ export const AccompanimentLeadForm = () => {
   };
 
   return (
-    <section className="py-20 bg-slate-50" id="demande-accompagnement">
+    <section className="py-12 lg:py-16 bg-slate-50" id="demande-accompagnement">
       <div className="container mx-auto px-4 md:px-6">
         <div className="max-w-4xl mx-auto bg-white rounded-3xl border border-slate-200 shadow-xl shadow-slate-900/5 p-6 md:p-10">
           {success ? (

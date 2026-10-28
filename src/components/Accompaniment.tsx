@@ -7,10 +7,10 @@ import { ArrowRight, CheckCircle2, Globe2 } from 'lucide-react';
 import { content } from '@/lib/content';
 
 export const Accompaniment = () => (
-  <section id="accompagnement" className="py-24 bg-slate-950 text-white relative overflow-hidden">
+  <section id="accompagnement" className="py-14 lg:py-16 bg-slate-950 text-white relative overflow-hidden">
     <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(6,131,201,.18),transparent_38%),radial-gradient(circle_at_80%_80%,rgba(59,130,246,.12),transparent_38%)]" />
     <div className="container mx-auto px-4 md:px-6 relative z-10">
-      <div className="grid lg:grid-cols-[1.05fr_.95fr] gap-12 items-center max-w-6xl mx-auto">
+      <div className="grid lg:grid-cols-[1.05fr_.95fr] gap-8 lg:gap-10 items-center max-w-6xl mx-auto">
         <motion.div initial={{ opacity: 0, x: -24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
           <span className="inline-flex items-center gap-2 text-brand-300 font-bold text-sm uppercase tracking-widest"><Globe2 size={17}/>Accompagnement personnalisé</span>
           <h2 className="text-4xl md:text-5xl font-bold mt-5 mb-6 font-heading">{content.accompaniment.title}</h2>

@@ -7,7 +7,7 @@ import { content } from '@/lib/content';
 
 export const Testimonials = () => {
     return (
-        <section id="testimonials" className="py-24 bg-slate-50 relative overflow-hidden">
+        <section id="testimonials" className="py-14 lg:py-16 bg-slate-50 relative overflow-hidden">
             {/* Decorative background elements */}
             <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-blue-500/5 blur-[100px] rounded-full pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-purple-500/5 blur-[100px] rounded-full pointer-events-none" />
@@ -17,7 +17,7 @@ export const Testimonials = () => {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-center mb-16"
+                    className="text-center mb-10"
                 >
                     <h2 className="text-3xl md:text-5xl font-bold mb-4 text-slate-900">Ce Que Disent Nos Talents</h2>
                     <p className="text-slate-600">Ne nous croyez pas sur parole, écoutez-les.</p>

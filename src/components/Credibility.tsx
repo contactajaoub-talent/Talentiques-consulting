@@ -7,7 +7,7 @@ export function Credibility({ locale = 'fr' }: { locale?: HomeLocale }) {
   const copy = getHomeContent(locale).credibility;
 
   return (
-    <section className="relative overflow-hidden border-y border-slate-100 bg-slate-50/70 py-14 lg:py-20">
+    <section className="relative overflow-hidden border-y border-slate-100 bg-slate-50/70 py-12 lg:py-16">
       <div
         className="pointer-events-none absolute left-1/2 top-0 h-64 w-[52rem] -translate-x-1/2 rounded-full bg-sky-100/55 blur-[110px]"
         aria-hidden="true"
@@ -35,7 +35,7 @@ export function Credibility({ locale = 'fr' }: { locale?: HomeLocale }) {
           </p>
         </motion.header>
 
-        <div className="mx-auto mt-14 max-w-6xl border-y border-slate-200 lg:mt-16">
+        <div className="mx-auto mt-10 max-w-6xl border-y border-slate-200 lg:mt-12">
           <div className="grid md:grid-cols-3">
             {copy.items.map(([title, description], index) => (
               <motion.article
@@ -44,7 +44,7 @@ export function Credibility({ locale = 'fr' }: { locale?: HomeLocale }) {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.08 }}
-                className="relative px-0 py-8 md:px-8 md:py-10"
+                className="relative px-0 py-7 md:px-8 md:py-8"
               >
                 {index > 0 && (
                   <div className="absolute inset-y-8 left-0 hidden w-px bg-slate-200 md:block" aria-hidden="true" />

@@ -82,7 +82,7 @@ export function ServicesOffersPage({ locale }: { locale: HomeLocale }) {
     <div className="min-h-screen bg-white text-slate-900">
       <Navbar locale={locale} />
 
-      <main className="pb-20 pt-32 sm:pt-36 lg:pb-28">
+      <main className="pb-14 pt-28 sm:pt-32 lg:pb-16">
         <section className="container mx-auto px-5 md:px-8">
           <div className="mx-auto max-w-7xl">
             <Link
@@ -96,7 +96,7 @@ export function ServicesOffersPage({ locale }: { locale: HomeLocale }) {
             <motion.header
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mt-10 max-w-4xl"
+              className="mt-7 max-w-4xl"
             >
               <span className="text-xs font-bold uppercase tracking-[.22em] text-[#C96A08]">
                 {fr ? 'SERVICES TALENTIQUES' : 'TALENTIQUES SERVICES'}
@@ -123,7 +123,7 @@ export function ServicesOffersPage({ locale }: { locale: HomeLocale }) {
               </p>
             </motion.header>
 
-            <div className="mt-14 grid border-y border-slate-200 lg:grid-cols-2">
+            <div className="mt-10 grid border-y border-slate-200 lg:grid-cols-2">
               {offers.map((offer, index) => {
                 const service = getServiceOffer(offer.id, locale);
 
@@ -134,7 +134,7 @@ export function ServicesOffersPage({ locale }: { locale: HomeLocale }) {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.08 }}
-                    className={`relative py-10 lg:px-10 lg:py-12 ${
+                    className={`relative py-8 lg:px-10 lg:py-9 ${
                       index === 1
                         ? 'border-t border-slate-200 lg:border-l lg:border-t-0'
                         : ''

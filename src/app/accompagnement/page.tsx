@@ -13,9 +13,9 @@ export default function AccompanimentPage() {
   return (
     <main className="min-h-screen bg-white">
       <Navbar />
-      <section className="pt-36 pb-16 px-4 text-center">
+      <section className="pt-28 pb-10 px-4 text-center sm:pt-32 sm:pb-12">
         <span className="text-brand-700 font-bold uppercase tracking-widest text-sm">France · Belgique · Suisse · Luxembourg · Canada francophone</span>
-        <h1 className="text-5xl md:text-6xl font-bold text-slate-900 mt-4 font-heading">Accompagnement carrière francophone</h1>
+        <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mt-4 font-heading">Accompagnement carrière francophone</h1>
         <p className="text-lg text-slate-600 max-w-3xl mx-auto mt-5">Un parcours personnalisé pour clarifier votre objectif, renforcer votre dossier et organiser vos candidatures sur le marché ciblé.</p>
       </section>
       <Accompaniment />

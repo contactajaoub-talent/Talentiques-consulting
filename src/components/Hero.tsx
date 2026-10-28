@@ -11,7 +11,7 @@ export function Hero({ locale = 'fr' }: { locale?: HomeLocale }) {
   const prefix = locale === 'fr' ? '' : '/en';
 
   return (
-    <section className="relative flex min-h-[70vh] items-center overflow-hidden bg-white pb-14 pt-28 sm:pt-32 lg:min-h-[700px] lg:pb-18">
+    <section className="relative flex items-center overflow-hidden bg-white pb-16 pt-28 sm:pb-20 sm:pt-32 lg:pb-24 lg:pt-36">
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#0683c90a_1px,transparent_1px),linear-gradient(to_bottom,#0683c90a_1px,transparent_1px)] bg-[size:28px_28px] [mask-image:radial-gradient(ellipse_72%_62%_at_50%_5%,#000_62%,transparent_100%)]" />
         <HeroAnimation />
@@ -33,11 +33,11 @@ export function Hero({ locale = 'fr' }: { locale?: HomeLocale }) {
       </div>
 
       <div className="container relative z-10 mx-auto px-5 md:px-8">
-        <div className="mx-auto max-w-5xl text-center">
+        <div className="mx-auto max-w-4xl text-center">
           <motion.span
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6 block text-xs font-bold uppercase tracking-[.22em] text-[#0683C9] sm:text-sm"
+            className="mb-4 block text-xs font-bold uppercase tracking-[.22em] text-[#0683C9] sm:text-sm"
           >
             {copy.hero.eyebrow}
           </motion.span>
@@ -46,7 +46,7 @@ export function Hero({ locale = 'fr' }: { locale?: HomeLocale }) {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.08 }}
-            className="font-heading text-[2.85rem] font-bold leading-[1.04] tracking-[-.04em] text-slate-950 sm:text-6xl lg:text-[4.7rem] xl:text-[5.35rem]"
+            className="font-heading text-[2.35rem] font-bold leading-[1.06] tracking-[-.04em] text-slate-950 sm:text-[3.45rem] lg:text-[4.2rem] xl:text-[4.55rem]"
           >
             {copy.hero.titleStart}{' '}
             <span className="bg-gradient-to-r from-[#0683C9] via-[#0A9DDB] to-[#2457C5] bg-clip-text text-transparent">
@@ -58,7 +58,7 @@ export function Hero({ locale = 'fr' }: { locale?: HomeLocale }) {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.16 }}
-            className="mx-auto mt-7 max-w-3xl text-base leading-8 text-slate-600 sm:text-lg"
+            className="mx-auto mt-5 max-w-3xl text-base leading-8 text-slate-600 sm:text-lg"
           >
             {copy.hero.description}
           </motion.p>
@@ -67,7 +67,7 @@ export function Hero({ locale = 'fr' }: { locale?: HomeLocale }) {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.24 }}
-            className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap"
+            className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap"
           >
             <Link
               href={`${prefix}/#services`}

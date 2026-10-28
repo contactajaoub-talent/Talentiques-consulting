@@ -60,7 +60,7 @@ export function Contact({ locale = 'fr' }: { locale?: HomeLocale }) {
   }
 
   return (
-    <section id="contact" className="relative overflow-hidden bg-white py-16 lg:py-24">
+    <section id="contact" className="relative overflow-hidden bg-white py-12 lg:py-16">
       <div
         className="pointer-events-none absolute left-1/2 top-0 h-72 w-[56rem] -translate-x-1/2 rounded-full bg-sky-50 blur-[105px]"
         aria-hidden="true"
@@ -85,7 +85,7 @@ export function Contact({ locale = 'fr' }: { locale?: HomeLocale }) {
             </p>
           </motion.header>
 
-          <div className="mt-12 grid overflow-hidden border-y border-slate-200 lg:grid-cols-[0.82fr_1.18fr]">
+          <div className="mt-9 grid overflow-hidden border-y border-slate-200 lg:grid-cols-[0.82fr_1.18fr]">
             <motion.aside
               initial={{ opacity: 0, y: 14 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -177,7 +177,7 @@ export function Contact({ locale = 'fr' }: { locale?: HomeLocale }) {
               className="bg-white px-0 py-9 sm:px-9 lg:px-12 lg:py-11"
             >
               {success ? (
-                <div className="flex min-h-[430px] flex-col items-start justify-center">
+                <div className="flex min-h-[320px] flex-col items-start justify-center">
                   <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
                     <CheckCircle2 size={28} />
                   </div>

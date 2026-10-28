@@ -36,7 +36,7 @@ export function DiagnosticForm({
         <X size={18} />
       </button>
       <h2 className="mb-6 pr-10 font-heading text-2xl font-semibold text-[#133960]">
-        Diagnostic CV ATS offert
+        Diagnostic du profil professionnel offert
       </h2>
       {isOpen && <DiagnosticIntake />}
     </dialog>
