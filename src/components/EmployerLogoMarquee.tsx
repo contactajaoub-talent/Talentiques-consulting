@@ -9,13 +9,11 @@ const companies = [
   { name: 'Emirates', file: 'emirates.svg', height: 56 },
   { name: 'Schneider Electric', file: 'schneider-electric.svg', height: 34 },
   { name: 'Orica Limited', file: 'orica.svg', height: 34 },
-  { name: 'Rolex', file: 'rolex.svg', height: 25 },
   { name: 'Desjardins', file: 'desjardins.svg', height: 28 },
   { name: 'CIBC', file: 'cibc.svg', height: 31 },
   { name: 'FedEx', file: 'fedex.svg', height: 32 },
   { name: 'Deloitte', file: 'deloitte.svg', height: 27, darkBackground: true },
   { name: 'AGCO Corporation', file: 'agco.png', height: 46 },
-  { name: 'Hermès', file: 'hermes.svg', height: 53 },
   { name: 'Acolad Group', file: 'acolad.svg', height: 32 },
   { name: 'Société Générale', file: 'societe-generale.svg', height: 29 },
 ];
@@ -27,7 +25,7 @@ export function EmployerLogoMarquee({ locale = 'fr' }: { locale?: HomeLocale }) 
       <p>{fr
         ? 'Des talents accompagnés par TALENTIQUES ont décroché des opportunités dans des entreprises comme…'
         : 'Talent supported by TALENTIQUES has secured opportunities at companies such as…'}</p>
-      <div className={styles.viewport} tabIndex={0} aria-label={fr ? 'Les 13 entreprises · défilement suspendu au survol ou au focus' : 'The 13 companies · scrolling pauses on hover or focus'}>
+      <div className={styles.viewport} tabIndex={0} aria-label={fr ? 'Les 11 entreprises · défilement suspendu au survol ou au focus' : 'The 11 companies · scrolling pauses on hover or focus'}>
         <div className={styles.track}>
           {[0, 1].map(copy => (
             <div key={copy} className={styles.group} aria-hidden={copy === 1 ? true : undefined}>
