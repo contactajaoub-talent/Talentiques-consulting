@@ -3,6 +3,9 @@ import { Footer } from '@/components/Footer';
 import { Accompaniment } from '@/components/Accompaniment';
 import { Process } from '@/components/Process';
 import { AccompanimentLeadForm } from '@/components/AccompanimentLeadForm';
+import { countryOptions, quoteDeliveryEnabled } from '@/lib/services/career-quote';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: 'Accompagnement carrière francophone',
@@ -20,7 +23,7 @@ export default function AccompanimentPage() {
       </section>
       <Accompaniment />
       <Process />
-      <AccompanimentLeadForm />
+      <AccompanimentLeadForm countries={countryOptions()} enabled={quoteDeliveryEnabled(process.env)} />
       <Footer />
     </main>
   );

@@ -13,6 +13,7 @@ import {
 import { getServiceOffer, type ServiceId } from '@/lib/services/catalog';
 import type { HomeLocale } from '@/lib/home-content';
 import laptop from '@/components/PublicLaptop.module.css';
+import { CareerAccompanimentIntro } from '@/components/CareerAccompanimentIntro';
 
 const FEATURES: Record<HomeLocale, string[]> = {
   fr: [
@@ -228,6 +229,7 @@ export function ServicesOffersPage({ locale }: { locale: HomeLocale }) {
             </p>
           </div>
         </section>
+        {fr && <div className="mt-12"><CareerAccompanimentIntro /></div>}
       </main>
 
       <Footer locale={locale} />

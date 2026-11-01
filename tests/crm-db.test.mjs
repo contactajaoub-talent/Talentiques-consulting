@@ -6,6 +6,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { randomUUID } from "node:crypto";
+import { careerQuotePayload } from '../src/lib/services/career-quote.ts';
 
 test(
   "CRM migration and real PostgreSQL authorization / transaction boundaries",
@@ -77,6 +78,12 @@ test(
           role,
         ]);
       }
+      await t.test('career quote extends existing tables atomically without creating storage', async () => {
+        await db.exec(await fs.readFile(new URL('../supabase/migrations/202611010001_career_quote.sql', import.meta.url), 'utf8'));
+        const bucket = (await q("select * from storage.buckets where id='crm-documents'"))[0];
+        assert.equal(bucket.public, false);
+        assert.equal(bucket.file_size_limit, 5 * 1024 * 1024);
+      });
       async function intake(kind, email) {
         const upload = randomUUID();
         await q(
@@ -659,6 +666,46 @@ test(
           );
         },
       );
+      await t.test('quote commit links private CV and all fields, is idempotent, preserves contact identity and creates no payment or mail', async () => {
+        await privileged();
+        const beforeContact = (await q("select * from crm_contacts where email='test@example.com'"))[0];
+        const beforeRequests = (await q('select count(*)::int as n from crm_requests'))[0].n;
+        const beforeOrders = (await q('select count(*)::int as n from service_orders'))[0].n;
+        const beforeMail = (await q('select count(*)::int as n from crm_outbox'))[0].n;
+        const uploadId = randomUUID(), tokenHash = 'synthetic-upload-capability';
+        const payload = {
+          ...careerQuotePayload({ fullName: 'New submitted identity', email: 'TEST@example.com', phone: '+33 6 12 34 56 78', country: 'France', ancienClient: 'Oui', situation: 'Étudiant', experience: 'Étudiant / débutant', objectifProfessionnel: 'Stage PFE en conseil', mobilite: 'Internationale', privacy: 'on', opportunites: ['Stage', 'Stage PFE'], postes: ['Consultant', 'Chef de projet'], paysCibles: ['FR', 'CA'], consentVersion: 'career-quote-2026-11-01', utmSource: 'synthetic-test' }),
+          filename: 'cv.pdf', mime: 'application/pdf', size: 200,
+        };
+        await q('insert into crm_uploads(id,token_hash,path,payload) values($1,$2,$3,$4)', [uploadId, tokenHash, `${uploadId}/cv.pdf`, JSON.stringify(payload)]);
+        const commit = async (token = tokenHash) => (await q("select crm_commit_career_quote($1,$2,now()+interval '3 hours') as value", [uploadId, token]))[0].value;
+        await assert.rejects(commit('wrong-capability'));
+        const result = await commit();
+        assert.deepEqual(await commit(), result);
+        assert.deepEqual(await commit(), result);
+        assert.ok(result.requestId && result.documentId);
+        const request = (await q('select * from crm_requests where id=$1', [result.requestId]))[0];
+        assert.equal(request.kind, 'quote'); assert.equal(request.status, 'new'); assert.equal(request.service_id, 'career-a-z');
+        assert.deepEqual(request.intake_data.roles, ['Consultant', 'Chef de projet']);
+        assert.deepEqual(request.intake_data.countries, ['FR', 'CA']);
+        assert.deepEqual(request.intake_data.opportunities, ['Stage', 'Stage PFE']);
+        assert.equal(request.utm.source, 'synthetic-test');
+        assert.equal((await q('select * from crm_contacts where id=$1', [beforeContact.id]))[0].name, beforeContact.name);
+        assert.equal((await q('select * from crm_contacts where id=$1', [beforeContact.id]))[0].marketing, beforeContact.marketing);
+        const document = (await q('select * from crm_documents where id=$1', [result.documentId]))[0];
+        assert.equal(document.request_id, request.id); assert.equal(document.path, `${uploadId}/cv.pdf`);
+        assert.equal((await q('select count(*)::int as n from crm_requests'))[0].n, beforeRequests + 1);
+        assert.equal((await q('select count(*)::int as n from service_orders'))[0].n, beforeOrders);
+        assert.equal((await q('select count(*)::int as n from crm_outbox'))[0].n, beforeMail);
+        assert.equal((await q('select * from crm_consents where request_id=$1', [request.id]))[0].version, 'career-quote-2026-11-01');
+        await as(admin);
+        assert.equal((await q('select * from crm_documents where id=$1', [document.id])).length, 1);
+        await assert.rejects(commit()); // Even an admin browser cannot call the server-only intake RPC directly.
+        await as(other);
+        assert.equal((await q('select * from crm_documents where id=$1', [document.id])).length, 0);
+        assert.equal((await q('select * from crm_requests where id=$1', [request.id])).length, 0);
+        await privileged();
+      });
     } finally {
       await db.close();
     }

@@ -15,6 +15,10 @@ body {
   font-feature-settings: "rlig" 1, "calt" 1;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  html.scroll-smooth { scroll-behavior: auto; }
+}
+
 /*
  * Système visuel commun à tous les formulaires Talentiques.
  * La classe .input est déjà utilisée par Optimisation, Diagnostic,

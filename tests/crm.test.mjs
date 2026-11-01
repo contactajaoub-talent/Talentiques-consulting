@@ -32,9 +32,9 @@ test("intake requires consent, target markets, objective and identity; optional 
   ])
     assert.throws(() => validateIntake({ ...candidate, ...bad }));
   assert.deepEqual(
-    validateIntake({ ...candidate, markets: ["France", "France", "unknown"] })
+    validateIntake({ ...candidate, markets: ["France", "France", "Marché luxembourgeois"] })
       .markets,
-    ["France"],
+    ["France", "Marché luxembourgeois"],
   );
 });
 test("business SLA skips evenings and weekends and follows Paris winter/summer offsets", () => {

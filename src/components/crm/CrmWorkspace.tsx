@@ -752,6 +752,7 @@ export function CrmWorkspace({ section }: { section: string }) {
                     <div className="crm-detail-section">
                       <div className="crm-actions">
                         <Badge value={detail.item.status} />
+                        {detail.item.kind === 'quote' && <Badge value={detail.item.service_id} />}
                         <Badge value={detail.item.priority} />
                         <button
                           onClick={() =>

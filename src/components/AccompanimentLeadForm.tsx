@@ -1,111 +1,130 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
-import { CheckCircle2, FileText, Upload } from 'lucide-react';
-import { STATUS_OPTIONS } from '@/lib/salesforce';
+import { useRef, useState, type FormEvent, type ReactNode } from 'react';
+import Link from 'next/link';
+import { ArrowLeft, ArrowRight, CheckCircle2, LoaderCircle, Plus, X } from 'lucide-react';
+import { type countryOptions, EXPERIENCE, MAX_CV_SIZE, MOBILITY, OPPORTUNITIES, SITUATIONS, validateCareerQuote } from '@/lib/services/career-quote';
+import { submitCareerQuote, type QuoteAttempt } from '@/lib/services/career-quote-client';
+import { quoteButton } from './CareerAccompanimentIntro';
 
-const experienceOptions = ['Moins de 2 ans', '2 à 5 ans', '5 à 10 ans', 'Plus de 10 ans'];
-const marketOptions = ['France', 'Belgique', 'Suisse', 'Canada', 'Luxembourg', 'France + International', 'Europe (plusieurs pays)', 'International', 'Autre'];
-const durationOptions = ['3 mois', '6 mois', "Jusqu'au résultat, peu importe la durée", "À définir ensemble lors de l'appel"];
-const budgetOptions = ['200 – 350 € · Accessible', 'Moins de 200 € · Si possible', 'Budget flexible · À discuter', "Je préfère en discuter lors de l'appel découverte"];
-const obstacleOptions = ['Manque de réponses aux candidatures', 'CV et profil peu valorisants', 'Manque de réseau et de visibilité', 'Reconversion difficile à articuler', 'Manque de confiance et de méthode', 'Objectif professionnel pas encore clair', 'Autre'];
+const steps = ['Informations personnelles', 'Votre besoin', 'Documents & validation'];
+const secondaryButton = 'inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-slate-300 px-5 py-2 text-sm font-semibold text-[#0F3452] transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0683C9]';
 
-function addTracking(data: FormData) {
-  data.set('pageOrigine', window.location.pathname || '/accompagnement');
-  const params = new URLSearchParams(window.location.search);
-  data.set('utmSource', params.get('utm_source') || '');
-  data.set('utmMedium', params.get('utm_medium') || '');
-  data.set('utmCampaign', params.get('utm_campaign') || '');
+function Field({ label, children }: { label: string; children: ReactNode }) {
+  return <label className="block min-w-0"><span className="mb-2 block text-sm font-semibold text-[#0F3452]">{label}</span>{children}</label>;
 }
+function SelectField({ name, label, options }: { name: string; label: string; options: string[] }) {
+  return <Field label={label}><select name={name} required className="input" defaultValue=""><option value="">Sélectionner</option>{options.map(option => <option key={option}>{option}</option>)}</select></Field>;
+}
+const searchable = (text: string) => text.toLocaleLowerCase('fr').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-export const AccompanimentLeadForm = () => {
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [fileName, setFileName] = useState('');
+export function AccompanimentLeadForm({ countries, enabled = false }: { countries: ReturnType<typeof countryOptions>; enabled?: boolean }) {
+  const [step, setStep] = useState(0);
+  const [roles, setRoles] = useState([{ id: 0, value: '' }]);
+  const nextId = useRef(1);
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+  const [countrySearch, setCountrySearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+  const heading = useRef<HTMLHeadingElement>(null);
+  const feedback = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const submitLock = useRef(false);
+  const attempt = useRef<QuoteAttempt | null>(null);
 
-  const submit = async (event: React.FormEvent<HTMLFormElement>) => {
+  function fail(message: string) {
+    setError(message);
+    requestAnimationFrame(() => feedback.current?.focus());
+  }
+  function changeStep(next: number) {
+    setError(''); setStep(next);
+    requestAnimationFrame(() => heading.current?.focus());
+  }
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const formElement = event.currentTarget;
-    setLoading(true);
-    setError('');
-    try {
-      const data = new FormData(event.currentTarget);
-      data.set('typeDemande', 'Accompagnement');
-      data.set('offreRessource', 'Accompagnement Total');
-      data.set('statutPaiement', 'Non applicable');
-      addTracking(data);
-      const response = await fetch('/api/salesforce-lead', { method: 'POST', body: data });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || 'Impossible d’envoyer votre demande.');
-      setSuccess(true);
-      formElement.reset();
-      setFileName('');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Une erreur est survenue.');
-    } finally {
-      setLoading(false);
+    if (submitLock.current) return;
+    const form = event.currentTarget;
+    const fields = form.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(`[data-step="${step}"] input, [data-step="${step}"] select, [data-step="${step}"] textarea`);
+    for (const field of fields) if (!field.reportValidity()) return;
+    const data = new FormData(form);
+    if (step === 1) {
+      if (!data.getAll('opportunites').length) return fail('Sélectionnez au moins un type d’opportunité.');
+      if (!selectedCountries.length) return fail('Sélectionnez au moins un pays ciblé.');
     }
-  };
+    if (step < 2) return changeStep(step + 1);
+    if (!enabled) return fail('L’envoi des demandes de devis est temporairement indisponible.');
+    try { validateCareerQuote(data); }
+    catch (reason) { return fail(reason instanceof Error ? reason.message : 'Vérifiez les informations du formulaire.'); }
+    submitLock.current = true; setLoading(true); setError('');
+    data.set('pageOrigine', window.location.pathname);
+    const params = new URLSearchParams(window.location.search);
+    for (const [field, param] of [['utmSource', 'utm_source'], ['utmMedium', 'utm_medium'], ['utmCampaign', 'utm_campaign'], ['utmContent', 'utm_content'], ['utmTerm', 'utm_term']]) data.set(field, (params.get(param) || '').slice(0, 150));
+    try {
+      await submitCareerQuote(data, attempt);
+      attempt.current = null;
+      setSuccess(true); form.reset(); setRoles([{ id: nextId.current++, value: '' }]); setSelectedCountries([]);
+      requestAnimationFrame(() => heading.current?.focus());
+    } catch (reason) { fail(reason instanceof Error ? reason.message : 'Une erreur est survenue. Veuillez réessayer.'); }
+    finally { submitLock.current = false; setLoading(false); }
+  }
+  const filteredCountries = countries.filter(country => searchable(country.name).includes(searchable(countrySearch)));
 
-  return (
-    <section className="py-12 lg:py-16 bg-slate-50" id="demande-accompagnement">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="max-w-4xl mx-auto bg-white rounded-3xl border border-slate-200 shadow-xl shadow-slate-900/5 p-6 md:p-10">
-          {success ? (
-            <div className="py-10 text-center">
-              <div className="w-16 h-16 mx-auto rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-5"><CheckCircle2 size={32}/></div>
-              <h2 className="text-3xl font-bold text-slate-900">Votre demande est enregistrée.</h2>
-              <p className="text-slate-600 mt-3 max-w-xl mx-auto">Nous vous recontactons sous 24 h pour organiser un appel découverte gratuit et clarifier votre besoin.</p>
+  return <section id="demande-accompagnement" aria-labelledby="quote-title" className="scroll-mt-28 border-y border-slate-200 bg-[#f8fbfe] py-14 lg:py-20">
+    <div className="container mx-auto max-w-5xl px-5 md:px-8">
+      {success ? <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center md:p-14" role="status">
+        <CheckCircle2 className="mx-auto mb-5 text-[#0683C9]" size={44} aria-hidden="true" />
+        <h2 ref={heading} tabIndex={-1} id="quote-title" className="font-heading text-3xl font-bold text-[#0F3452]">Merci pour votre demande !</h2>
+        <p className="mx-auto mt-4 max-w-xl leading-7 text-slate-600">Votre demande d’accompagnement a bien été reçue. Notre équipe étudiera votre profil et vous contactera dans les plus brefs délais sur WhatsApp ou par email afin de vous proposer un devis personnalisé.</p>
+      </div> : <>
+        <h2 id="quote-title" className="font-heading text-3xl font-bold tracking-tight text-[#0F3452] sm:text-4xl">Demander mon devis</h2>
+        <p className="mt-4 max-w-2xl leading-7 text-slate-600">Remplissez ce formulaire pour nous permettre d’étudier votre besoin et de vous proposer l’accompagnement le plus adapté.</p>
+        {!enabled && <p role="status" className="mt-5 rounded-xl border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-600">Les demandes de devis en ligne sont temporairement indisponibles.</p>}
+        <ol aria-label="Étapes du formulaire" className="my-8 grid grid-cols-3 gap-3 border-b border-slate-200 pb-6">{steps.map((label, i) => <li key={label} aria-current={step === i ? 'step' : undefined} className={`text-sm ${step === i ? 'font-bold text-[#0F3452]' : 'text-slate-500'}`}><span className={`mb-2 flex h-8 w-8 items-center justify-center rounded-full border ${step === i ? 'border-[#0683C9] bg-[#0683C9] text-white' : 'border-slate-300'}`}>{i + 1}</span><span className="hidden sm:block">{label}</span></li>)}</ol>
+        <form ref={formRef} onSubmit={submit} noValidate aria-busy={loading} className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-8 md:p-10">
+          <input name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
+          <h3 ref={heading} tabIndex={-1} className="mb-2 font-heading text-2xl font-semibold text-[#0F3452]">{steps[step]}</h3>
+          <p className="mb-7 text-sm leading-6 text-slate-500">Les champs marqués d’un astérisque (*) sont obligatoires.</p>
+          <fieldset data-step="0" hidden={step !== 0} disabled={loading}>
+            <legend className="sr-only">Informations personnelles</legend>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Field label="Nom complet *"><input name="fullName" autoComplete="name" required maxLength={120} className="input" /></Field>
+              <Field label="Email *"><input name="email" type="email" autoComplete="email" required maxLength={254} className="input" /></Field>
+              <Field label="Numéro WhatsApp *"><input name="phone" type="tel" autoComplete="tel" required maxLength={40} pattern="\+?[0-9\s.\(\)\-]{6,40}" placeholder="Ex. +33 6 12 34 56 78" className="input" /></Field>
+              <Field label="Pays de résidence *"><input name="country" autoComplete="country-name" required maxLength={100} list="residence-countries" className="input" /><datalist id="residence-countries">{countries.map(c => <option key={c.code} value={c.name} />)}</datalist></Field>
+              <Field label="Profil LinkedIn (facultatif)"><input name="profilLinkedIn" type="url" maxLength={300} placeholder="https://linkedin.com/in/…" className="input" /></Field>
+              <SelectField name="ancienClient" label="Ancien client Talentiques ? *" options={['Oui', 'Non']} />
             </div>
-          ) : (
-            <>
-              <div className="mb-8">
-                <p className="text-sm uppercase tracking-widest font-bold text-brand-700">Appel découverte gratuit</p>
-                <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mt-2">Parlez-nous de votre projet</h2>
-                <p className="text-slate-600 mt-3">Quelques informations nous permettent de préparer un échange utile et personnalisé.</p>
-              </div>
-              <form onSubmit={submit} className="space-y-5">
-                <input name="website" tabIndex={-1} autoComplete="off" className="hidden" />
-                <div className="grid md:grid-cols-2 gap-4">
-                  <Field label="Prénom *"><input required name="firstName" className="input" /></Field>
-                  <Field label="Nom *"><input required name="lastName" className="input" /></Field>
-                  <Field label="E-mail *"><input required type="email" name="email" className="input" /></Field>
-                  <Field label="Téléphone"><input type="tel" name="phone" className="input" /></Field>
-                  <Field label="Pays de résidence *"><input required name="country" type="text" autoComplete="country-name" maxLength={100} placeholder="Ex. Canada" className="input" /></Field>
-                  <Field label="Profil LinkedIn"><input type="url" name="profilLinkedIn" className="input" placeholder="https://linkedin.com/in/..." /></Field>
-                  <Field label="Statut actuel *"><select required name="statutActuel" className="input"><option value="">Sélectionner</option>{STATUS_OPTIONS.map(v => <option key={v}>{v}</option>)}</select></Field>
-                  <Field label="Années d’expérience"><select name="anneesExperience" className="input"><option value="">Sélectionner</option>{experienceOptions.map(v => <option key={v}>{v}</option>)}</select></Field>
-                  <Field label="Secteur d’activité actuel / cible"><input name="secteurActivite" className="input" /></Field>
-                  <Field label="Marché géographique ciblé *"><select required name="marcheGeographique" className="input"><option value="">Sélectionner</option>{marketOptions.map(v => <option key={v}>{v}</option>)}</select></Field>
-                  <Field label="Poste / fonction visé(e) *"><input required name="posteVise" className="input" /></Field>
-                  <Field label="Canal de contact préféré"><select name="canalContact" className="input"><option value="">Sélectionner</option><option>WhatsApp</option><option>Téléphone</option><option>E-mail</option></select></Field>
-                </div>
-                <Field label="Objectif professionnel *"><textarea required name="objectifProfessionnel" rows={4} className="input resize-none" placeholder="Expliquez le résultat que vous souhaitez atteindre…" /></Field>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <Field label="Durée d’accompagnement souhaitée"><select name="dureeAccompagnement" className="input"><option value="">Sélectionner</option>{durationOptions.map(v => <option key={v}>{v}</option>)}</select></Field>
-                  <Field label="Budget envisagé"><select name="budgetEnvisage" className="input"><option value="">Sélectionner</option>{budgetOptions.map(v => <option key={v}>{v}</option>)}</select></Field>
-                  <Field label="Frein principal"><select name="freinPrincipal" className="input"><option value="">Sélectionner</option>{obstacleOptions.map(v => <option key={v}>{v}</option>)}</select></Field>
-                </div>
-                <Field label="CV (optionnel) — PDF, DOC ou DOCX, 4 Mo maximum">
-                  <div onClick={() => fileRef.current?.click()} className="cursor-pointer rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-5 hover:border-brand-400 transition-colors">
-                    <input ref={fileRef} type="file" name="cv" accept=".pdf,.doc,.docx" className="hidden" onChange={(e) => setFileName(e.target.files?.[0]?.name || '')}/>
-                    <div className="flex items-center gap-3 text-sm text-slate-600"><div className="p-2 rounded-lg bg-brand-50 text-brand-700">{fileName ? <FileText size={20}/> : <Upload size={20}/>}</div><span>{fileName || 'Ajouter votre CV si vous le souhaitez'}</span></div>
-                  </div>
-                </Field>
-                <Field label="Informations complémentaires"><textarea name="informationsComplementaires" rows={3} className="input resize-none" /></Field>
-                <label className="flex items-start gap-3 text-sm text-slate-600"><input required name="privacy" value="1" type="checkbox" className="mt-1"/><span>J’accepte que Talentiques traite mes informations afin de répondre à ma demande. *</span></label>
-                <label className="flex items-start gap-3 text-sm text-slate-600"><input name="marketing" value="1" type="checkbox" className="mt-1"/><span>J’accepte de recevoir occasionnellement des conseils et actualités Talentiques.</span></label>
-                {error && <div className="rounded-xl bg-red-50 border border-red-200 p-4 text-sm text-red-700">{error}</div>}
-                <button disabled={loading} type="submit" className="w-full rounded-xl bg-brand-600 text-white px-6 py-4 font-bold hover:bg-brand-700 disabled:opacity-60">{loading ? 'Envoi en cours…' : 'Demander mon appel découverte gratuit'}</button>
-              </form>
-            </>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-const Field = ({ label, children }: { label: string; children: React.ReactNode }) => <label className="block space-y-1.5"><span className="text-sm font-semibold text-slate-700">{label}</span>{children}</label>;
+          </fieldset>
+          <fieldset data-step="1" hidden={step !== 1} disabled={loading} className="space-y-6">
+            <legend className="sr-only">Votre besoin</legend>
+            <fieldset><legend className="mb-3 text-sm font-semibold text-[#0F3452]">Type d’opportunité recherchée * — plusieurs choix possibles</legend><div className="flex flex-wrap gap-3">{OPPORTUNITIES.map(option => <label key={option} className="flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 has-[:checked]:border-[#0683C9] has-[:checked]:bg-sky-50"><input type="checkbox" name="opportunites" value={option} className="h-4 w-4" />{option}</label>)}</div></fieldset>
+            <div className="grid gap-5 sm:grid-cols-2"><SelectField name="situation" label="Situation actuelle *" options={SITUATIONS} /><SelectField name="experience" label="Niveau d’expérience *" options={EXPERIENCE} /></div>
+            <fieldset><legend className="mb-3 text-sm font-semibold text-[#0F3452]">Postes ou fonctions recherchés * — 10 maximum</legend><div className="space-y-3">{roles.map((role, i) => <div key={role.id} className="flex items-center gap-2"><label className="min-w-0 flex-1"><span className="sr-only">Poste recherché {i + 1}</span><input name="postes" value={role.value} onChange={e => setRoles(current => current.map(r => r.id === role.id ? { ...r, value: e.target.value } : r))} maxLength={100} required className="input" placeholder="Ex. Chef de projet" /></label>{roles.length > 1 && <button type="button" aria-label={`Supprimer le poste ${i + 1}`} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-slate-600 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#0683C9]" onClick={() => { setRoles(current => current.filter(r => r.id !== role.id)); requestAnimationFrame(() => formRef.current?.querySelector<HTMLInputElement>('[name="postes"]')?.focus()); }}><X size={18} /></button>}</div>)}</div>{roles.length < 10 && <button type="button" className={`${secondaryButton} mt-3`} onClick={() => { setRoles(current => [...current, { id: nextId.current++, value: '' }]); requestAnimationFrame(() => { const inputs = formRef.current?.querySelectorAll<HTMLInputElement>('[name="postes"]'); inputs?.[inputs.length - 1]?.focus(); }); }}><Plus size={16} aria-hidden="true" />Ajouter un poste</button>}</fieldset>
+            <Field label="Secteurs ciblés (facultatif)"><input name="secteurActivite" maxLength={200} className="input" placeholder="Ex. Industrie, conseil, finance" /></Field>
+            <Field label="Objectif professionnel *"><textarea name="objectifProfessionnel" required maxLength={2000} rows={3} className="input" placeholder="Précisez ce que vous souhaitez atteindre." /></Field>
+            <SelectField name="mobilite" label="Mobilité *" options={MOBILITY} />
+            <fieldset><legend className="mb-3 text-sm font-semibold text-[#0F3452]">Pays ciblés * — plusieurs choix possibles (20 maximum)</legend>
+              <label className="block"><span className="sr-only">Rechercher un pays</span><input type="search" value={countrySearch} onChange={e => setCountrySearch(e.target.value)} placeholder="Rechercher un pays…" className="input" /></label>
+              <p className="my-3 text-sm text-slate-600" role="status">{selectedCountries.length ? `Sélection : ${selectedCountries.map(code => countries.find(c => c.code === code)?.name).join(', ')}` : 'Aucun pays sélectionné'}</p>
+              {selectedCountries.map(code => <input key={code} type="hidden" name="paysCibles" value={code} />)}
+              <div className="grid max-h-52 grid-cols-1 gap-x-4 overflow-y-auto rounded-lg border border-slate-200 p-3 sm:grid-cols-2">{filteredCountries.map(c => <label key={c.code} className="flex min-h-11 cursor-pointer items-center gap-3 text-sm text-slate-700"><input type="checkbox" checked={selectedCountries.includes(c.code)} disabled={selectedCountries.length >= 20 && !selectedCountries.includes(c.code)} onChange={e => setSelectedCountries(current => e.target.checked ? [...current, c.code] : current.filter(code => code !== c.code))} className="h-4 w-4" />{c.name}</label>)}{!filteredCountries.length && <p className="py-3 text-sm text-slate-500">Aucun pays trouvé.</p>}</div>
+            </fieldset>
+          </fieldset>
+          <fieldset data-step="2" hidden={step !== 2} disabled={loading} className="space-y-6">
+            <legend className="sr-only">Documents et validation</legend>
+            <Field label="CV actuel * — PDF ou DOCX, 5 Mo maximum"><input name="cv" type="file" required accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" className="block w-full rounded-xl border border-slate-300 p-3 text-sm text-slate-600 file:mr-4 file:rounded-full file:border-0 file:bg-sky-50 file:px-4 file:py-3 file:font-semibold file:text-[#0369a1] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#0683C9]" onChange={e => { const file = e.target.files?.[0]; e.target.setCustomValidity(file && file.size > MAX_CV_SIZE ? 'Le CV doit faire 5 Mo maximum.' : ''); }} /></Field>
+            <Field label="Commentaires complémentaires (facultatif)"><textarea name="commentaires" maxLength={2000} rows={3} className="input" /></Field>
+            <label className="flex items-start gap-3 text-sm leading-6 text-slate-600"><input name="privacy" type="checkbox" required className="mt-1 h-4 w-4 shrink-0" /><span>J’accepte que Talentiques utilise mes informations et mon CV pour étudier ma demande et me recontacter, conformément à la <Link className="text-[#0369a1] underline underline-offset-2" href="/politique-de-confidentialite" target="_blank" rel="noopener noreferrer">politique de confidentialité</Link>. *</span></label>
+            <p className="text-sm text-slate-500">Devis personnalisé après étude de votre besoin.</p>
+          </fieldset>
+          {error && <div ref={feedback} tabIndex={-1} role="alert" className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-800">{error}</div>}
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-6">
+            {step > 0 ? <button type="button" disabled={loading} onClick={() => changeStep(step - 1)} className={secondaryButton}><ArrowLeft size={16} aria-hidden="true" />Précédent</button> : <span className="text-sm text-slate-500">Étape 1 sur 3</span>}
+            <button type="submit" disabled={loading || (step === 2 && !enabled)} className={`${quoteButton} disabled:cursor-not-allowed disabled:opacity-60`}>{loading ? <><LoaderCircle size={17} className="animate-spin motion-reduce:animate-none" aria-hidden="true" />Envoi en cours…</> : <>{step < 2 ? 'Continuer' : 'Demander mon devis'}<ArrowRight size={17} aria-hidden="true" /></>}</button>
+          </div>
+        </form>
+      </>}
+    </div>
+  </section>;
+}

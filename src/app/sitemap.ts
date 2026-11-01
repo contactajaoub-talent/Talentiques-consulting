@@ -14,6 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/en/affiliate/terms`, changeFrequency: 'yearly', priority: .3 },
     { url: `${base}/ressources`, changeFrequency: 'weekly', priority: .8 },
     { url: `${base}/accompagnement`, changeFrequency: 'monthly', priority: .8 },
+    { url: `${base}/services/accompagnement-carriere-a-a-z`, changeFrequency: 'monthly', priority: .8 },
     { url: `${base}/blog`, changeFrequency: 'weekly', priority: .8 },
     { url: `${base}/mentions-legales`, changeFrequency: 'yearly', priority: .2 },
     { url: `${base}/politique-de-confidentialite`, changeFrequency: 'yearly', priority: .2 },

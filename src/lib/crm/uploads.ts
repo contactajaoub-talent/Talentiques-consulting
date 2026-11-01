@@ -26,14 +26,15 @@ export async function businessHours(): Promise<BusinessHours> {
 export async function createUpload(
   payload: Record<string, unknown>,
   memberId: string | null = null,
+  capability?: { id: string; token: string },
 ) {
   const meta = fileMetadata(
     payload.filename,
     payload.size,
     String(payload.document_kind || "cv"),
   );
-  const id = randomUUID(),
-    token = randomBytes(32).toString("hex");
+  const id = capability?.id || randomUUID(),
+    token = capability?.token || randomBytes(32).toString("hex");
   const path = `${id}/${randomUUID()}.${meta.ext}`;
   await backend("/rest/v1/crm_uploads", {
     method: "POST",
@@ -66,6 +67,7 @@ export async function commitUpload(
   id: string,
   token: string,
   member?: { token: string; userId: string },
+  expectedKind?: string,
 ) {
   if (!/^[a-f0-9]{64}$/.test(token)) throw new CrmError("Envoi invalide.");
   const uploads = await rows(
@@ -75,12 +77,14 @@ export async function commitUpload(
   const upload = uploads[0];
   if (
     !upload ||
-    (member ? upload.member_id !== member.userId : upload.member_id !== null)
+    (member ? upload.member_id !== member.userId : upload.member_id !== null) ||
+    (upload.payload.kind === "quote" && expectedKind !== "quote") ||
+    (expectedKind && upload.payload.kind !== expectedKind)
   )
     throw new CrmError("Envoi introuvable.", 404);
   // Capabilities are needed only for the upload, never for staff authorization.
   if (upload.result) {
-    if (member) return upload.result;
+    if (member || upload.payload.kind === "quote") return upload.result;
     const settings = await businessHours();
     return {
       ...upload.result,
@@ -91,11 +95,13 @@ export async function commitUpload(
     };
   }
   if (Date.parse(upload.expires_at) < Date.now())
-    throw new CrmError("Envoi expiré.");
+    throw new CrmError("Envoi expiré. Recommencez le dépôt.", expectedKind === "quote" ? 410 : 400);
   const p = upload.payload;
   const meta = fileMetadata(p.filename, p.size, member ? p.kind : "cv");
+  // A network/storage outage is retryable; do not delete an already uploaded CV in that case.
+  const bytes = await privateFile(upload.path);
   try {
-    validateFile(await privateFile(upload.path), meta);
+    validateFile(bytes, meta);
   } catch (error) {
     await storage("object/crm-documents", {
       method: "DELETE",
@@ -110,6 +116,13 @@ export async function commitUpload(
       member.token,
     );
   const settings = await businessHours();
+  if (p.kind === "quote") {
+    return rpc("crm_commit_career_quote", {
+      p_upload: id,
+      p_hash: hash(token),
+      p_due: addBusinessHours(new Date(), settings.diagnostic_hours, settings).toISOString(),
+    });
+  }
   // Derive a stable checkout capability from this upload token, allowing safe retry after a lost response.
   const checkoutToken = hash(`checkout:${token}`);
   const result = await rpc("crm_commit_intake", {

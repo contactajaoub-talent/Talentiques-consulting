@@ -8,6 +8,7 @@ import { WhyUs } from '@/components/WhyUs';
 import { Credibility } from '@/components/Credibility';
 import { AlternanceFeature } from '@/components/AlternanceFeature';
 import { Services } from '@/components/Services';
+import { CareerAccompanimentIntro } from '@/components/CareerAccompanimentIntro';
 import { Process } from '@/components/Process';
 import { Testimonials } from '@/components/Testimonials';
 import { Contact } from '@/components/Contact';
@@ -26,6 +27,7 @@ export function HomePage({ locale }: { locale: HomeLocale }) {
         <Credibility locale={locale}/>
         <AlternanceFeature locale={locale}/>
         <Services locale={locale}/>
+        {locale === 'fr' && <CareerAccompanimentIntro />}
         <Process locale={locale}/>
         <Testimonials locale={locale}/>
         <Contact locale={locale}/>

@@ -66,6 +66,8 @@ export const DELIVERABLES = [
   "tracker",
 ] as const;
 export const LABELS: Record<string, string> = {
+  quote: "Demande de devis",
+  "career-a-z": "Accompagnement carrière de A à Z",
   configured: "Renseigné",
   new: "Nouveau",
   assigned: "Assigné",
