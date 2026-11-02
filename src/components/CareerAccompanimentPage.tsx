@@ -80,7 +80,7 @@ export function CareerAccompanimentPage({ countries, quoteEnabled = false }: { c
           <Reveal><h1 className={styles.heroTitle}>Accompagnement carrière <span>de A à Z</span></h1></Reveal>
           <div className={styles.heroLayout}>
             <div>
-              <Reveal delay={.07}><p className={styles.heroLead}>Vous définissez votre objectif. Nous pilotons votre recherche : stratégie, candidatures, prospection et suivi.</p></Reveal>
+              <Reveal delay={.07}><p className={styles.heroLead}>Vous définissez votre objectif. Nous pilotons votre recherche : stratégie, candidatures, <span className={styles.heroEnding}>prospection et suivi.</span></p></Reveal>
               <Reveal delay={.2} className={styles.heroAction}><QuoteLink /></Reveal>
             </div>
             <Reveal delay={.14} className={styles.heroAside}>

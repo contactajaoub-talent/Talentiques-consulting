@@ -113,10 +113,11 @@
   .roleColumn + .roleColumn { border-top: 0; border-left: 1px solid #e2e8f0; }
 }
 @media (min-width: 1024px) {
+  .hero { padding-bottom: 18px; }
   .page .heroTitle { white-space: nowrap; font-size: clamp(40px, 3.6vw, 52px); }
   .page .sectionTitle { white-space: nowrap; }
-  .heroLayout { grid-template-columns: 1.65fr 1fr; gap: 48px; }
-  .heroAside { padding-block: 0; padding-left: 28px; border-top: 0; border-left: 1px solid #dce5ee; }
+  .heroLayout { grid-template-columns: minmax(0, 2.3fr) minmax(0, 1fr); gap: 40px; margin-top: 14px; }
+  .heroAside { align-self: start; margin-top: -36px; padding-block: 0; padding-left: 28px; border-top: 0; border-left: 1px solid #dce5ee; }
   .overview { grid-template-columns: 1fr; gap: 11px; }
   .services, .timeline { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .timeline { gap: 20px 26px; }
@@ -127,6 +128,7 @@
   .timeline p { max-width: 330px; }
 }
 @media (max-width: 639px) {
+  .heroEnding { white-space: nowrap; }
   .hero { padding-top: 88px; }
   .overview li { display: block; }
   .overview li p { margin-top: 4px; font-size: 12px; line-height: 1.6; }
