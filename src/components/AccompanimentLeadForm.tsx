@@ -4,7 +4,7 @@ import { useRef, useState, type FormEvent, type ReactNode } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Check, CheckCircle2, LoaderCircle, Plus, X } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { type countryOptions, EXPERIENCE, MAX_CV_SIZE, MOBILITY, OPPORTUNITIES, SITUATIONS, validateCareerQuote } from '@/lib/services/career-quote';
+import { type countryOptions, EXPERIENCE, MAX_CV_SIZE, MOBILITY, OPPORTUNITIES, SITUATIONS, toggleMobility, validateCareerQuote } from '@/lib/services/career-quote';
 import { submitCareerQuote, type QuoteAttempt } from '@/lib/services/career-quote-client';
 import { quoteButton } from './CareerAccompanimentIntro';
 import styles from './CareerAccompaniment.module.css';
@@ -26,6 +26,7 @@ export function AccompanimentLeadForm({ countries, enabled = false }: { countrie
   const [roles, setRoles] = useState([{ id: 0, value: '' }]);
   const nextId = useRef(1);
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+  const [selectedMobilities, setSelectedMobilities] = useState<string[]>([]);
   const [countrySearch, setCountrySearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -54,6 +55,7 @@ export function AccompanimentLeadForm({ countries, enabled = false }: { countrie
     if (step === 1) {
       if (!data.getAll('opportunites').length) return fail('Sélectionnez au moins un type d’opportunité.');
       if (!selectedCountries.length) return fail('Sélectionnez au moins un pays ciblé.');
+      if (!data.getAll('mobilite').length) return fail('Sélectionnez au moins une option de mobilité.');
     }
     if (step < 2) return changeStep(step + 1);
     if (!enabled) return fail('L’envoi des demandes de devis est temporairement indisponible.');
@@ -66,7 +68,7 @@ export function AccompanimentLeadForm({ countries, enabled = false }: { countrie
     try {
       await submitCareerQuote(data, attempt);
       attempt.current = null;
-      setSuccess(true); form.reset(); setRoles([{ id: nextId.current++, value: '' }]); setSelectedCountries([]);
+      setSuccess(true); form.reset(); setRoles([{ id: nextId.current++, value: '' }]); setSelectedCountries([]); setSelectedMobilities([]);
       requestAnimationFrame(() => heading.current?.focus());
     } catch (reason) { fail(reason instanceof Error ? reason.message : 'Une erreur est survenue. Veuillez réessayer.'); }
     finally { submitLock.current = false; setLoading(false); }
@@ -109,7 +111,10 @@ export function AccompanimentLeadForm({ countries, enabled = false }: { countrie
             <fieldset><legend className="mb-3 text-sm font-semibold text-[#0F3452]">Postes ou fonctions recherchés * — 10 maximum</legend><div className="space-y-3">{roles.map((role, i) => <div key={role.id} className="flex items-center gap-2"><label className="min-w-0 flex-1"><span className="sr-only">Poste recherché {i + 1}</span><input name="postes" value={role.value} onChange={e => setRoles(current => current.map(r => r.id === role.id ? { ...r, value: e.target.value } : r))} maxLength={100} required className="input" placeholder="Ex. Chef de projet" /></label>{roles.length > 1 && <button type="button" aria-label={`Supprimer le poste ${i + 1}`} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-slate-600 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#0683C9]" onClick={() => { setRoles(current => current.filter(r => r.id !== role.id)); requestAnimationFrame(() => formRef.current?.querySelector<HTMLInputElement>('[name="postes"]')?.focus()); }}><X size={18} /></button>}</div>)}</div>{roles.length < 10 && <button type="button" className={`${secondaryButton} mt-3`} onClick={() => { setRoles(current => [...current, { id: nextId.current++, value: '' }]); requestAnimationFrame(() => { const inputs = formRef.current?.querySelectorAll<HTMLInputElement>('[name="postes"]'); inputs?.[inputs.length - 1]?.focus(); }); }}><Plus size={16} aria-hidden="true" />Ajouter un poste</button>}</fieldset>
             <Field label="Secteurs ciblés (facultatif)"><input name="secteurActivite" maxLength={200} className="input" placeholder="Ex. Industrie, conseil, finance" /></Field>
             <Field label="Objectif professionnel *"><textarea name="objectifProfessionnel" required maxLength={2000} rows={3} className="input" placeholder="Précisez ce que vous souhaitez atteindre." /></Field>
-            <SelectField name="mobilite" label="Mobilité *" options={MOBILITY} />
+            <fieldset aria-describedby="mobility-help"><legend className="mb-3 text-sm font-semibold text-[#0F3452]">Mobilité * — plusieurs choix possibles</legend>
+              <div className="flex flex-wrap gap-3">{MOBILITY.map(option => <label key={option} className="flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 transition-colors has-[:checked]:border-[#0683C9] has-[:checked]:bg-sky-50 has-[:checked]:text-[#0369a1]"><input type="checkbox" name="mobilite" value={option} checked={selectedMobilities.includes(option)} onChange={() => setSelectedMobilities(current => toggleMobility(current, option))} className="h-4 w-4" />{option}</label>)}</div>
+              <p id="mobility-help" className="mt-3 text-sm text-slate-500">« Selon les opportunités » remplace les autres choix pour une flexibilité totale.</p>
+            </fieldset>
             <fieldset><legend className="mb-3 text-sm font-semibold text-[#0F3452]">Pays ciblés * — plusieurs choix possibles (20 maximum)</legend>
               <label className="block"><span className="sr-only">Rechercher un pays</span><input type="search" value={countrySearch} onChange={e => setCountrySearch(e.target.value)} placeholder="Rechercher un pays…" className="input" /></label>
               <p className="my-3 text-sm text-slate-600" role="status">{selectedCountries.length ? `Sélection : ${selectedCountries.map(code => countries.find(c => c.code === code)?.name).join(', ')}` : 'Aucun pays sélectionné'}</p>

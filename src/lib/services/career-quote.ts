@@ -5,7 +5,14 @@ export const CAREER_QUOTE_CONSENT = 'J’accepte que Talentiques utilise mes inf
 export const OPPORTUNITIES = ['Emploi', 'Stage', 'Stage PFE', 'Alternance', 'Mobilité internationale'];
 export const SITUATIONS = ['En recherche', 'En poste', 'En transition', 'Étudiant'];
 export const EXPERIENCE = ['Étudiant / débutant', '0 à 3 ans', '3 à 10 ans', '+10 ans'];
-export const MOBILITY = ['Locale', 'Nationale', 'Internationale', 'À distance'];
+export const FLEXIBLE_MOBILITY = 'Selon les opportunités';
+export const MOBILITY = ['Locale', 'Nationale', 'Internationale', 'À distance', FLEXIBLE_MOBILITY];
+
+export function toggleMobility(current: string[], option: string) {
+  if (current.includes(option)) return current.filter(value => value !== option);
+  if (option === FLEXIBLE_MOBILITY) return [option];
+  return [...current.filter(value => value !== FLEXIBLE_MOBILITY), option];
+}
 
 // Generate labels on the server and pass them to the form to avoid ICU hydration differences.
 export const COUNTRY_CODES = 'AF AL DZ AS AD AO AI AQ AG AR AM AW AU AT AZ BS BH BD BB BY BE BZ BJ BM BT BO BQ BA BW BV BR IO BN BG BF BI CV KH CM CA KY CF TD CL CN CX CC CO KM CG CD CK CR CI HR CU CW CY CZ DK DJ DM DO EC EG SV GQ ER EE SZ ET FK FO FJ FI FR GF PF TF GA GM GE DE GH GI GR GL GD GP GU GT GG GN GW GY HT HM VA HN HK HU IS IN ID IR IQ IE IM IL IT JM JP JE JO KZ KE KI KP KR KW KG LA LV LB LS LR LY LI LT LU MO MG MW MY MV ML MT MH MQ MR MU YT MX FM MD MC MN ME MS MA MZ MM NA NR NP NL NC NZ NI NE NG NU NF MK MP NO OM PK PW PS PA PG PY PE PH PN PL PT PR QA RE RO RU RW BL SH KN LC MF PM VC WS SM ST SA SN RS SC SL SG SX SK SI SB SO ZA GS SS ES LK SD SR SJ SE CH SY TW TJ TZ TH TL TG TK TO TT TN TR TM TC TV UG UA AE GB US UM UY UZ VU VE VN VG VI WF EH YE ZM ZW'.split(' ');
@@ -61,7 +68,9 @@ export function validateCareerQuoteDetails(form: FormData) {
   const roles = multiple('postes', 'Postes recherchés');
   const sector = value('secteurActivite', 'Secteurs ciblés', 200, false);
   const goal = value('objectifProfessionnel', 'Objectif professionnel', 2000);
-  const mobility = choice('mobilite', 'Mobilité', MOBILITY);
+  const mobility = multiple('mobilite', 'Mobilité', MOBILITY, MOBILITY.length);
+  if (mobility.includes(FLEXIBLE_MOBILITY) && mobility.length > 1)
+    throw new Error('Mobilité : « Selon les opportunités » ne peut pas être combiné avec les autres choix.');
   const countries = multiple('paysCibles', 'Pays ciblés', COUNTRY_CODES, 20);
   const comments = value('commentaires', 'Commentaires', 2000, false);
   if (form.get('privacy') !== 'on') throw new Error('Le consentement à la politique de confidentialité est obligatoire.');
@@ -80,9 +89,9 @@ export function validateCareerQuote(form: FormData) {
 }
 
 export function serializeCareerQuote(form: FormData) {
-  const fields = ['fullName', 'email', 'phone', 'country', 'profilLinkedIn', 'ancienClient', 'situation', 'experience', 'secteurActivite', 'objectifProfessionnel', 'mobilite', 'commentaires', 'privacy', 'pageOrigine', 'utmSource', 'utmMedium', 'utmCampaign', 'utmContent', 'utmTerm'];
+  const fields = ['fullName', 'email', 'phone', 'country', 'profilLinkedIn', 'ancienClient', 'situation', 'experience', 'secteurActivite', 'objectifProfessionnel', 'commentaires', 'privacy', 'pageOrigine', 'utmSource', 'utmMedium', 'utmCampaign', 'utmContent', 'utmTerm'];
   const input: Record<string, unknown> = Object.fromEntries(fields.map(key => [key, form.get(key) || '']));
-  for (const key of ['opportunites', 'postes', 'paysCibles']) input[key] = form.getAll(key);
+  for (const key of ['opportunites', 'postes', 'mobilite', 'paysCibles']) input[key] = form.getAll(key);
   return { ...input, consentVersion: CAREER_QUOTE_CONSENT_VERSION };
 }
 
@@ -108,7 +117,7 @@ export function careerQuotePayload(input: Record<string, unknown>) {
       `Nom communiqué : ${quote.fullName}`, `WhatsApp communiqué : ${quote.phone}`, `LinkedIn communiqué : ${quote.linkedin || 'Non renseigné'}`,
       `Pays de résidence : ${quote.country}`, `Ancien client : ${quote.returning}`, `Opportunités : ${quote.opportunities.join(', ')}`,
       `Expérience : ${quote.experience}`, `Postes : ${quote.roles.join(' ; ')}`, `Secteurs : ${quote.sector || 'Non renseignés'}`,
-      `Mobilité : ${quote.mobility}`, `Commentaires : ${quote.comments || 'Aucun'}`,
+      `Mobilité : ${quote.mobility.join(', ')}`, `Commentaires : ${quote.comments || 'Aucun'}`,
     ].join('\n'),
     privacy: true, marketing: false, consent_version: CAREER_QUOTE_CONSENT_VERSION, source,
     utm_source: tracking('utmSource'), utm_medium: tracking('utmMedium'), utm_campaign: tracking('utmCampaign'),

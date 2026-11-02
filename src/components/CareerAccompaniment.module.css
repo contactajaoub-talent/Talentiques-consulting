@@ -7,7 +7,6 @@
 .heroTitle > span { color: var(--career-orange); }
 .heroLayout { display: grid; gap: 20px; margin-top: 18px; }
 .page .heroLead { max-width: 660px; font-size: 16px; line-height: 1.75; color: #334155; }
-.page .heroCopy { max-width: 620px; margin-top: 9px; font-size: 14px; line-height: 1.75; color: #64748b; }
 .heroAction { margin-top: 17px; }
 .heroAside { align-self: center; border-top: 1px solid #dce5ee; padding-top: 16px; }
 .overview { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; }

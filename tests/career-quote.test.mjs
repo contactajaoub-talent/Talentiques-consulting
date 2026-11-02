@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { validateCareerQuote, careerQuotePayload, serializeCareerQuote, quoteDeliveryEnabled, MAX_CV_SIZE } from '../src/lib/services/career-quote.ts';
+import { validateCareerQuote, careerQuotePayload, serializeCareerQuote, quoteDeliveryEnabled, MAX_CV_SIZE, MOBILITY, FLEXIBLE_MOBILITY, toggleMobility } from '../src/lib/services/career-quote.ts';
 import { submitCareerQuote } from '../src/lib/services/career-quote-client.ts';
 
 function validForm() {
@@ -18,6 +18,59 @@ test('quote retains multiple opportunities, roles and countries', () => {
   assert.deepEqual(quote.opportunities, ['Stage', 'Stage PFE']);
   assert.deepEqual(quote.roles, ['Chef de projet', 'Consultant']);
   assert.deepEqual(quote.countries, ['FR', 'CA']);
+  assert.deepEqual(quote.mobility, ['Internationale']);
+});
+
+test('all concrete mobility combinations and total flexibility survive JSON serialization and CRM notes', () => {
+  const concrete = MOBILITY.filter(option => option !== FLEXIBLE_MOBILITY);
+  const combinations = [[FLEXIBLE_MOBILITY]];
+  for (let mask = 1; mask < 1 << concrete.length; mask++) combinations.push(concrete.filter((_, i) => mask & (1 << i)));
+  for (const selected of combinations) {
+    const form = validForm(); form.delete('mobilite');
+    for (const option of selected) form.append('mobilite', option);
+    const serialized = JSON.parse(JSON.stringify(serializeCareerQuote(form)));
+    assert.deepEqual(serialized.mobilite, selected);
+    assert.deepEqual(validateCareerQuote(form).mobility, selected);
+    const payload = careerQuotePayload(serialized);
+    assert.deepEqual(payload.details.mobility, selected);
+    assert.ok(payload.notes.split('\n').includes(`Mobilité : ${selected.join(', ')}`));
+  }
+});
+
+test('mobility is required and every supplied choice is validated server-side', () => {
+  for (const selected of [[], ['Locale', 'Inconnue'], ['Locale', ''], ['Locale', new File(['x'], 'unexpected.txt')], Array(6).fill('Locale')]) {
+    const form = validForm(); form.delete('mobilite');
+    for (const option of selected) form.append('mobilite', option);
+    assert.throws(() => careerQuotePayload(serializeCareerQuote(form)), /Mobilité|Sélection invalide/);
+  }
+  const concrete = MOBILITY.filter(option => option !== FLEXIBLE_MOBILITY);
+  for (let mask = 1; mask < 1 << concrete.length; mask++) {
+    const selected = concrete.filter((_, i) => mask & (1 << i));
+    assert.throws(() => careerQuotePayload({ ...serializeCareerQuote(validForm()), mobilite: [...selected, FLEXIBLE_MOBILITY] }), /ne peut pas être combiné/);
+  }
+});
+
+test('mobility removes duplicates and remains compatible with a legacy single-value form', () => {
+  const input = serializeCareerQuote(validForm());
+  assert.deepEqual(careerQuotePayload({ ...input, mobilite: ['Locale', 'Locale', 'Nationale'] }).details.mobility, ['Locale', 'Nationale']);
+  assert.deepEqual(careerQuotePayload({ ...input, mobilite: 'Internationale' }).details.mobility, ['Internationale']);
+});
+
+test('mobility selections support combinations, exclusive flexibility and clearing the last option', () => {
+  let selected = toggleMobility([], 'Locale');
+  selected = toggleMobility(selected, 'Nationale');
+  selected = toggleMobility(selected, 'À distance');
+  assert.deepEqual(selected, ['Locale', 'Nationale', 'À distance']);
+  selected = toggleMobility(selected, FLEXIBLE_MOBILITY);
+  assert.deepEqual(selected, [FLEXIBLE_MOBILITY]);
+  selected = toggleMobility(selected, 'Internationale');
+  assert.deepEqual(selected, ['Internationale']);
+  selected = toggleMobility(selected, 'Nationale');
+  assert.deepEqual(selected, ['Internationale', 'Nationale']);
+  selected = toggleMobility(selected, 'Internationale');
+  assert.deepEqual(selected, ['Nationale']);
+  assert.deepEqual(toggleMobility(selected, 'Nationale'), []);
+  assert.deepEqual(toggleMobility([FLEXIBLE_MOBILITY], FLEXIBLE_MOBILITY), []);
 });
 
 test('required fields, consent, selections and lengths are validated server-side', () => {
@@ -62,21 +115,24 @@ const saved = { requestId: 'saved-request', documentId: 'private-cv' };
 
 test('direct signed upload occurs before commit; success requires a saved request and linked CV', async () => {
   const calls = [], state = { current: null };
+  const form = validForm(); form.append('mobilite', 'À distance');
   const send = async (url, init) => {
     calls.push({ url, init });
     if (init.method === 'POST') return reply({ uploadUrl: 'https://storage.example.test/signed', mime: 'application/pdf' });
     if (String(url).startsWith('https://storage.')) return reply({});
     return reply(saved);
   };
-  assert.deepEqual(await submitCareerQuote(validForm(), state, send), saved);
+  assert.deepEqual(await submitCareerQuote(form, state, send), saved);
   assert.deepEqual(calls.map(c => c.init.method), ['POST', 'PUT', 'PUT']);
   assert.ok(calls[1].init.body instanceof File);
   assert.equal(calls[1].init.headers['x-upsert'], 'false');
   assert.equal(JSON.parse(calls[0].init.body).consentVersion, 'career-quote-2026-11-01');
+  assert.deepEqual(JSON.parse(calls[0].init.body).mobilite, ['Internationale', 'À distance']);
 });
 
 test('lost commit response retries the same capability without a new upload or request', async () => {
   const state = { current: null }, calls = [];
+  const form = validForm(); form.append('mobilite', 'Nationale');
   let commits = 0;
   const send = async (url, init) => {
     calls.push({ url, init });
@@ -85,13 +141,26 @@ test('lost commit response retries the same capability without a new upload or r
     if (++commits === 1) throw new Error('Response lost after commit');
     return reply(saved);
   };
-  await assert.rejects(submitCareerQuote(validForm(), state, send));
+  await assert.rejects(submitCareerQuote(form, state, send));
   const id = state.current.uploadId;
-  assert.deepEqual(await submitCareerQuote(validForm(), state, send), saved);
+  assert.deepEqual(await submitCareerQuote(form, state, send), saved);
   assert.equal(state.current.uploadId, id);
   assert.equal(calls.filter(c => c.init.method === 'POST').length, 1);
   assert.equal(calls.filter(c => String(c.url).startsWith('https://storage.')).length, 1);
   assert.equal(calls.at(-1).init.body, calls.at(-2).init.body);
+});
+
+test('changing an additional mobility choice changes the upload fingerprint', async () => {
+  const state = { current: null }, starts = [], form = validForm();
+  const send = async (_url, init) => {
+    starts.push(JSON.parse(init.body));
+    return reply({ committed: true, ...saved });
+  };
+  await submitCareerQuote(form, state, send);
+  form.append('mobilite', 'Nationale');
+  await submitCareerQuote(form, state, send);
+  assert.notEqual(starts[0].uploadId, starts[1].uploadId);
+  assert.deepEqual(starts[1].mobilite, ['Internationale', 'Nationale']);
 });
 
 test('lost initialization response is retried with the same ID and token', async () => {

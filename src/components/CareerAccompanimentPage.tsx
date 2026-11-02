@@ -81,7 +81,6 @@ export function CareerAccompanimentPage({ countries, quoteEnabled = false }: { c
           <div className={styles.heroLayout}>
             <div>
               <Reveal delay={.07}><p className={styles.heroLead}>Vous définissez votre objectif. Nous pilotons votre recherche : stratégie, candidatures, prospection et suivi.</p></Reveal>
-              <Reveal delay={.13}><p className={styles.heroCopy}>Un accompagnement structuré pour avancer plus vite et avec plus de clarté.</p></Reveal>
               <Reveal delay={.2} className={styles.heroAction}><QuoteLink /></Reveal>
             </div>
             <Reveal delay={.14} className={styles.heroAside}>
