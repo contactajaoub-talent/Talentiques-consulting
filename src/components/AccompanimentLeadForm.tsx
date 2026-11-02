@@ -2,10 +2,12 @@
 
 import { useRef, useState, type FormEvent, type ReactNode } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, CheckCircle2, LoaderCircle, Plus, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, CheckCircle2, LoaderCircle, Plus, X } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { type countryOptions, EXPERIENCE, MAX_CV_SIZE, MOBILITY, OPPORTUNITIES, SITUATIONS, validateCareerQuote } from '@/lib/services/career-quote';
 import { submitCareerQuote, type QuoteAttempt } from '@/lib/services/career-quote-client';
 import { quoteButton } from './CareerAccompanimentIntro';
+import styles from './CareerAccompaniment.module.css';
 
 const steps = ['Informations personnelles', 'Votre besoin', 'Documents & validation'];
 const secondaryButton = 'inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-slate-300 px-5 py-2 text-sm font-semibold text-[#0F3452] transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0683C9]';
@@ -19,6 +21,7 @@ function SelectField({ name, label, options }: { name: string; label: string; op
 const searchable = (text: string) => text.toLocaleLowerCase('fr').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
 export function AccompanimentLeadForm({ countries, enabled = false }: { countries: ReturnType<typeof countryOptions>; enabled?: boolean }) {
+  const reduced = useReducedMotion();
   const [step, setStep] = useState(0);
   const [roles, setRoles] = useState([{ id: 0, value: '' }]);
   const nextId = useRef(1);
@@ -70,22 +73,25 @@ export function AccompanimentLeadForm({ countries, enabled = false }: { countrie
   }
   const filteredCountries = countries.filter(country => searchable(country.name).includes(searchable(countrySearch)));
 
-  return <section id="demande-accompagnement" aria-labelledby="quote-title" className="scroll-mt-28 border-y border-slate-200 bg-[#f8fbfe] py-14 lg:py-20">
-    <div className="container mx-auto max-w-5xl px-5 md:px-8">
-      {success ? <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center md:p-14" role="status">
+  return <motion.section id="demande-accompagnement" aria-labelledby="quote-title" className={styles.formSection} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .1 }} transition={{ duration: reduced ? 0 : .4 }}>
+    <div className={`${styles.formContainer} container mx-auto max-w-5xl px-5 md:px-8`}>
+      {success ? <div className={styles.successCard} role="status">
         <CheckCircle2 className="mx-auto mb-5 text-[#0683C9]" size={44} aria-hidden="true" />
         <h2 ref={heading} tabIndex={-1} id="quote-title" className="font-heading text-3xl font-bold text-[#0F3452]">Merci pour votre demande !</h2>
         <p className="mx-auto mt-4 max-w-xl leading-7 text-slate-600">Votre demande d’accompagnement a bien été reçue. Notre équipe étudiera votre profil et vous contactera dans les plus brefs délais sur WhatsApp ou par email afin de vous proposer un devis personnalisé.</p>
       </div> : <>
-        <h2 id="quote-title" className="font-heading text-3xl font-bold tracking-tight text-[#0F3452] sm:text-4xl">Demander mon devis</h2>
-        <p className="mt-4 max-w-2xl leading-7 text-slate-600">Remplissez ce formulaire pour nous permettre d’étudier votre besoin et de vous proposer l’accompagnement le plus adapté.</p>
+        <h2 id="quote-title" className="font-heading font-bold tracking-tight text-[#0F3452]">Demander mon devis</h2>
+        <p className={styles.formIntro}>Remplissez ce formulaire pour nous permettre d’étudier votre besoin et de vous proposer l’accompagnement le plus adapté.</p>
         {!enabled && <p role="status" className="mt-5 rounded-xl border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-600">Les demandes de devis en ligne sont temporairement indisponibles.</p>}
-        <ol aria-label="Étapes du formulaire" className="my-8 grid grid-cols-3 gap-3 border-b border-slate-200 pb-6">{steps.map((label, i) => <li key={label} aria-current={step === i ? 'step' : undefined} className={`text-sm ${step === i ? 'font-bold text-[#0F3452]' : 'text-slate-500'}`}><span className={`mb-2 flex h-8 w-8 items-center justify-center rounded-full border ${step === i ? 'border-[#0683C9] bg-[#0683C9] text-white' : 'border-slate-300'}`}>{i + 1}</span><span className="hidden sm:block">{label}</span></li>)}</ol>
-        <form ref={formRef} onSubmit={submit} noValidate aria-busy={loading} className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-8 md:p-10">
+        <div className={styles.formProgress}>
+          <div aria-hidden="true" className={styles.progressTrack}><motion.span className={styles.progressFill} initial={false} animate={{ scaleX: step / 2 }} transition={{ duration: reduced ? 0 : .25 }} /></div>
+          <ol aria-label="Étapes du formulaire" className={styles.progressList}>{steps.map((label, i) => <li key={label} aria-current={step === i ? 'step' : undefined} data-completed={step > i} className={styles.progressItem}><span aria-hidden="true" className={styles.progressNumber}>{step > i ? <Check size={16} /> : i + 1}</span><span className="sr-only">Étape {i + 1} : </span><span className={styles.progressLabel}>{label}</span><span className="sr-only sm:hidden">{label}</span></li>)}</ol>
+        </div>
+        <form ref={formRef} onSubmit={submit} noValidate aria-busy={loading} className={styles.formCard}>
           <input name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
-          <h3 ref={heading} tabIndex={-1} className="mb-2 font-heading text-2xl font-semibold text-[#0F3452]">{steps[step]}</h3>
-          <p className="mb-7 text-sm leading-6 text-slate-500">Les champs marqués d’un astérisque (*) sont obligatoires.</p>
-          <fieldset data-step="0" hidden={step !== 0} disabled={loading}>
+          <div className={styles.stepHeading}><motion.h3 key={step} ref={heading} tabIndex={-1} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reduced ? 0 : .18 }}>{steps[step]}</motion.h3><span aria-hidden="true" className={styles.stepPosition}>0{step + 1} / 03</span></div>
+          <p className="mb-5 text-xs leading-6 text-slate-500 sm:text-sm">Les champs marqués d’un astérisque (*) sont obligatoires.</p>
+          <fieldset data-step="0" hidden={step !== 0} disabled={loading} className={styles.formStep}>
             <legend className="sr-only">Informations personnelles</legend>
             <div className="grid gap-5 sm:grid-cols-2">
               <Field label="Nom complet *"><input name="fullName" autoComplete="name" required maxLength={120} className="input" /></Field>
@@ -96,7 +102,7 @@ export function AccompanimentLeadForm({ countries, enabled = false }: { countrie
               <SelectField name="ancienClient" label="Ancien client Talentiques ? *" options={['Oui', 'Non']} />
             </div>
           </fieldset>
-          <fieldset data-step="1" hidden={step !== 1} disabled={loading} className="space-y-6">
+          <fieldset data-step="1" hidden={step !== 1} disabled={loading} className={`${styles.formStep} space-y-6`}>
             <legend className="sr-only">Votre besoin</legend>
             <fieldset><legend className="mb-3 text-sm font-semibold text-[#0F3452]">Type d’opportunité recherchée * — plusieurs choix possibles</legend><div className="flex flex-wrap gap-3">{OPPORTUNITIES.map(option => <label key={option} className="flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 has-[:checked]:border-[#0683C9] has-[:checked]:bg-sky-50"><input type="checkbox" name="opportunites" value={option} className="h-4 w-4" />{option}</label>)}</div></fieldset>
             <div className="grid gap-5 sm:grid-cols-2"><SelectField name="situation" label="Situation actuelle *" options={SITUATIONS} /><SelectField name="experience" label="Niveau d’expérience *" options={EXPERIENCE} /></div>
@@ -111,20 +117,20 @@ export function AccompanimentLeadForm({ countries, enabled = false }: { countrie
               <div className="grid max-h-52 grid-cols-1 gap-x-4 overflow-y-auto rounded-lg border border-slate-200 p-3 sm:grid-cols-2">{filteredCountries.map(c => <label key={c.code} className="flex min-h-11 cursor-pointer items-center gap-3 text-sm text-slate-700"><input type="checkbox" checked={selectedCountries.includes(c.code)} disabled={selectedCountries.length >= 20 && !selectedCountries.includes(c.code)} onChange={e => setSelectedCountries(current => e.target.checked ? [...current, c.code] : current.filter(code => code !== c.code))} className="h-4 w-4" />{c.name}</label>)}{!filteredCountries.length && <p className="py-3 text-sm text-slate-500">Aucun pays trouvé.</p>}</div>
             </fieldset>
           </fieldset>
-          <fieldset data-step="2" hidden={step !== 2} disabled={loading} className="space-y-6">
+          <fieldset data-step="2" hidden={step !== 2} disabled={loading} className={`${styles.formStep} space-y-6`}>
             <legend className="sr-only">Documents et validation</legend>
             <Field label="CV actuel * — PDF ou DOCX, 5 Mo maximum"><input name="cv" type="file" required accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" className="block w-full rounded-xl border border-slate-300 p-3 text-sm text-slate-600 file:mr-4 file:rounded-full file:border-0 file:bg-sky-50 file:px-4 file:py-3 file:font-semibold file:text-[#0369a1] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#0683C9]" onChange={e => { const file = e.target.files?.[0]; e.target.setCustomValidity(file && file.size > MAX_CV_SIZE ? 'Le CV doit faire 5 Mo maximum.' : ''); }} /></Field>
             <Field label="Commentaires complémentaires (facultatif)"><textarea name="commentaires" maxLength={2000} rows={3} className="input" /></Field>
             <label className="flex items-start gap-3 text-sm leading-6 text-slate-600"><input name="privacy" type="checkbox" required className="mt-1 h-4 w-4 shrink-0" /><span>J’accepte que Talentiques utilise mes informations et mon CV pour étudier ma demande et me recontacter, conformément à la <Link className="text-[#0369a1] underline underline-offset-2" href="/politique-de-confidentialite" target="_blank" rel="noopener noreferrer">politique de confidentialité</Link>. *</span></label>
             <p className="text-sm text-slate-500">Devis personnalisé après étude de votre besoin.</p>
           </fieldset>
-          {error && <div ref={feedback} tabIndex={-1} role="alert" className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-800">{error}</div>}
-          <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-6">
+          {error && <div ref={feedback} tabIndex={-1} role="alert" className={styles.errorNotice}>{error}</div>}
+          <div className={styles.formActions}>
             {step > 0 ? <button type="button" disabled={loading} onClick={() => changeStep(step - 1)} className={secondaryButton}><ArrowLeft size={16} aria-hidden="true" />Précédent</button> : <span className="text-sm text-slate-500">Étape 1 sur 3</span>}
             <button type="submit" disabled={loading || (step === 2 && !enabled)} className={`${quoteButton} disabled:cursor-not-allowed disabled:opacity-60`}>{loading ? <><LoaderCircle size={17} className="animate-spin motion-reduce:animate-none" aria-hidden="true" />Envoi en cours…</> : <>{step < 2 ? 'Continuer' : 'Demander mon devis'}<ArrowRight size={17} aria-hidden="true" /></>}</button>
           </div>
         </form>
       </>}
     </div>
-  </section>;
+  </motion.section>;
 }
