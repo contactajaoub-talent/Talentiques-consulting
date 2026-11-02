@@ -12,6 +12,7 @@ export function RouteAwarePreloader() {
     pathname === '/paiement-service' ||
     pathname === '/completer-dossier' ||
     pathname === '/career-search-360' ||
+    pathname === '/services/accompagnement-carriere-a-a-z' ||
     pathname === '/outils' ||
     pathname.startsWith('/outils/') ||
     pathname === '/en/tools' ||

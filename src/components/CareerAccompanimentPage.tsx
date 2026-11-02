@@ -14,26 +14,26 @@ import type { countryOptions } from '@/lib/services/career-quote';
 import styles from './CareerAccompaniment.module.css';
 
 const services = [
-  { icon: Compass, title: 'Positionnement & stratégie', text: 'Clarification de votre objectif, de vos priorités, des postes ciblés et du plan d’action.' },
-  { icon: FileCheck2, title: 'Optimisation de l’image professionnelle', text: 'Refonte ou ajustement du CV, optimisation du profil LinkedIn et amélioration de la cohérence de votre positionnement.' },
-  { icon: Search, title: 'Recherche ciblée d’opportunités', text: 'Identification d’offres, d’entreprises, d’institutions et d’organisations en lien avec votre objectif.' },
-  { icon: Send, title: 'Adaptation des candidatures', text: 'Personnalisation des candidatures en fonction du poste, du secteur et du type d’organisation.' },
-  { icon: Users, title: 'Prospection & relances', text: 'Identification des bons interlocuteurs, préparation des prises de contact et suivi des relances.' },
-  { icon: ChartNoAxesCombined, title: 'Pilotage & suivi', text: 'Organisation du suivi, visibilité sur les actions menées et accompagnement jusqu’à progression concrète.' },
+  { icon: Compass, title: 'Positionnement & stratégie', text: 'Clarification de votre objectif, de vos priorités et du plan d’action.' },
+  { icon: FileCheck2, title: 'Optimisation de l’image professionnelle', text: 'Ajustement du CV, du LinkedIn et de votre positionnement.' },
+  { icon: Search, title: 'Recherche ciblée d’opportunités', text: 'Identification d’offres, d’entreprises et d’organisations pertinentes.' },
+  { icon: Send, title: 'Adaptation des candidatures', text: 'Personnalisation selon le poste, le secteur et le type d’organisation.' },
+  { icon: Users, title: 'Prospection & relances', text: 'Préparation des contacts, prises de contact et relances ciblées.' },
+  { icon: ChartNoAxesCombined, title: 'Pilotage & suivi', text: 'Suivi des actions menées et accompagnement jusqu’à progression concrète.' },
 ];
 const stages = [
-  ['Qualification du besoin', 'Nous analysons votre situation, votre niveau d’expérience et votre objectif.'],
-  ['Positionnement stratégique', 'Nous clarifions votre cible, votre discours et vos priorités.'],
-  ['Optimisation du dossier', 'CV, LinkedIn et éléments de candidature sont ajustés selon vos objectifs.'],
-  ['Déploiement opérationnel', 'Recherche d’opportunités, candidatures ciblées, prospection et relances.'],
-  ['Suivi et ajustements', 'Nous suivons les retours, les actions menées et ajustons lorsque nécessaire.'],
-  ['Préparation aux entretiens', 'Vous vous concentrez sur les entretiens pendant que le cadre de recherche reste piloté.'],
+  ['Qualification du besoin', 'Analyse du profil, de l’objectif et des priorités.'],
+  ['Positionnement stratégique', 'Clarification de la cible et du plan d’action.'],
+  ['Optimisation du dossier', 'CV, LinkedIn et éléments de candidature ajustés.'],
+  ['Déploiement opérationnel', 'Recherche, candidatures, prospection et relances.'],
+  ['Suivi et ajustements', 'Suivi des actions et ajustements si nécessaire.'],
+  ['Préparation aux entretiens', 'Vous vous concentrez sur les entretiens, nous maintenons le cadre.'],
 ];
 const roles = [
+  { title: 'Pour qui ?', items: ['Vous manquez de temps pour piloter votre recherche', 'Vous voulez une démarche structurée', 'Vous souhaitez déléguer une partie opérationnelle', 'Vous recherchez un emploi, un stage, un stage PFE, une alternance ou une évolution', 'Vous voulez gagner en clarté et en efficacité', 'Vous cherchez un accompagnement humain et concret'] },
   { title: 'Votre rôle', items: ['Définir votre objectif', 'Partager vos informations et documents', 'Valider les orientations importantes', 'Préparer et passer les entretiens'] },
   { title: 'Notre rôle', items: ['Structurer la stratégie', 'Optimiser votre image professionnelle', 'Cibler les opportunités', 'Adapter les candidatures', 'Organiser la prospection', 'Assurer le suivi et les relances'] },
 ];
-const audience = ['Vous manquez de temps pour piloter votre recherche seul', 'Vous voulez une démarche structurée', 'Vous souhaitez déléguer une partie opérationnelle', 'Vous recherchez un emploi, un stage, un stage PFE, une alternance ou une évolution', 'Vous voulez gagner en clarté et en efficacité', 'Vous cherchez un accompagnement humain et concret'];
 const overview = [
   ['Cadrer votre objectif', 'Positionnement et dossier professionnel'],
   ['Déployer la recherche', 'Candidatures, prospection et relances'],
@@ -80,8 +80,8 @@ export function CareerAccompanimentPage({ countries, quoteEnabled = false }: { c
           <Reveal><h1 className={styles.heroTitle}>Accompagnement carrière <span>de A à Z</span></h1></Reveal>
           <div className={styles.heroLayout}>
             <div>
-              <Reveal delay={.07}><p className={styles.heroLead}>Vous nous transmettez votre objectif. Nous prenons en charge la structuration et l’exécution de votre recherche : positionnement, optimisation, candidatures, prospection ciblée et suivi.</p></Reveal>
-              <Reveal delay={.13}><p className={styles.heroCopy}>Une solution conçue pour avancer avec méthode, gagner du temps et bénéficier d’un accompagnement concret.</p></Reveal>
+              <Reveal delay={.07}><p className={styles.heroLead}>Vous définissez votre objectif. Nous pilotons votre recherche : stratégie, candidatures, prospection et suivi.</p></Reveal>
+              <Reveal delay={.13}><p className={styles.heroCopy}>Un accompagnement structuré pour avancer plus vite et avec plus de clarté.</p></Reveal>
               <Reveal delay={.2} className={styles.heroAction}><QuoteLink /></Reveal>
             </div>
             <Reveal delay={.14} className={styles.heroAside}>
@@ -99,9 +99,9 @@ export function CareerAccompanimentPage({ countries, quoteEnabled = false }: { c
       <section aria-label="L’expérience Talentiques" className={styles.credibility}>
         <div className={`${container} ${styles.stats}`}>
           {/* Indicateurs déclarés par Talentiques. Le texte accessible garde toujours la valeur finale. */}
-          <Stat value={2024} start={2020} prefix="Depuis " label="Des profils aux parcours variés" delay={0} />
+          <Stat value={2024} start={2024} prefix="Depuis " label="Des profils aux parcours variés" delay={0} />
           <Stat value={500} prefix="+" label="Professionnels accompagnés" delay={.06} />
-          <Stat value={80} prefix="+" suffix=" %" label="Taux de réussite déclaré" delay={.12} />
+          <Stat value={80} start={1} prefix="+" suffix=" %" label="Taux de réussite déclaré" delay={.12} />
         </div>
         <Reveal className={styles.logos}><EmployerLogoMarquee locale="fr" /></Reveal>
       </section>
@@ -112,8 +112,7 @@ export function CareerAccompanimentPage({ countries, quoteEnabled = false }: { c
           <div className={styles.services}>
             {services.map(({ icon: Icon, title, text }, i) => <Reveal key={title} delay={(i % 3) * .055}>
               <article className={styles.serviceCard}>
-                <Icon size={23} strokeWidth={1.5} aria-hidden="true" />
-                <h3>{title}</h3><p>{text}</p>
+                <div className={styles.serviceHeading}><Icon size={21} strokeWidth={1.5} aria-hidden="true" /><h3>{title}</h3></div><p>{text}</p>
               </article>
             </Reveal>)}
           </div>
@@ -123,26 +122,21 @@ export function CareerAccompanimentPage({ countries, quoteEnabled = false }: { c
       <section id="etapes-accompagnement" className={`${styles.section} ${styles.stagesSection}`} aria-labelledby="stages-title">
         <div className={container}>
           <Reveal><h2 id="stages-title" className={titleClass}>Les étapes de l’accompagnement</h2></Reveal>
-          <ol className={styles.timeline}>{stages.map(([title, text], i) => <li key={title} className={styles.timelineItem}>
+          <ol className={styles.timeline}>{stages.map(([title, text], i) => <motion.li key={title} data-motion-reveal className={styles.timelineItem} initial="hidden" whileInView="visible" viewport={{ once: true, amount: .3 }} variants={{ hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0, transition: { duration: .38, delay: (i % 3) * .05 } } }}>
             {i < stages.length - 1 && <motion.span aria-hidden="true" className={styles.timelineLine} initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: .55, delay: i * .045 }} />}
-            <Reveal delay={i * .045}>
-              <span className={styles.stageNumber} aria-hidden="true">0{i + 1}</span>
+            <div>
+              <motion.span data-motion-reveal className={styles.stageNumber} aria-hidden="true" variants={{ hidden: { opacity: 0, scale: .9 }, visible: { opacity: 1, scale: 1, transition: { duration: .25, delay: .08 } } }}>0{i + 1}</motion.span>
               <h3>{title}</h3><p>{text}</p>
-            </Reveal>
-          </li>)}</ol>
+            </div>
+          </motion.li>)}</ol>
         </div>
       </section>
 
       <section className={styles.section} aria-labelledby="roles-title"><div className={container}>
-        <Reveal><h2 id="roles-title" className={titleClass}>Un accompagnement clair, avec un rôle bien défini</h2></Reveal>
+        <Reveal><h2 id="roles-title" className={`${titleClass} ${styles.rolesTitle}`}>Un accompagnement structuré, pensé pour les profils qui veulent avancer concrètement</h2></Reveal>
         <div className={styles.roles}>{roles.map((role, i) => <Reveal key={role.title} delay={i * .08} className={styles.roleColumn}>
           <h3>{role.title}</h3><ul>{role.items.map((item, index) => <motion.li key={item} data-motion-reveal initial={{ opacity: 0, x: -4 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: .3, delay: index * .035 }}><Check size={16} aria-hidden="true" />{item}</motion.li>)}</ul>
         </Reveal>)}</div>
-      </div></section>
-
-      <section className={styles.audienceSection} aria-labelledby="audience-title"><div className={container}>
-        <Reveal><h2 id="audience-title" className={titleClass}>Cet accompagnement est fait pour vous si…</h2></Reveal>
-        <ul className={styles.audience}>{audience.map((item, i) => <motion.li key={item} data-motion-reveal initial={{ opacity: 0, y: 6 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: .35, delay: (i % 3) * .05 }}><span aria-hidden="true" />{item}</motion.li>)}</ul>
       </div></section>
 
       <AccompanimentLeadForm countries={countries} enabled={quoteEnabled} />
