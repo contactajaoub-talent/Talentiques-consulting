@@ -1,130 +1,65 @@
 'use client';
 
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
-import { getHomeContent, type HomeLocale } from '@/lib/home-content';
+import { motion, useReducedMotion } from 'framer-motion';
+import { ArrowRight, Check } from 'lucide-react';
+import type { HomeLocale } from '@/lib/home-content';
+import { CAREER_SERVICE_PATH, quoteButton } from './CareerAccompanimentIntro';
+import styles from './home/CommercialSections.module.css';
 
 export function Services({ locale = 'fr' }: { locale?: HomeLocale }) {
-  const copy = getHomeContent(locale).services;
-  const href = locale === 'fr' ? '/services' : '/en/services';
+  const fr = locale === 'fr';
+  const reduced = useReducedMotion();
+  const offers = fr ? [
+    {
+      title: 'Optimisation de votre image professionnelle',
+      description: 'Nous préparons un dossier professionnel complet, ciblé et prêt à être utilisé pour vos candidatures.',
+      benefits: ['CV optimisé ATS.', 'Lettre de motivation personnalisée.', 'Optimisation du profil LinkedIn.', 'Cohérence du positionnement professionnel.'],
+      nature: 'Prestation ponctuelle réalisée par notre équipe.',
+      cta: 'Voir les formules', href: '/services',
+    },
+    {
+      title: 'Accompagnement carrière de A à Z',
+      description: 'Nous prenons en charge votre recherche d’opportunités : stratégie, candidatures, prospection, relances et suivi.',
+      benefits: ['Positionnement et stratégie.', 'Ciblage des opportunités.', 'Candidatures adaptées.', 'Prospection des recruteurs.', 'Relances et suivi.'],
+      nature: 'Gestion déléguée de la recherche sur devis personnalisé.',
+      cta: 'Demander mon devis', href: CAREER_SERVICE_PATH + '#demande-accompagnement',
+    },
+  ] : [
+    {
+      title: 'Professional Image Optimization',
+      description: 'We prepare a complete, targeted professional application package, ready for you to use.',
+      benefits: ['ATS-optimized resume.', 'Tailored cover letter.', 'LinkedIn profile optimization.', 'Consistent professional positioning.'],
+      nature: 'A one-off service delivered by our team.',
+      cta: 'View Packages', href: '/en/services',
+    },
+    {
+      title: 'End-to-End Career Support',
+      description: 'We manage your opportunity search: strategy, applications, outreach, follow-ups and tracking.',
+      benefits: ['Positioning and strategy.', 'Targeted opportunities.', 'Tailored applications.', 'Recruiter outreach.', 'Follow-ups and tracking.'],
+      nature: 'A delegated search service with a personalized quote.',
+      cta: 'Request a Quote', href: CAREER_SERVICE_PATH + '#demande-accompagnement',
+    },
+  ];
 
-  const showcaseItems: Array<[string, string]> =
-    locale === 'fr'
-      ? [
-          [
-            'CV & candidature',
-            'Renforcer la structure, le contenu et la présentation de vos supports.',
-          ],
-          [
-            'LinkedIn & positionnement',
-            'Construire une présence professionnelle cohérente avec votre objectif.',
-          ],
-          [
-            'Cohérence de votre image professionnelle',
-            'Aligner votre CV, LinkedIn et votre positionnement dans une même direction.',
-          ],
-        ]
-      : [
-          [
-            'Resume & applications',
-            'Strengthen the structure, content and presentation of your application materials.',
-          ],
-          [
-            'LinkedIn & positioning',
-            'Build a professional presence aligned with your goal.',
-          ],
-          [
-            'Professional brand consistency',
-            'Align your resume, LinkedIn and positioning in one coherent direction.',
-          ],
-        ];
-
-  return (
-    <section id="services" className="relative overflow-hidden bg-white py-12 lg:py-16">
-      <div
-        className="pointer-events-none absolute -left-28 top-20 h-72 w-72 rounded-full bg-sky-100/45 blur-[110px]"
-        aria-hidden="true"
-      />
-
-      <div className="container relative mx-auto px-5 md:px-8">
-        <div className="mx-auto max-w-7xl">
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="relative overflow-hidden border-y border-l-0 sm:border-l-2 border-sky-200 border-l-[#E7A33A] bg-sky-50/55 px-0 py-8 sm:px-8 lg:px-10 lg:py-9"
-          >
-            <div
-              className="pointer-events-none absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-white/75 to-transparent"
-              aria-hidden="true"
-            />
-
-            <div className="relative grid gap-7 sm:gap-8 lg:grid-cols-[1.08fr_.92fr] lg:items-center lg:gap-12">
-              <div>
-                <span className="text-xs font-bold uppercase tracking-[.22em] text-[#C96A08]">
-                  {copy.eyebrow}
-                </span>
-
-                <h2 className="mt-4 max-w-3xl font-heading text-[2rem] font-bold leading-[1.1] tracking-[-.035em] text-[#0F3452] min-[390px]:text-[2.125rem] sm:mt-5 sm:text-4xl lg:text-5xl lg:leading-[1.08]">
-                  {locale === 'fr' ? (
-                    <>
-                      Optimisation complète de votre{' '}
-                      <span className="text-[#D97706]">image professionnelle.</span>
-                    </>
-                  ) : (
-                    <>
-                      Complete optimization of your{' '}
-                      <span className="text-[#D97706]">professional image.</span>
-                    </>
-                  )}
-                </h2>
-
-                <p className="mt-5 max-w-2xl text-base leading-7 text-slate-600 sm:mt-6 sm:text-lg sm:leading-8">
-                  {locale === 'fr'
-                    ? 'CV, LinkedIn, positionnement et cohérence de candidature : Talentiques vous aide à construire une image professionnelle plus claire, crédible et adaptée à votre objectif.'
-                    : 'Resume, LinkedIn, positioning and application consistency: Talentiques helps you build a clearer, stronger professional image aligned with your goals.'}
-                </p>
-
-                <Link
-                  href={href}
-                  className="mt-7 inline-flex items-center gap-2.5 text-sm font-bold text-[#0683C9] transition hover:text-[#056da8] sm:mt-8"
-                >
-                  {locale === 'fr' ? 'Découvrir nos offres' : 'Explore our services'}
-                  <ArrowRight
-                    size={16}
-                    aria-hidden="true"
-                    className="shrink-0"
-                  />
-                </Link>
-              </div>
-
-              <div className="border-t border-sky-200/60 lg:border-l lg:border-t-0 lg:border-sky-200/80 lg:pl-10">
-                {showcaseItems.map(([title, description], index) => (
-                  <div
-                    key={title}
-                    className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-3.5 border-b border-sky-200/60 py-6 last:border-b-0 sm:py-5 lg:grid-cols-[2.8rem_1fr] lg:gap-4 lg:border-sky-200/80"
-                  >
-                    <span className="pt-1 font-heading text-xs font-bold leading-6 tracking-[.16em] text-[#D97706] lg:pt-0">
-                      0{index + 1}
-                    </span>
-
-                    <div>
-                      <h3 className="font-heading text-lg font-bold leading-7 text-slate-950">
-                        {title}
-                      </h3>
-
-                      <p className="mt-1.5 text-sm leading-6 text-slate-600">
-                        {description}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
+  return <section id="services" aria-labelledby="home-services-title" className={styles.section + ' relative overflow-hidden bg-white py-12 lg:py-16'}>
+    <div className="container relative mx-auto px-5 md:px-8"><div className="mx-auto max-w-7xl">
+      <motion.header className={styles.reveal} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .2 }} transition={{ duration: reduced ? 0 : .35 }}>
+        <span className={styles.headingRule} aria-hidden="true" />
+        <h2 id="home-services-title" className={styles.title}>{fr ? 'Nos services d’accompagnement' : 'Our Career Services'}</h2>
+        <p className={styles.intro}>{fr ? 'Deux niveaux d’intervention selon ce que vous souhaitez confier à notre équipe.' : 'Two levels of support, depending on what you want to entrust to our team.'}</p>
+      </motion.header>
+      <div className={styles.offers}>{offers.map((offer, index) => <motion.article key={offer.title} className={styles.offer + ' ' + styles.reveal} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .15 }} transition={{ duration: reduced ? 0 : .35, delay: reduced ? 0 : index * .07 }}>
+        <h3 className={styles.offerTitle}>{offer.title}</h3>
+        <p className={styles.description}>{offer.description}</p>
+        <ul className={styles.benefits}>{offer.benefits.map((benefit, i) => <motion.li key={benefit} className={styles.reveal} initial={{ opacity: 0, y: 4 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: reduced ? 0 : .25, delay: reduced ? 0 : i * .025 }}><Check size={16} aria-hidden="true" /><span>{benefit}</span></motion.li>)}</ul>
+        <p className={styles.nature}>{offer.nature}</p>
+        {index === 1 && !fr && <p className={styles.languageNote}>Service page and quote form available in French.</p>}
+        <div className={styles.actions}>
+          <Link href={offer.href} className={quoteButton + ' ' + styles.primary}><span>{offer.cta}</span><ArrowRight size={17} aria-hidden="true" /></Link>
+          {index === 1 && <Link href={CAREER_SERVICE_PATH} className={styles.secondary}>{fr ? 'Découvrir l’accompagnement' : 'Explore the Service'}<ArrowRight size={15} aria-hidden="true" /></Link>}
         </div>
-      </div>
-    </section>
-  );
+      </motion.article>)}</div>
+    </div></div>
+  </section>;
 }

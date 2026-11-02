@@ -1,87 +1,57 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { ArrowUpRight } from 'lucide-react';
-import { getHomeContent, type HomeLocale } from '@/lib/home-content';
+import Link from 'next/link';
+import { motion, useReducedMotion } from 'framer-motion';
+import { ArrowRight, ArrowUpRight, Check } from 'lucide-react';
+import type { HomeLocale } from '@/lib/home-content';
+import { quoteButton } from './CareerAccompanimentIntro';
+import styles from './home/CommercialSections.module.css';
 
 export function AlternanceFeature({ locale = 'fr' }: { locale?: HomeLocale }) {
-  const copy = getHomeContent(locale).alternance;
+  const fr = locale === 'fr';
+  const reduced = useReducedMotion();
+  const platforms = fr ? [
+    {
+      title: 'Career Search 360', label: 'Recherche d’opportunités professionnelles',
+      description: 'Une plateforme pour centraliser vos opportunités, préparer vos candidatures et piloter votre recherche d’emploi.',
+      benefits: ['Suivi des opportunités et candidatures.', 'CV et positionnement professionnel.', 'Outils de recherche et de préparation.'],
+      cta: 'Découvrir Career Search 360', href: '/career-search-360', external: false,
+    },
+    {
+      title: 'Alternance Talentiques', label: 'Recherche d’alternance',
+      description: 'Un espace spécialisé pour structurer votre recherche d’alternance, suivre vos candidatures et préparer vos démarches.',
+      benefits: ['Positionnement et ciblage.', 'Suivi des candidatures.', 'Préparation aux entretiens.'],
+      cta: 'Découvrir Alternance Talentiques', href: 'https://alternance.talentiques.com/', external: true,
+    },
+  ] : [
+    {
+      title: 'Career Search 360', label: 'Professional opportunity search',
+      description: 'A platform to centralize your opportunities, prepare applications and manage your job search.',
+      benefits: ['Opportunity and application tracking.', 'Resume and professional positioning.', 'Search and preparation tools.'],
+      cta: 'Explore Career Search 360', href: '/career-search-360?lang=en', external: false,
+    },
+    {
+      title: 'Alternance Talentiques', label: 'Work-study opportunity search',
+      description: 'A dedicated space to structure your work-study search, track applications and prepare your next steps.',
+      benefits: ['Positioning and targeting.', 'Application tracking.', 'Interview preparation.'],
+      cta: 'Explore Alternance Talentiques', href: 'https://alternance.talentiques.com/', external: true,
+    },
+  ];
 
-  return (
-    <section id="alternance" className="relative overflow-hidden bg-white py-12 lg:py-16">
-      <div
-        className="pointer-events-none absolute -right-32 top-10 h-80 w-80 rounded-full bg-orange-100/45 blur-[120px]"
-        aria-hidden="true"
-      />
-      <div
-        className="pointer-events-none absolute -left-24 bottom-0 h-72 w-72 rounded-full bg-sky-100/55 blur-[110px]"
-        aria-hidden="true"
-      />
-
-      <div className="container relative mx-auto px-5 md:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mx-auto max-w-7xl border-y border-slate-200 py-7 sm:py-8 lg:py-9"
-        >
-          <div className="grid items-center gap-8 lg:grid-cols-[1.06fr_.94fr] lg:gap-12">
-            <div>
-              <div className="mb-5 flex items-center gap-3">
-                <span className="h-2.5 w-2.5 rounded-full bg-[#F59E0B]" aria-hidden="true" />
-                <span className="text-xs font-bold uppercase tracking-[.22em] text-[#C96A08]">
-                  {copy.eyebrow}
-                </span>
-              </div>
-
-              <h2 className="font-heading text-4xl font-bold tracking-[-.03em] text-[#D97706] sm:text-5xl">
-                {copy.title}
-              </h2>
-              <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
-                {copy.description}
-              </p>
-
-              <a
-                href="https://alternance.talentiques.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#0683C9] px-6 py-3.5 font-bold text-white shadow-[0_12px_28px_-16px_rgba(6,131,201,.85)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#056da8]"
-              >
-                {copy.cta}
-                <ArrowUpRight size={18} />
-              </a>
-            </div>
-
-            <div className="relative pl-7 sm:pl-9">
-              <div className="absolute bottom-2 left-[7px] top-2 w-px bg-gradient-to-b from-[#F59E0B] via-orange-200 to-sky-200" aria-hidden="true" />
-
-              <div className="space-y-6">
-                {copy.items.map((item, index) => (
-                  <motion.div
-                    key={item}
-                    initial={{ opacity: 0, y: 12 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.08 }}
-                    className="relative"
-                  >
-                    <span
-                      className="absolute -left-7 top-1.5 h-3.5 w-3.5 rounded-full border-[3px] border-white bg-[#F59E0B] shadow-[0_0_0_1px_rgba(245,158,11,.28)] sm:-left-9"
-                      aria-hidden="true"
-                    />
-                    <span className="font-heading text-xs font-bold tracking-[.18em] text-[#B86307]">
-                      0{index + 1}
-                    </span>
-                    <p className="mt-2 font-heading text-xl font-bold tracking-[-.02em] text-slate-900">
-                      {item}
-                    </p>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      </div>
-    </section>
-  );
+  return <section id="alternance" aria-labelledby="home-digital-title" className={styles.section + ' relative overflow-hidden bg-white py-12 lg:py-16'}>
+    <div className="container relative mx-auto px-5 md:px-8"><div className="mx-auto max-w-7xl">
+      <motion.header className={styles.reveal} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .2 }} transition={{ duration: reduced ? 0 : .35 }}>
+        <span className={styles.headingRule} aria-hidden="true" />
+        <h2 id="home-digital-title" className={styles.title}>{fr ? 'Nos solutions digitales' : 'Our Digital Solutions'}</h2>
+        <p className={styles.intro}>{fr ? 'Des plateformes pour structurer vos démarches et piloter votre recherche d’opportunités.' : 'Platforms to organize your next steps and manage your search for opportunities.'}</p>
+      </motion.header>
+      <div className={styles.platforms}>{platforms.map((platform, index) => <motion.article key={platform.title} className={styles.platform + ' ' + styles.reveal} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .15 }} transition={{ duration: reduced ? 0 : .35, delay: reduced ? 0 : index * .07 }}>
+        <p className={styles.platformLabel}>{platform.label}</p>
+        <h3 className={styles.offerTitle}>{platform.title}</h3>
+        <p className={styles.description}>{platform.description}</p>
+        <ul className={styles.benefits}>{platform.benefits.map((benefit, i) => <motion.li key={benefit} className={styles.reveal} initial={{ opacity: 0, y: 4 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: reduced ? 0 : .25, delay: reduced ? 0 : i * .025 }}><Check size={16} aria-hidden="true" /><span>{benefit}</span></motion.li>)}</ul>
+        <div className={styles.actions}>{platform.external ? <a href={platform.href} target="_blank" rel="noopener noreferrer" className={quoteButton + ' ' + styles.primary}><span>{platform.cta}</span><ArrowUpRight size={17} aria-hidden="true" /></a> : <Link href={platform.href} className={quoteButton + ' ' + styles.primary}><span>{platform.cta}</span><ArrowRight size={17} aria-hidden="true" /></Link>}</div>
+      </motion.article>)}</div>
+    </div></div>
+  </section>;
 }
