@@ -27,6 +27,7 @@ import {
 } from "@/lib/crm/core";
 import { uploadDocument } from "@/lib/crm/intake-client";
 import { useMember } from "./CrmShell";
+import { MonportfolioRequests } from "./MonportfolioRequests";
 
 type Entity = {
   id: string;
@@ -431,6 +432,7 @@ export function CrmWorkspace({ section }: { section: string }) {
             </button>
           )}
         </div>
+        {section === "requests" && <MonportfolioRequests />}
         {error && (
           <div className="crm-error" role="alert">
             {error}

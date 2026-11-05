@@ -380,6 +380,18 @@
 .crm-panel + .crm-panel {
   margin-top: 20px;
 }
+.crm-mp { margin-bottom: 20px; }
+.crm-mp .crm-table td { vertical-align: middle; }
+.crm-mp .crm-table td:first-child button { white-space: nowrap; font-size: 11px; }
+.crm-mp details { margin-top: 16px; }
+.crm-mp summary { cursor: pointer; font-weight: 600; }
+.crm-mp-detail h3, .crm-mp-detail dd { overflow-wrap: anywhere; }
+.crm-mp-detail fieldset > section { padding: 16px 0; border-bottom: 1px solid var(--line); }
+.crm-mp-detail h4 { margin: 0 0 10px; font-weight: 700; }
+.crm-mp-detail dl { margin: 0 0 12px; }
+.crm-mp-detail dt { font-size: 11px; color: var(--muted); margin-top: 8px; }
+.crm-mp-detail dd { margin: 0; }
+.crm-mp-detail section button { margin: 4px 6px 4px 0; }
 .crm-panels > .crm-panel + .crm-panel {
   margin-top: 0;
 }

@@ -25,7 +25,8 @@ test('Phase 4 HTTP: order → payment → bearer → private CV → durable rece
   const r=await cmd(order.id,'link_generated');assert.equal(r.status,200);const url=(await r.json()).url,token=new URL(url).searchParams.get('token');assert.match(token,/^[a-f0-9]{64}$/);
   let a=await fetch(dossier,{headers:publicHeaders(token)});assert.equal(a.status,200);assert.deepEqual(await a.json(),{reference:order.reference,submitted:false});
   assert.equal((await fetch(dossier,{headers:publicHeaders('b'.repeat(64))})).status,403);
-  const pdf=Buffer.from('%PDF-1.4\n/Type /Page\n'+' '.repeat(100)+'\n%%EOF\n');
+  const start='%PDF-1.4\n/Type /Page\n',end='\n%%EOF\n';
+  const pdf=Buffer.from(start+' '.repeat(5242880-start.length-end.length)+end);
   const prepare=async(name='cv.pdf',size=pdf.length,mime='application/pdf')=>post(dossier,{action:'prepare',name,size,mime,key:randomUUID()},publicHeaders(token));
   assert.equal((await prepare('cv.png')).status,400);assert.equal((await prepare('cv.pdf',5242881)).status,400);
   let p=await prepare();assert.equal(p.status,200);const upload=await p.json();assert.equal((await fetch(upload.uploadUrl,{method:'PUT',headers:{'Content-Type':upload.mime},body:pdf})).status,200);
@@ -37,7 +38,7 @@ test('Phase 4 HTTP: order → payment → bearer → private CV → durable rece
   let detail=await (await fetch(crm+'?id='+order.id,{headers:staff()})).json();assert.equal(detail.status,'received');assert.equal(detail.dossier.cv_name,'cv.pdf');assert.equal(detail.events.filter(e=>e.action==='received').length,1);
   assert.equal((await fetch(crm+'?document='+order.id,{headers:staff('production')})).status,403);
   assert.equal((await cmd(order.id,'assigned',{owner:f.users.production,kind:'production'})).status,200);
-  const doc=await fetch(crm+'?document='+order.id,{headers:staff('production')});assert.equal(doc.status,200);assert((await doc.json()).url.includes('token='));
+  const doc=await fetch(crm+'?document='+order.id,{headers:staff('production')});assert.equal(doc.status,200);const download=new URL((await doc.json()).url);assert(download.searchParams.has('token'));assert.equal(download.searchParams.get('download'),'CV.pdf');
   detail=await (await fetch(crm+'?id='+order.id,{headers:staff('production')})).json();assert(!('amount'in detail));
   assert.equal((await cmd(order.id,'complete',{},'production')).status,200);assert.equal((await cmd(order.id,'production',{},'production')).status,200);
   assert.equal((await cmd(order.id,'delivered',{url:'https://example.com/portfolio'})).status,200);assert.equal((await cmd(order.id,'revision_requested')).status,200);assert.equal((await cmd(order.id,'revision_done')).status,200);assert.equal((await cmd(order.id,'revision_requested')).status,403);assert.equal((await cmd(order.id,'finished')).status,200);

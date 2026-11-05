@@ -15,7 +15,8 @@ export async function GET(request: Request) {
       const doc = await rpc("monportfolio_document", { p_id: uuid(p.get("document")) }, token);
       if (!doc?.path) throw new CrmError("CV inaccessible.", 404);
       const signed = await storage(`object/sign/monportfolio-cvs/${storagePath(doc.path)}`, { method: "POST", body: JSON.stringify({ expiresIn: 60 }) });
-      return NextResponse.json({ url: `${config().url}/storage/v1${signed.signedURL}&download=CV` }, { headers: noStore });
+      const filename = doc.mime === "application/pdf" ? "CV.pdf" : "CV.docx";
+      return NextResponse.json({ url: `${config().url}/storage/v1${signed.signedURL}&download=${filename}` }, { headers: noStore });
     }
     return NextResponse.json(await rpc("monportfolio_snapshot", { p_id: p.get("id") ? uuid(p.get("id")) : null, p_search: (p.get("search") || "").slice(0,90), p_status: (p.get("status") || "").slice(0,30), p_page: Math.min(10000,Math.max(0,Math.floor(Number(p.get("page")) || 0))) }, token), { headers: noStore });
   } catch(e) { return failure(e); }
