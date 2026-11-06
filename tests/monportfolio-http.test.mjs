@@ -16,9 +16,15 @@ test('Phase 4 HTTP: order → payment → bearer → private CV → durable rece
  try{
   for(const url of [lead,dossier]){assert.equal((await fetch(url,{method:'OPTIONS',headers:{Origin:origin}})).status,204);assert.equal((await fetch(url,{headers:{Origin:'https://evil.example'}})).status,403);assert.equal((await fetch(url)).status,403);}
   assert.equal((await fetch(crm)).status,401);
-  const payload={name:'Synthetic HTTP',country:'France',payment:'Carte bancaire',consent:true,key:randomUUID(),...await solve()};
-  const [r1,r2]=await Promise.all([post(lead,payload,publicHeaders()),post(lead,payload,publicHeaders())]);assert.equal(r1.status,200);assert.equal(r2.status,200);const order=await r1.json();assert.deepEqual(await r2.json(),order);
-  const list=await (await fetch(crm,{headers:staff()})).json();assert.equal(list.data.length,1);assert.equal(Number(list.data[0].amount),10);assert.equal(list.data[0].currency,'EUR');assert.equal(list.data[0].payment_status,'unconfirmed');
+  const payload={name:'Synthetic HTTP',country:'France',phone:'0033 6 12 34 56 78',payment:'Carte bancaire',consent:true,key:randomUUID(),...await solve()};
+  assert.equal((await post(lead,{...payload,phone:undefined},publicHeaders())).status,400);
+  assert.equal((await post(lead,{...payload,phone:'+3300'},publicHeaders())).status,400);
+  const [r1,r2]=await Promise.all([post(lead,payload,publicHeaders()),post(lead,payload,publicHeaders())]);assert.equal(r1.status,200);assert.equal(r2.status,200);const order=await r1.json();assert.deepEqual(await r2.json(),order);assert.equal(order.phoneSaved,true);assert(!('phone' in order));
+  assert.deepEqual(await (await post(lead,{...payload,phone:'+33612345678',...await solve()},publicHeaders())).json(),order);
+  const savedBeforeWhatsApp=await (await fetch(crm+'?id='+order.id,{headers:staff()})).json();
+  assert.equal(savedBeforeWhatsApp.phone,'+33612345678');
+  assert.equal(savedBeforeWhatsApp.status,'new');
+  const list=await (await fetch(crm,{headers:staff()})).json();assert.equal(list.data.length,1);assert(!("phone" in list.data[0]));assert.equal(Number(list.data[0].amount),10);assert.equal(list.data[0].currency,'EUR');assert.equal(list.data[0].payment_status,'unconfirmed');
   assert.equal((await cmd(order.id,'link_generated')).status,403);
   assert.equal((await cmd(order.id,'payment_confirm',{amount:10,currency:'EUR',method:'Carte bancaire'},'sales')).status,403);
   assert.equal((await cmd(order.id,'payment_confirm',{amount:10,currency:'EUR',method:'Carte bancaire'})).status,200);
@@ -39,7 +45,7 @@ test('Phase 4 HTTP: order → payment → bearer → private CV → durable rece
   assert.equal((await fetch(crm+'?document='+order.id,{headers:staff('production')})).status,403);
   assert.equal((await cmd(order.id,'assigned',{owner:f.users.production,kind:'production'})).status,200);
   const doc=await fetch(crm+'?document='+order.id,{headers:staff('production')});assert.equal(doc.status,200);const download=new URL((await doc.json()).url);assert(download.searchParams.has('token'));assert.equal(download.searchParams.get('download'),'CV.pdf');
-  detail=await (await fetch(crm+'?id='+order.id,{headers:staff('production')})).json();assert(!('amount'in detail));
+  detail=await (await fetch(crm+'?id='+order.id,{headers:staff('production')})).json();assert(!('amount'in detail));assert(!('phone'in detail));
   assert.equal((await cmd(order.id,'complete',{},'production')).status,200);assert.equal((await cmd(order.id,'production',{},'production')).status,200);
   assert.equal((await cmd(order.id,'delivered',{url:'https://example.com/portfolio'})).status,200);assert.equal((await cmd(order.id,'revision_requested')).status,200);assert.equal((await cmd(order.id,'revision_done')).status,200);assert.equal((await cmd(order.id,'revision_requested')).status,403);assert.equal((await cmd(order.id,'finished')).status,200);
   assert.equal((await cmd(order.id,'documents_deleted')).status,200);assert.equal(f.objects.size,0);

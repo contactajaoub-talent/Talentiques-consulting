@@ -2,14 +2,15 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {randomUUID,randomBytes} from 'node:crypto';
-export async function fixture(){
+export const phoneMigration='supabase/migrations/20261106182205_monportfolio_phone.sql';
+export async function fixture({withPhone=true}={}){
  if(!process.env.CRM_PGLITE_PATH)throw Error('CRM_PGLITE_PATH required: isolated database only');
  const root=process.env.CRM_PGLITE_PATH;
  const {PGlite}=await import(pathToFileURL(path.join(root,'dist/index.js')));
  const {pgcrypto}=await import(pathToFileURL(path.join(root,'dist/contrib/pgcrypto.js')));
  const db=new PGlite({extensions:{pgcrypto}}),q=async(s,p=[])=>(await db.query(s,p)).rows;
  await db.exec("create role anon;create role authenticated;create role service_role bypassrls;create schema auth;create table auth.users(id uuid primary key);create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;grant usage on schema auth to anon,authenticated,service_role;create schema storage;create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);create table storage.objects(id uuid primary key default gen_random_uuid(),bucket_id text,name text);alter table storage.objects enable row level security;");
- for(const f of ['supabase/service_orders.sql','supabase/migrations/202610280001_crm_v1.sql','supabase/migrations/202611010001_career_quote.sql','supabase/migrations/202611030001_monportfolio_leads.sql','supabase/migrations/202611050001_monportfolio_pipeline.sql'])await db.exec(await fs.readFile(f,'utf8'));
+ for(const f of ['supabase/service_orders.sql','supabase/migrations/202610280001_crm_v1.sql','supabase/migrations/202611010001_career_quote.sql','supabase/migrations/202611030001_monportfolio_leads.sql','supabase/migrations/202611050001_monportfolio_pipeline.sql',...(withPhone?[phoneMigration]:[])])await db.exec(await fs.readFile(f,'utf8'));
  const users={admin:randomUUID(),sales:randomUUID(),production:randomUUID(),other:randomUUID(),inactive:randomUUID()};
  for(const [name,id] of Object.entries(users)){
   await q('insert into auth.users values($1)',[id]);

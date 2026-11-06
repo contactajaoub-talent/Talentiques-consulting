@@ -1,10 +1,11 @@
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { parsePhoneNumberFromString } from "libphonenumber-js/max";
 import { CrmError, uuid } from "../crm/core.ts";
 
 export const COUNTRIES = ["Maroc", "France", "Belgique", "Suisse", "Canada", "Tunisie", "Autre"];
 export const PAYMENTS = ["CIH Bank", "Attijariwafa bank", "Banque Populaire", "PayPal", "Cash Plus", "Carte bancaire"];
 export const digest = (s: string) => createHash("sha256").update(s).digest("hex");
-export function validateLead(body: Record<string, unknown>) {
+export function validateLead(body: Record<string, unknown>, { requirePhone = false } = {}) {
   if (typeof body.name !== "string" || body.name.length > 90) throw new CrmError("Nom invalide.");
   const name = body.name.trim().replace(/\s+/g, " ");
   if (name.length < 3 || !/^[\p{L}\p{M} .’'\-]+$/u.test(name) || !/\p{L}.*\p{L}/u.test(name)) throw new CrmError("Nom invalide.");
@@ -12,13 +13,21 @@ export function validateLead(body: Record<string, unknown>) {
   if (typeof body.payment !== "string" || !PAYMENTS.includes(body.payment)) throw new CrmError("Moyen de paiement invalide.");
   if (!(body.country === "Maroc" ? PAYMENTS.filter(p => p !== "Carte bancaire") : ["PayPal", "Carte bancaire"]).includes(body.payment)) throw new CrmError("Moyen de paiement indisponible pour ce pays.");
   if (body.consent !== true || body.website) throw new CrmError("Consentement ou demande invalide.");
+  let phone: string | undefined;
+  if (requirePhone || body.phone !== undefined) {
+    const raw = typeof body.phone === "string" ? body.phone.trim().replace(/^00/, "+") : "";
+    const parsed = raw.length <= 40 && /^\+[0-9(). -]+$/.test(raw)
+      ? parsePhoneNumberFromString(raw, { extract: false }) : undefined;
+    if (!parsed?.isValid()) throw new CrmError("Numéro de téléphone international invalide.");
+    phone = parsed.number;
+  }
   const utm: Record<string, string> = {};
   if (body.utm !== undefined && (!body.utm || typeof body.utm !== "object" || Array.isArray(body.utm))) throw new CrmError("Paramètres invalides.");
   for (const [key, value] of Object.entries((body.utm || {}) as Record<string, unknown>)) {
     if (!["source", "medium", "campaign", "content", "term"].includes(key) || typeof value !== "string" || value.length > 150 || /[\u0000-\u001f\u007f<>]/u.test(value)) throw new CrmError("Paramètres invalides.");
     utm[key] = value;
   }
-  return { name, country: body.country, payment: body.payment, consent: true, utm: Object.fromEntries(Object.entries(utm).sort()) };
+  return { name, country: body.country, payment: body.payment, consent: true, ...(phone ? { phone } : {}), utm: Object.fromEntries(Object.entries(utm).sort()) };
 }
 export function idempotency(value: unknown) { return digest(uuid(value)); }
 function sign(value: string, secret: string) { return createHmac("sha256", secret).update("monportfolio:v1:" + value).digest("hex"); }

@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
 import {randomUUID,randomBytes} from 'node:crypto';
-import {fixture} from './monportfolio-fixture.mjs';
+import {fixture,phoneMigration} from './monportfolio-fixture.mjs';
 import {digest,validateLead} from '../src/lib/monportfolio/core.ts';
 import {capability,dossierAnswers} from '../src/lib/monportfolio/dossier.ts';
 import {fileMetadata,validateFile} from '../src/lib/crm/files.ts';
@@ -21,12 +22,12 @@ test('Phase 4 real PostgreSQL: complete lifecycle, isolation, immutable receipt 
  try{
   const key=digest(randomUUID()),a=await create(data,key);assert.deepEqual(a,await create(data,key));
   const intl=await create({...data,country:'France',payment:'Carte bancaire',amount:1,currency:'USD'});
-  await as();let row=(await q('select * from monportfolio_leads where id=$1',[intl.id]))[0];assert.equal(Number(row.amount),10);assert.equal(row.currency,'EUR');assert.equal(row.payment_status,'unconfirmed');
+  await as();let row=(await q('select * from monportfolio_leads where id=$1',[intl.id]))[0];assert.equal(Number(row.amount),10);assert.equal(row.currency,'EUR');assert.equal(row.payment_status,'unconfirmed');assert.equal(row.phone,null);
   await t.test('RLS, table grants, no anonymous financial or token access',async()=>{
    await as();await db.exec("grant usage on schema storage to anon,authenticated;grant select,insert on storage.objects to anon,authenticated;create policy legacy_storage_public on storage.objects for all to anon,authenticated using(true) with check(true);insert into storage.objects(bucket_id,name) values('monportfolio-cvs','private.pdf'),('unrelated','public.pdf');");
    for(const role of ['anon','sales','production','inactive']){await as(role);await assert.rejects(q('select * from monportfolio_links'));await assert.rejects(q('select * from monportfolio_payments'));await assert.rejects(q('select * from monportfolio_dossiers'));await assert.rejects(action(a.id,'payment_confirm',{amount:100,currency:'MAD',method:'PayPal'}));}
    await as('anon');assert.equal((await q("select * from storage.objects where bucket_id='monportfolio-cvs'")).length,0);assert.equal((await q("select * from storage.objects where bucket_id='unrelated'")).length,1);await assert.rejects(q("insert into storage.objects(bucket_id,name) values('monportfolio-cvs','forged.pdf')"));
-   await as('admin');await assert.rejects(q('select token_hash from monportfolio_links'));await assert.rejects(q('select idempotency_hash from monportfolio_leads'));
+   await as('admin');await assert.rejects(q('select token_hash from monportfolio_links'));await assert.rejects(q('select idempotency_hash from monportfolio_leads'));await assert.rejects(q('select phone from monportfolio_leads'));
    await assert.rejects(action(a.id,'link_generated',{hash:digest('before payment')}));await assert.rejects(action(a.id,'production'));await assert.rejects(action(a.id,'complete'));
    await as('anon');await assert.rejects(rpc('monportfolio_access',{p_hash:digest('x')}));
   });
@@ -66,5 +67,35 @@ test('Phase 4 real PostgreSQL: complete lifecycle, isolation, immutable receipt 
    const view=await rpc('monportfolio_snapshot',{p_id:a.id});assert.equal(view.dossier.projects,null);assert.equal(view.dossier.cv_name,null);
    await as();assert.equal((await q('select name from monportfolio_uploads where id=$1',[upload.id]))[0].name,'');
   });
+ }finally{await db.close();}
+});
+
+test('Phone migration leaves previous orders intact and restricts phone to authorized detail views',{timeout:45000},async()=>{
+ const f=await fixture({withPhone:false}),{db,q,as,rpc,action,users}=f;
+ const legacy={name:'Prospect Historique',country:'France',payment:'PayPal',consent:true};
+ const input=data=>({p_key:digest(randomUUID()),p_payload_hash:digest(JSON.stringify(data)),p_nonce:f.nonce(),p_data:data});
+ const snapshot=id=>rpc('monportfolio_snapshot',{p_id:id});
+ try{
+  await as('service');
+  const old=await rpc('monportfolio_create_lead',input(legacy));
+  await as();
+  const before=(await q('select to_jsonb(l) value from monportfolio_leads l where id=$1',[old.id]))[0].value;
+  await db.exec(await readFile(phoneMigration,'utf8'));
+  const after=(await q('select to_jsonb(l) value from monportfolio_leads l where id=$1',[old.id]))[0].value;
+  assert.deepEqual(after,{...before,phone:null});
+  const phone='+33612345678',payload=input({...legacy,name:'Prospect Nouveau',phone});
+  await as('service');
+  await assert.rejects(rpc('monportfolio_create_phone_lead',input(legacy)));
+  const result=await rpc('monportfolio_create_phone_lead',payload);
+  assert.deepEqual(await rpc('monportfolio_create_phone_lead',{...payload,p_nonce:f.nonce()}),result);
+  assert.equal(result.phoneSaved,true);assert(!('phone'in result));
+  await as('anon');await assert.rejects(rpc('monportfolio_create_phone_lead',payload));await assert.rejects(snapshot(result.id));
+  await as('sales');await assert.rejects(snapshot(result.id));
+  await as('admin');assert.equal((await snapshot(result.id)).phone,phone);assert.equal((await snapshot(old.id)).phone,null);
+  assert((await rpc('monportfolio_snapshot')).data.every(item=>!('phone'in item)));
+  await action(result.id,'assigned',{owner:users.sales});
+  await action(result.id,'assigned',{owner:users.production,kind:'production'});
+  await as('sales');assert.equal((await snapshot(result.id)).phone,phone);
+  await as('production');assert(!('phone'in await snapshot(result.id)));
  }finally{await db.close();}
 });

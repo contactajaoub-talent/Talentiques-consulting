@@ -38,12 +38,13 @@ export async function POST(request: Request) {
     await rateLimit(request, "monportfolio-lead", 12);
     if (!request.headers.get("content-type")?.toLowerCase().startsWith("application/json")) throw new CrmError("Format invalide.", 415);
     const body = await json(request, 4096);
-    const payload = validateLead(body);
+    const payload = validateLead(body, { requirePhone: true });
     const key = idempotency(body.key);
     const nonce = verifyProof(body.challenge, body.proof, secret, client);
     if (!await rpc("crm_rate_limit", { p_key: digest(secret + ":monportfolio-global"), p_limit: 300 })) throw new CrmError("Trop de tentatives. Réessayez plus tard.", 429);
     // Advertising consent may change between retries; business identity stays idempotent.
-    const result = await rpc("monportfolio_create_lead", { p_key: key, p_payload_hash: digest(JSON.stringify({ ...payload, utm: {} })), p_nonce: nonce, p_data: payload });
-    return NextResponse.json(result, { status: 200, headers: headers(request) });
+    const result = await rpc("monportfolio_create_phone_lead", { p_key: key, p_payload_hash: digest(JSON.stringify({ ...payload, utm: {} })), p_nonce: nonce, p_data: payload });
+    if (result?.phoneSaved !== true) throw new CrmError("Enregistrement non confirmé.", 503);
+    return NextResponse.json({ id: result.id, reference: result.reference, phoneSaved: true }, { status: 200, headers: headers(request) });
   } catch (e) { return fail(request, e); }
 }

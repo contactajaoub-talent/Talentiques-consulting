@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     const id = body.id ? uuid(body.id) : null;
     if (action === "manual_create") {
       const payload=validateLead(body);
-      return NextResponse.json(await rpc("monportfolio_create_lead", { p_key:idempotency(body.key), p_payload_hash:digest(JSON.stringify({...payload,utm:{}})), p_nonce:randomBytes(16).toString("hex"), p_data:payload }), {headers:noStore});
+      return NextResponse.json(await rpc(payload.phone ? "monportfolio_create_phone_lead" : "monportfolio_create_lead", { p_key:idempotency(body.key), p_payload_hash:digest(JSON.stringify({...payload,utm:{}})), p_nonce:randomBytes(16).toString("hex"), p_data:payload }), {headers:noStore});
     }
     if (action === "cleanup" || action === "documents_deleted") {
       if (action === "documents_deleted" && !id) throw new CrmError("Dossier requis.");

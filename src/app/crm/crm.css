@@ -26,7 +26,8 @@
     background 0.15s,
     color 0.15s;
 }
-.crm button {
+.crm button,
+.crm .crm-mp-whatsapp {
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -38,7 +39,8 @@
   padding: 8px 12px;
   font-weight: 600;
 }
-.crm button:hover {
+.crm button:hover,
+.crm .crm-mp-whatsapp:hover {
   background: #f0f5f9;
 }
 .crm button:disabled {
@@ -391,7 +393,8 @@
 .crm-mp-detail dl { margin: 0 0 12px; }
 .crm-mp-detail dt { font-size: 11px; color: var(--muted); margin-top: 8px; }
 .crm-mp-detail dd { margin: 0; }
-.crm-mp-detail section button { margin: 4px 6px 4px 0; }
+.crm-mp-detail section button, .crm-mp-whatsapp { margin: 4px 6px 4px 0; }
+.crm .crm-mp-whatsapp { color: inherit; text-decoration: none; }
 .crm-panels > .crm-panel + .crm-panel {
   margin-top: 0;
 }

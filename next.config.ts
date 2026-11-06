@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 import { withBotId } from 'botid/next/config';
 
 const nextConfig: NextConfig = {
+  ...(process.env.CRM_TEST_NEXT_DIST ? { distDir: process.env.CRM_TEST_NEXT_DIST } : {}),
   async headers() {
     return ['/crm/:path*', '/api/crm/:path*', '/paiement-service', '/completer-dossier'].map(source => ({ source, headers: [
       { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
