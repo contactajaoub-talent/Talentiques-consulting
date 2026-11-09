@@ -2,11 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
 import {validateLead,PAYMENTS,challenge,verifyProof,digest,idempotency} from '../src/lib/monportfolio/core.ts';
-const good={name:'Yassine El Idrissi',country:'Maroc',payment:'CIH Bank',consent:true,utm:{source:'test'}};
+const good={name:'Yassine El Idrissi',country:'Maroc',payment:'PayPal',consent:true,utm:{source:'test'}};
 test('strict identity, country, payment, consent and UTM validation',()=>{
  for(const payment of PAYMENTS)assert.equal(validateLead({...good,country:payment==='Carte bancaire'?'France':'Maroc',payment}).payment,payment);
- assert.throws(()=>validateLead({...good,payment:'Carte bancaire'}));
- assert.throws(()=>validateLead({...good,country:'France'}));
+ assert.equal(validateLead({...good,payment:'Carte bancaire'}).payment,'Carte bancaire');
+ assert.throws(()=>validateLead({...good,payment:'CIH Bank'}));
  for(const bad of [{name:''},{name:'12'},{name:'<script>'},{name:'A'.repeat(91)},{country:'Mars'},{country:''},{payment:'paid'},{consent:false},{consent:'true'},{utm:{source:'x'.repeat(151)}},{utm:[]},{website:'robot'}])assert.throws(()=>validateLead({...good,...bad}));
  for(const key of ['name','country','payment','consent']){const v={...good};delete v[key];assert.throws(()=>validateLead(v));}
  assert.equal(validateLead({...good,name:'  Élodie   Aït-Test  '}).name,'Élodie Aït-Test');

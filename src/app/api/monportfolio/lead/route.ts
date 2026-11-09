@@ -45,6 +45,6 @@ export async function POST(request: Request) {
     // Advertising consent may change between retries; business identity stays idempotent.
     const result = await rpc("monportfolio_create_phone_lead", { p_key: key, p_payload_hash: digest(JSON.stringify({ ...payload, utm: {} })), p_nonce: nonce, p_data: payload });
     if (result?.phoneSaved !== true) throw new CrmError("Enregistrement non confirmé.", 503);
-    return NextResponse.json({ id: result.id, reference: result.reference, phoneSaved: true }, { status: 200, headers: headers(request) });
+    return NextResponse.json({ id: result.id, reference: result.reference, phoneSaved: true, amount: result.amount, currency: result.currency }, { status: 200, headers: headers(request) });
   } catch (e) { return fail(request, e); }
 }

@@ -16,7 +16,7 @@ test('Phase 4 HTTP: order → payment → bearer → private CV → durable rece
  try{
   for(const url of [lead,dossier]){assert.equal((await fetch(url,{method:'OPTIONS',headers:{Origin:origin}})).status,204);assert.equal((await fetch(url,{headers:{Origin:'https://evil.example'}})).status,403);assert.equal((await fetch(url)).status,403);}
   assert.equal((await fetch(crm)).status,401);
-  const payload={name:'Synthetic HTTP',country:'France',phone:'0033 6 12 34 56 78',payment:'Carte bancaire',consent:true,key:randomUUID(),...await solve()};
+  const payload={name:'Synthetic HTTP',country:'Maroc',phone:'0033 6 12 34 56 78',payment:'Carte bancaire',consent:true,key:randomUUID(),...await solve()};
   assert.equal((await post(lead,{...payload,phone:undefined},publicHeaders())).status,400);
   assert.equal((await post(lead,{...payload,phone:'+3300'},publicHeaders())).status,400);
   const [r1,r2]=await Promise.all([post(lead,payload,publicHeaders()),post(lead,payload,publicHeaders())]);assert.equal(r1.status,200);assert.equal(r2.status,200);const order=await r1.json();assert.deepEqual(await r2.json(),order);assert.equal(order.phoneSaved,true);assert(!('phone' in order));
@@ -24,10 +24,10 @@ test('Phase 4 HTTP: order → payment → bearer → private CV → durable rece
   const savedBeforeWhatsApp=await (await fetch(crm+'?id='+order.id,{headers:staff()})).json();
   assert.equal(savedBeforeWhatsApp.phone,'+33612345678');
   assert.equal(savedBeforeWhatsApp.status,'new');
-  const list=await (await fetch(crm,{headers:staff()})).json();assert.equal(list.data.length,1);assert(!("phone" in list.data[0]));assert.equal(Number(list.data[0].amount),10);assert.equal(list.data[0].currency,'EUR');assert.equal(list.data[0].payment_status,'unconfirmed');
+  const list=await (await fetch(crm,{headers:staff()})).json();assert.equal(list.data.length,1);assert(!("phone" in list.data[0]));assert.equal(Number(list.data[0].amount),25);assert.equal(list.data[0].currency,'EUR');assert.equal(list.data[0].payment_status,'unconfirmed');
   assert.equal((await cmd(order.id,'link_generated')).status,403);
-  assert.equal((await cmd(order.id,'payment_confirm',{amount:10,currency:'EUR',method:'Carte bancaire'},'sales')).status,403);
-  assert.equal((await cmd(order.id,'payment_confirm',{amount:10,currency:'EUR',method:'Carte bancaire'})).status,200);
+  assert.equal((await cmd(order.id,'payment_confirm',{amount:25,currency:'EUR',method:'Carte bancaire'},'sales')).status,403);
+  assert.equal((await cmd(order.id,'payment_confirm',{amount:25,currency:'EUR',method:'Carte bancaire'})).status,200);
   const r=await cmd(order.id,'link_generated');assert.equal(r.status,200);const url=(await r.json()).url,token=new URL(url).searchParams.get('token');assert.match(token,/^[a-f0-9]{64}$/);
   let a=await fetch(dossier,{headers:publicHeaders(token)});assert.equal(a.status,200);assert.deepEqual(await a.json(),{reference:order.reference,submitted:false});
   assert.equal((await fetch(dossier,{headers:publicHeaders('b'.repeat(64))})).status,403);
@@ -51,7 +51,7 @@ test('Phase 4 HTTP: order → payment → bearer → private CV → durable rece
   assert.equal((await cmd(order.id,'documents_deleted')).status,200);assert.equal(f.objects.size,0);
   assert.equal((await fetch(dossier,{headers:publicHeaders(token)})).status,403);
   // New order / invalid file signature never receives a receipt.
-  ip++;const second=await (await post(lead,{...payload,key:randomUUID(),...await solve()},publicHeaders())).json();await cmd(second.id,'payment_confirm',{amount:10,currency:'EUR',method:'PayPal'});const t=new URL((await (await cmd(second.id,'link_generated')).json()).url).searchParams.get('token');
+  ip++;const second=await (await post(lead,{...payload,key:randomUUID(),...await solve()},publicHeaders())).json();await cmd(second.id,'payment_confirm',{amount:25,currency:'EUR',method:'PayPal'});const t=new URL((await (await cmd(second.id,'link_generated')).json()).url).searchParams.get('token');
   const bad=await (await post(dossier,{action:'prepare',name:'cv.pdf',size:120,mime:'application/pdf',key:randomUUID()},publicHeaders(t))).json();await fetch(bad.uploadUrl,{method:'PUT',headers:{'Content-Type':'application/pdf'},body:Buffer.alloc(120)});
   assert.equal((await post(dossier,{...submission,uploadId:bad.uploadId},publicHeaders(t))).status,400);assert.equal((await (await fetch(dossier,{headers:publicHeaders(t)})).json()).submitted,false);
   ip=222;for(let n=0;n<12;n++)assert.equal((await post(lead,{},publicHeaders())).status,400);assert.equal((await post(lead,{},publicHeaders())).status,429);

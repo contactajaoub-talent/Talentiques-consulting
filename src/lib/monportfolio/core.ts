@@ -3,7 +3,7 @@ import { parsePhoneNumberFromString } from "libphonenumber-js/max";
 import { CrmError, uuid } from "../crm/core.ts";
 
 export const COUNTRIES = ["Maroc", "France", "Belgique", "Suisse", "Canada", "Tunisie", "Autre"];
-export const PAYMENTS = ["CIH Bank", "Attijariwafa bank", "Banque Populaire", "PayPal", "Cash Plus", "Carte bancaire"];
+export const PAYMENTS = ["PayPal", "Carte bancaire"];
 export const digest = (s: string) => createHash("sha256").update(s).digest("hex");
 export function validateLead(body: Record<string, unknown>, { requirePhone = false } = {}) {
   if (typeof body.name !== "string" || body.name.length > 90) throw new CrmError("Nom invalide.");
@@ -11,7 +11,6 @@ export function validateLead(body: Record<string, unknown>, { requirePhone = fal
   if (name.length < 3 || !/^[\p{L}\p{M} .’'\-]+$/u.test(name) || !/\p{L}.*\p{L}/u.test(name)) throw new CrmError("Nom invalide.");
   if (typeof body.country !== "string" || !COUNTRIES.includes(body.country)) throw new CrmError("Pays invalide.");
   if (typeof body.payment !== "string" || !PAYMENTS.includes(body.payment)) throw new CrmError("Moyen de paiement invalide.");
-  if (!(body.country === "Maroc" ? PAYMENTS.filter(p => p !== "Carte bancaire") : ["PayPal", "Carte bancaire"]).includes(body.payment)) throw new CrmError("Moyen de paiement indisponible pour ce pays.");
   if (body.consent !== true || body.website) throw new CrmError("Consentement ou demande invalide.");
   let phone: string | undefined;
   if (requirePhone || body.phone !== undefined) {

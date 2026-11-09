@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {randomUUID,randomBytes} from 'node:crypto';
-import {fixture,phoneMigration} from './monportfolio-fixture.mjs';
+import {fixture,phoneMigration,priceMigration} from './monportfolio-fixture.mjs';
 import {digest,validateLead} from '../src/lib/monportfolio/core.ts';
 import {capability,dossierAnswers} from '../src/lib/monportfolio/dossier.ts';
 import {fileMetadata,validateFile} from '../src/lib/crm/files.ts';
@@ -22,7 +22,7 @@ test('Phase 4 real PostgreSQL: complete lifecycle, isolation, immutable receipt 
  try{
   const key=digest(randomUUID()),a=await create(data,key);assert.deepEqual(a,await create(data,key));
   const intl=await create({...data,country:'France',payment:'Carte bancaire',amount:1,currency:'USD'});
-  await as();let row=(await q('select * from monportfolio_leads where id=$1',[intl.id]))[0];assert.equal(Number(row.amount),10);assert.equal(row.currency,'EUR');assert.equal(row.payment_status,'unconfirmed');assert.equal(row.phone,null);
+  await as();let row=(await q('select * from monportfolio_leads where id=$1',[intl.id]))[0];assert.equal(Number(row.amount),25);assert.equal(row.currency,'EUR');assert.equal(row.payment_status,'unconfirmed');assert.equal(row.phone,null);
   await t.test('RLS, table grants, no anonymous financial or token access',async()=>{
    await as();await db.exec("grant usage on schema storage to anon,authenticated;grant select,insert on storage.objects to anon,authenticated;create policy legacy_storage_public on storage.objects for all to anon,authenticated using(true) with check(true);insert into storage.objects(bucket_id,name) values('monportfolio-cvs','private.pdf'),('unrelated','public.pdf');");
    for(const role of ['anon','sales','production','inactive']){await as(role);await assert.rejects(q('select * from monportfolio_links'));await assert.rejects(q('select * from monportfolio_payments'));await assert.rejects(q('select * from monportfolio_dossiers'));await assert.rejects(action(a.id,'payment_confirm',{amount:100,currency:'MAD',method:'PayPal'}));}
@@ -33,7 +33,7 @@ test('Phase 4 real PostgreSQL: complete lifecycle, isolation, immutable receipt 
   });
   await as('admin');await action(a.id,'assigned',{owner:users.sales});await action(a.id,'assigned',{owner:users.production,kind:'production'});
   await as('sales');assert.equal((await rpc('monportfolio_snapshot',{})).data.length,1);await assert.rejects(action(a.id,'payment_confirm',{amount:100,currency:'MAD',method:'PayPal'}));
-  await as('admin');await action(a.id,'payment_pending');await action(a.id,'payment_confirm',{amount:99,currency:'MAD',method:'CIH Bank'});await action(a.id,'payment_confirm',{amount:99,currency:'MAD',method:'CIH Bank'});
+  await as('admin');await action(a.id,'payment_pending');await action(a.id,'payment_confirm',{amount:25,currency:'EUR',method:'PayPal'});await action(a.id,'payment_confirm',{amount:25,currency:'EUR',method:'PayPal'});
   const raw=randomBytes(32).toString('hex'),hash=digest(raw);await action(a.id,'link_generated',{hash});await action(a.id,'form_sent');
   await t.test('Token expiry, revocation, regeneration and wrong client',async()=>{
    await as('service');assert.equal((await rpc('monportfolio_access',{p_hash:hash})).reference,a.reference);await assert.rejects(rpc('monportfolio_access',{p_hash:digest('other')}));
@@ -83,12 +83,15 @@ test('Phone migration leaves previous orders intact and restricts phone to autho
   await db.exec(await readFile(phoneMigration,'utf8'));
   const after=(await q('select to_jsonb(l) value from monportfolio_leads l where id=$1',[old.id]))[0].value;
   assert.deepEqual(after,{...before,phone:null});
+  await db.exec(await readFile(priceMigration,'utf8'));
+  const afterPrice=(await q('select to_jsonb(l) value from monportfolio_leads l where id=$1',[old.id]))[0].value;
+  assert.deepEqual(afterPrice,after);
   const phone='+33612345678',payload=input({...legacy,name:'Prospect Nouveau',phone});
   await as('service');
   await assert.rejects(rpc('monportfolio_create_phone_lead',input(legacy)));
   const result=await rpc('monportfolio_create_phone_lead',payload);
   assert.deepEqual(await rpc('monportfolio_create_phone_lead',{...payload,p_nonce:f.nonce()}),result);
-  assert.equal(result.phoneSaved,true);assert(!('phone'in result));
+  assert.equal(result.phoneSaved,true);assert.equal(result.amount,25);assert.equal(result.currency,'EUR');assert(!('phone'in result));
   await as('anon');await assert.rejects(rpc('monportfolio_create_phone_lead',payload));await assert.rejects(snapshot(result.id));
   await as('sales');await assert.rejects(snapshot(result.id));
   await as('admin');assert.equal((await snapshot(result.id)).phone,phone);assert.equal((await snapshot(old.id)).phone,null);

@@ -61,7 +61,7 @@ test('Browser: existing landing and Pixel, save before WhatsApp and recovery, CR
    await f.as();const retained=await f.q('select reference,phone,status from monportfolio_leads');
    assert.equal(retained.length,1);assert.equal(retained[0].phone,'+33612345678');assert.equal(retained[0].status,'new');
    await Promise.all([page.waitForURL('https://wa.me/**'),button.click()]);assert.equal(leadPosts,2);
-   assert(wa[0].includes('10 €')&&wa[0].includes('Carte bancaire')&&wa[0].includes(retained[0].reference));
+   assert(wa[0].includes('25 €')&&wa[0].includes('Carte bancaire')&&wa[0].includes(retained[0].reference));
    assert(!wa[0].includes(retained[0].phone));
    await page.goto(origin+'/');await page.getByText(/Dernière demande enregistrée : MP-/).waitFor();assert.equal(leadPosts,2);
   });
